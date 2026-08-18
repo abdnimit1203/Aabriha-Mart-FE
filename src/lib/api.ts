@@ -8,6 +8,9 @@ export class ApiError extends Error {
 
 export async function apiFetch<T>(path: string, options: RequestInit = {}, idToken?: string): Promise<T> {
   const res = await fetch(`${API_URL}${path}`, {
+    // Public GET calls (catalog browsing) are safe to cache briefly server-side
+    // so pages stay statically prerenderable instead of going fully dynamic.
+    ...(!options.method || options.method === "GET" ? { next: { revalidate: 60 } } : {}),
     ...options,
     headers: {
       "Content-Type": "application/json",

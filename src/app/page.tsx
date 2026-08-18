@@ -1,22 +1,11 @@
 import Link from "next/link";
-import { apiFetch } from "@/lib/api";
-import { Category, Product } from "@/types/catalog";
 import { ProductCard } from "@/components/ProductCard";
 import { HeroSlider } from "@/components/HeroSlider";
+import { getTopLevelCategories, getFeaturedProducts } from "@/lib/catalog";
 
 // Re-fetch categories/products at most once a minute instead of freezing
 // them at build time — admin changes should show up without a redeploy.
 export const revalidate = 60;
-
-async function getTopLevelCategories(): Promise<Category[]> {
-  const categories = await apiFetch<Category[]>("/api/categories");
-  return categories.filter((c) => !c.parent && c.isActive);
-}
-
-async function getFeaturedProducts(): Promise<Product[]> {
-  const { products } = await apiFetch<{ products: Product[] }>("/api/products?status=active&limit=8");
-  return products;
-}
 
 export default async function HomePage() {
   const [categories, products] = await Promise.all([getTopLevelCategories(), getFeaturedProducts()]);
