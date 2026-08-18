@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { getTopLevelCategories } from "@/lib/catalog";
 import { CategoriesMenu } from "@/components/CategoriesMenu";
 import { SearchIcon, CartIcon, UserIcon } from "@/components/icons";
@@ -11,8 +12,9 @@ export async function Header() {
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-surface/95 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3 sm:px-6">
-        <Link href="/" className="text-lg font-semibold tracking-tight">
-          Aabriha Mart
+        <Link href="/" className="flex items-center gap-2">
+          <Image src="/logo.png" alt="" width={36} height={36} className="object-contain" priority />
+          <span className="text-lg font-semibold tracking-tight">Aabriha Mart</span>
         </Link>
 
         <nav className="hidden items-center gap-1 sm:flex">

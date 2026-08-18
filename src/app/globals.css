@@ -36,26 +36,18 @@ body {
   color: var(--foreground);
 }
 
-/* Hero slider — retheme Swiper's default blue to the brand accent */
-.aabriha-hero-slider {
-  --swiper-theme-color: var(--primary-strong);
-  --swiper-pagination-color: var(--primary-strong);
-  --swiper-pagination-bullet-inactive-color: #ffffff;
-  --swiper-pagination-bullet-inactive-opacity: 0.6;
-  --swiper-navigation-color: #ffffff;
-  --swiper-navigation-size: 22px;
-}
-
-.aabriha-hero-slider .swiper-button-next,
-.aabriha-hero-slider .swiper-button-prev {
-  background: rgb(0 0 0 / 0.25);
-  width: 40px;
-  height: 40px;
+/* Hero slider — modern pill-style pagination; nav arrows are custom buttons */
+.aabriha-hero-slider .swiper-pagination-bullet {
+  width: 8px;
+  height: 8px;
+  background: #ffffff;
+  opacity: 0.6;
+  transition: width 0.25s ease, opacity 0.25s ease;
   border-radius: 9999px;
-  backdrop-filter: blur(2px);
 }
 
-.aabriha-hero-slider .swiper-button-next::after,
-.aabriha-hero-slider .swiper-button-prev::after {
-  font-size: 16px;
+.aabriha-hero-slider .swiper-pagination-bullet-active {
+  width: 22px;
+  opacity: 1;
+  background: var(--primary);
 }
