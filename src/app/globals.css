@@ -36,18 +36,5 @@ body {
   color: var(--foreground);
 }
 
-/* Hero slider — modern pill-style pagination; nav arrows are custom buttons */
-.aabriha-hero-slider .swiper-pagination-bullet {
-  width: 8px;
-  height: 8px;
-  background: #ffffff;
-  opacity: 0.6;
-  transition: width 0.25s ease, opacity 0.25s ease;
-  border-radius: 9999px;
-}
-
-.aabriha-hero-slider .swiper-pagination-bullet-active {
-  width: 22px;
-  opacity: 1;
-  background: var(--primary);
-}
+/* Hero slider nav buttons and pagination are custom-rendered React elements
+   (see HeroSlider.tsx), not Swiper's default modules — no overrides needed here. */
