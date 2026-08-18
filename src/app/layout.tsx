@@ -29,7 +29,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col bg-background text-foreground pb-14 sm:pb-0">
         <Providers>
           <Header />
-          {children}
+          {/* min-w-0: without it, a flex item defaults to its content's intrinsic
+              width, which lets wide children (carousels, tables) blow past any
+              max-width constraint and cause horizontal overflow on narrow screens. */}
+          <div className="min-w-0 flex-1">{children}</div>
           <MobileBottomNav />
         </Providers>
       </body>

@@ -86,16 +86,16 @@ export function HeroSlider() {
                 alt={banner.alt}
                 className="h-full w-full object-cover object-[80%_center]"
               />
-              <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/10 to-transparent sm:bg-linear-to-r sm:from-black/60 sm:via-black/10 sm:to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 flex flex-col items-start gap-3 p-6 sm:bottom-auto sm:left-0 sm:top-1/2 sm:max-w-md sm:-translate-y-1/2 sm:p-12">
-                <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary-strong">
+              <div className="absolute inset-0 bg-linear-to-t from-black/85 via-black/25 to-transparent sm:bg-linear-to-r sm:from-black/80 sm:via-black/30 sm:to-transparent sm:via-40%" />
+              <div className="absolute inset-x-0 bottom-0 flex flex-col items-start gap-3 p-6 sm:bottom-auto sm:left-0 sm:top-1/2 sm:max-w-md sm:-translate-y-1/2 sm:p-14">
+                <span className="rounded-full bg-white/95 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary-strong">
                   {banner.eyebrow}
                 </span>
-                <h2 className="text-2xl font-semibold text-white sm:text-4xl">{banner.headline}</h2>
-                <p className="text-sm text-white/85 sm:text-base">{banner.subtext}</p>
+                <h2 className="text-2xl font-semibold text-white drop-shadow-sm sm:text-4xl">{banner.headline}</h2>
+                <p className="text-sm text-white/90 drop-shadow-sm sm:text-base">{banner.subtext}</p>
                 <Link
                   href={`/categories/${banner.categorySlug}`}
-                  className="mt-1 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-white transition-transform hover:scale-[1.03] active:scale-[0.98]"
+                  className="mt-2 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-white transition-transform hover:scale-[1.03] active:scale-[0.98]"
                 >
                   {banner.ctaLabel}
                   <ArrowIcon direction="right" />
@@ -106,22 +106,25 @@ export function HeroSlider() {
         ))}
       </Swiper>
 
-      <button
-        type="button"
-        aria-label="Previous slide"
-        onClick={() => swiperRef.current?.slidePrev()}
-        className="absolute left-3 top-1/2 z-10 hidden -translate-y-1/2 items-center justify-center rounded-full bg-white/90 p-2.5 text-foreground shadow-md transition-transform hover:scale-105 sm:flex"
-      >
-        <ArrowIcon direction="left" />
-      </button>
-      <button
-        type="button"
-        aria-label="Next slide"
-        onClick={() => swiperRef.current?.slideNext()}
-        className="absolute right-3 top-1/2 z-10 hidden -translate-y-1/2 items-center justify-center rounded-full bg-white/90 p-2.5 text-foreground shadow-md transition-transform hover:scale-105 sm:flex"
-      >
-        <ArrowIcon direction="right" />
-      </button>
+      {/* Grouped in a corner, clear of the text block, instead of straddling the vertical center */}
+      <div className="absolute right-4 top-4 z-10 hidden gap-2 sm:flex">
+        <button
+          type="button"
+          aria-label="Previous slide"
+          onClick={() => swiperRef.current?.slidePrev()}
+          className="flex items-center justify-center rounded-full bg-white/90 p-2 text-foreground shadow-md transition-transform hover:scale-105"
+        >
+          <ArrowIcon direction="left" />
+        </button>
+        <button
+          type="button"
+          aria-label="Next slide"
+          onClick={() => swiperRef.current?.slideNext()}
+          className="flex items-center justify-center rounded-full bg-white/90 p-2 text-foreground shadow-md transition-transform hover:scale-105"
+        >
+          <ArrowIcon direction="right" />
+        </button>
+      </div>
     </div>
   );
 }

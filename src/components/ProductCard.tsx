@@ -31,7 +31,7 @@ export function ProductCard({ product }: { product: Product }) {
     <motion.div whileHover={{ y: -4 }} transition={{ duration: 0.15 }}>
       <Link
         href={`/products/${product.slug}`}
-        className="block overflow-hidden rounded-2xl border border-border bg-surface"
+        className="block overflow-hidden rounded-2xl border border-border bg-surface shadow-sm transition-shadow hover:shadow-md"
       >
         <div className="relative aspect-square bg-background">
           {image ? (
