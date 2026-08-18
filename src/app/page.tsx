@@ -2,6 +2,7 @@ import Link from "next/link";
 import { apiFetch } from "@/lib/api";
 import { Category, Product } from "@/types/catalog";
 import { ProductCard } from "@/components/ProductCard";
+import { HeroSlider } from "@/components/HeroSlider";
 
 // Re-fetch categories/products at most once a minute instead of freezing
 // them at build time — admin changes should show up without a redeploy.
@@ -22,19 +23,17 @@ export default async function HomePage() {
 
   return (
     <main className="flex-1">
-      <section className="border-b border-border bg-surface px-6 py-16 text-center sm:py-24">
+      <section className="border-b border-border bg-surface px-6 pb-10 pt-10 text-center sm:pt-14">
         <h1 className="text-3xl font-semibold tracking-tight sm:text-5xl">
           Everyday essentials, delivered.
         </h1>
         <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
           Clothing, shoes, bags & electronics — picked for everyday Bangladesh.
         </p>
-        <Link
-          href="/products"
-          className="mt-8 inline-flex items-center justify-center rounded-full bg-primary-strong px-6 py-3 text-sm font-medium text-primary-foreground transition-transform hover:scale-[1.03] active:scale-[0.98]"
-        >
-          Shop now
-        </Link>
+      </section>
+
+      <section className="border-b border-border">
+        <HeroSlider />
       </section>
 
       <section className="px-6 py-12">
