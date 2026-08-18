@@ -30,7 +30,7 @@ const BANNERS: Banner[] = [
     categorySlug: "womens-dresses",
   },
   {
-    imageUrl: "https://ik.imagekit.io/abdnimit/Model_wearing_men%20(1).jpeg",
+    imageUrl: "https://ik.imagekit.io/abdnimit/Model_wearing_panjabi_for_banner_202608190117.jpeg",
     alt: "Men's fashion",
     eyebrow: "Just In",
     headline: "Men's Collection",
