@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { signOutUser } from "@/lib/auth";
-import { UserIcon } from "@/components/icons";
 
 const CLOSE_DELAY_MS = 150;
 
@@ -57,8 +56,11 @@ export function AccountMenu() {
 
   if (!firebaseUser) {
     return (
-      <Link href="/login" aria-label="Sign in" className="rounded-full p-2 hover:bg-background">
-        <UserIcon className="h-5 w-5" />
+      <Link
+        href="/login"
+        className="whitespace-nowrap rounded-full px-3 py-2 text-sm font-medium transition-colors hover:bg-background"
+      >
+        Sign in
       </Link>
     );
   }
