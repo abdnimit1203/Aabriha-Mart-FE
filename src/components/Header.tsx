@@ -2,7 +2,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { getTopLevelCategories } from "@/lib/catalog";
 import { CategoriesMenu } from "@/components/CategoriesMenu";
-import { SearchIcon, CartIcon, UserIcon } from "@/components/icons";
+import { AccountMenu } from "@/components/AccountMenu";
+import { SearchIcon, CartIcon } from "@/components/icons";
 
 export async function Header() {
   // A header that fails to render breaks every page — degrade to an empty
@@ -53,9 +54,7 @@ export async function Header() {
         >
           <SearchIcon className="h-5 w-5" />
         </Link>
-        <Link href="/account" aria-label="Account" className="rounded-full p-2 hover:bg-background">
-          <UserIcon className="h-5 w-5" />
-        </Link>
+        <AccountMenu />
         <Link href="/cart" aria-label="Cart" className="rounded-full p-2 hover:bg-background">
           <CartIcon className="h-5 w-5" />
         </Link>
