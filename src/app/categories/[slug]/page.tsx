@@ -51,7 +51,7 @@ export default async function CategoryPage(props: PageProps<"/categories/[slug]"
   const parent = category.parent ? categories.find((c) => c._id === category.parent) : null;
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
+    <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
       <Breadcrumb
         items={[
           { label: "Home", href: "/" },

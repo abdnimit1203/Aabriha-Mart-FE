@@ -109,7 +109,7 @@ export default function AccountPage() {
   }
 
   return (
-    <main className="mx-auto max-w-xl px-4 py-8 sm:px-6 sm:py-12">
+    <main className="mx-auto max-w-xl px-4 py-10 sm:px-6 sm:py-14">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold tracking-tight">My Account</h1>
         <button
