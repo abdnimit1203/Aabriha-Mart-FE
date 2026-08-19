@@ -3,6 +3,9 @@ import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import { Providers } from "./providers";
 import { Header } from "@/components/Header";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { AnnouncementBar } from "@/components/AnnouncementBar";
+import { Footer } from "@/components/Footer";
+import { WhatsAppButton } from "@/components/WhatsAppButton";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -36,11 +39,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col bg-background text-foreground pb-14 sm:pb-0">
         <Providers>
+          <AnnouncementBar />
           <Header />
           {/* min-w-0: without it, a flex item defaults to its content's intrinsic
               width, which lets wide children (carousels, tables) blow past any
               max-width constraint and cause horizontal overflow on narrow screens. */}
           <div className="min-w-0 flex-1">{children}</div>
+          <Footer />
+          <WhatsAppButton />
           <MobileBottomNav />
         </Providers>
       </body>

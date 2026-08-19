@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Elements } from "@stripe/react-stripe-js";
+import { FaMoneyBillWave, FaCreditCard, FaCheck, FaLocationDot } from "react-icons/fa6";
 import toast from "react-hot-toast";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
@@ -12,11 +13,11 @@ import { stripePromise } from "@/lib/stripe";
 import { StripeCardSection } from "@/components/StripeCardSection";
 import { CheckoutItemInput, CheckoutSummary, Order, PaymentMethod } from "@/types/order";
 
-const PAYMENT_METHODS: { value: PaymentMethod; label: string; logo?: string }[] = [
-  { value: "cod", label: "Cash on Delivery" },
-  { value: "bkash", label: "bKash", logo: "/logo-bkash.png" },
-  { value: "nagad", label: "Nagad", logo: "/logo-nagad.png" },
-  { value: "stripe", label: "Card" },
+const PAYMENT_METHODS: { value: PaymentMethod; label: string; description: string; logo?: string }[] = [
+  { value: "cod", label: "Cash on Delivery", description: "Pay when your order arrives" },
+  { value: "bkash", label: "bKash", description: "Send money via the bKash app", logo: "/logo-bkash.png" },
+  { value: "nagad", label: "Nagad", description: "Send money via the Nagad app", logo: "/logo-nagad.png" },
+  { value: "stripe", label: "Card", description: "Pay securely with a debit or credit card" },
 ];
 
 const inputClass =
@@ -157,7 +158,7 @@ export default function CheckoutPage() {
 
   if (loading || !hydrated || items.length === 0) {
     return (
-      <main className="mx-auto max-w-2xl px-4 py-6 sm:px-6 sm:py-14">
+      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-14">
         <div className="h-6 w-40 animate-pulse rounded bg-surface" />
         <div className="mt-6 h-96 animate-pulse rounded-2xl bg-surface" />
       </main>
@@ -165,209 +166,245 @@ export default function CheckoutPage() {
   }
 
   return (
-    <main className="mx-auto max-w-2xl px-4 py-6 sm:px-6 sm:py-14">
+    <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-14">
       <h1 className="text-xl font-semibold tracking-tight sm:text-3xl">Checkout</h1>
 
-      <section className="mt-6 rounded-2xl border border-border bg-surface p-4 sm:p-6">
-        <h2 className="text-sm font-semibold sm:text-base">Delivery address</h2>
-        <div className="mt-4 space-y-4">
-          <div>
-            <label htmlFor="phone" className="mb-1 block text-sm font-medium">
-              Phone number
-            </label>
-            <input
-              id="phone"
-              type="tel"
-              required
-              placeholder="01XXXXXXXXX"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className={inputClass}
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label htmlFor="division" className="mb-1 block text-sm font-medium">
-                Division
-              </label>
-              <select
-                id="division"
-                value={division}
-                onChange={(e) => {
-                  setDivision(e.target.value);
-                  setDistrict("");
-                }}
-                className={inputClass}
-              >
-                <option value="">Select division</option>
-                {BD_DIVISIONS.map((d) => (
-                  <option key={d.name} value={d.name}>
-                    {d.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label htmlFor="district" className="mb-1 block text-sm font-medium">
-                District
-              </label>
-              <select
-                id="district"
-                value={district}
-                onChange={(e) => setDistrict(e.target.value)}
-                disabled={!division}
-                className={`${inputClass} disabled:opacity-50`}
-              >
-                <option value="">Select district</option>
-                {districtsForDivision(division).map((d) => (
-                  <option key={d} value={d}>
-                    {d}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label htmlFor="area" className="mb-1 block text-sm font-medium">
-              Area
-            </label>
-            <input id="area" value={area} onChange={(e) => setArea(e.target.value)} className={inputClass} />
-          </div>
-
-          <div>
-            <label htmlFor="detailedAddress" className="mb-1 block text-sm font-medium">
-              Detailed address
-            </label>
-            <textarea
-              id="detailedAddress"
-              rows={2}
-              value={detailedAddress}
-              onChange={(e) => setDetailedAddress(e.target.value)}
-              className={inputClass}
-            />
-          </div>
-        </div>
-      </section>
-
-      <section className="mt-6 rounded-2xl border border-border bg-surface p-4 sm:p-6">
-        <h2 className="text-sm font-semibold sm:text-base">Order summary</h2>
-        <div className="mt-4 space-y-2 text-sm">
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Subtotal</span>
-            <span>৳{subtotal.toLocaleString()}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Delivery</span>
-            <span>
-              {!addressComplete
-                ? "Enter address"
-                : summaryLoading
-                  ? "Calculating…"
-                  : displaySummary
-                    ? `৳${displaySummary.deliveryCharge.toLocaleString()}`
-                    : "—"}
-            </span>
-          </div>
-          {displaySummary && (
-            <div className="flex justify-between border-t border-border pt-2 font-medium">
-              <span>Total</span>
-              <span>৳{displaySummary.total.toLocaleString()}</span>
-            </div>
-          )}
-        </div>
-      </section>
-
-      <section className="mt-6 rounded-2xl border border-border bg-surface p-4 sm:p-6">
-        <h2 className="text-sm font-semibold sm:text-base">Payment method</h2>
-        <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-          {PAYMENT_METHODS.map((m) => (
-            <button
-              key={m.value}
-              type="button"
-              onClick={() => setPaymentMethod(m.value)}
-              aria-pressed={paymentMethod === m.value}
-              aria-label={m.label}
-              className={`flex h-11 items-center justify-center rounded-full border px-3 py-2 text-sm font-medium transition-colors ${
-                paymentMethod === m.value
-                  ? "border-primary-strong bg-primary-strong text-white"
-                  : "border-border bg-background hover:border-primary"
-              }`}
-            >
-              {m.logo ? (
-                <span className="flex h-8 w-24 items-center justify-center rounded-md bg-white p-1">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={m.logo} alt={m.label} className="max-h-full max-w-full object-contain" />
-                </span>
-              ) : (
-                m.label
-              )}
-            </button>
-          ))}
-        </div>
-
-        {paymentMethod === "cod" && displaySummary && (
-          <div className="mt-4 rounded-lg border border-border bg-background p-3 text-sm text-muted-foreground">
-            Delivery zone: <span className="font-medium text-foreground">{displaySummary.deliveryZone === "inside_dhaka" ? "Inside Dhaka" : "Outside Dhaka"}</span> — please confirm this looks right before placing your order.
-          </div>
-        )}
-
-        {(paymentMethod === "bkash" || paymentMethod === "nagad") && (
-          <div className="mt-4 space-y-3 rounded-lg border border-border bg-background p-3">
-            <p className="text-sm">
-              Send ৳{displaySummary?.total.toLocaleString() ?? "—"} to{" "}
-              <span className="font-medium">
-                {(paymentMethod === "bkash"
-                  ? process.env.NEXT_PUBLIC_BKASH_NUMBER
-                  : process.env.NEXT_PUBLIC_NAGAD_NUMBER) || "not configured yet — contact the seller"}
-              </span>{" "}
-              via {paymentMethod === "bkash" ? "bKash" : "Nagad"} &ldquo;Send Money&rdquo;, then enter the transaction ID below.
-            </p>
-            <div>
-              <label htmlFor="transactionId" className="mb-1 block text-sm font-medium">
-                Transaction ID
-              </label>
-              <input
-                id="transactionId"
-                required
-                value={transactionId}
-                onChange={(e) => setTransactionId(e.target.value)}
-                className={inputClass}
-              />
-            </div>
-          </div>
-        )}
-
-        <div className="mt-5">
-          {paymentMethod === "stripe" ? (
-            displaySummary && displayClientSecret ? (
-              <Elements stripe={stripePromise} options={{ clientSecret: displayClientSecret }}>
-                <StripeCardSection
-                  items={cartItemInputs}
-                  address={address}
-                  phone={phone}
-                  summary={displaySummary}
-                  onSuccess={handleOrderPlaced}
+      <div className="mt-6 lg:grid lg:grid-cols-[1fr_380px] lg:items-start lg:gap-8">
+        <div className="space-y-6">
+          <section className="rounded-2xl border border-border bg-surface p-4 sm:p-6">
+            <h2 className="text-sm font-semibold sm:text-base">Delivery address</h2>
+            <div className="mt-4 space-y-4">
+              <div>
+                <label htmlFor="phone" className="mb-1 block text-sm font-medium">
+                  Phone number
+                </label>
+                <input
+                  id="phone"
+                  type="tel"
+                  required
+                  placeholder="01XXXXXXXXX"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className={inputClass}
                 />
-              </Elements>
-            ) : displaySummary ? (
-              <p className="text-sm text-muted-foreground">Preparing payment…</p>
-            ) : (
-              <p className="text-sm text-muted-foreground">Complete your address above to continue to payment.</p>
-            )
-          ) : (
-            <button
-              type="button"
-              onClick={handlePlaceOrder}
-              disabled={!displaySummary || !phone || placing}
-              className="w-full rounded-full bg-primary px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-strong disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {placing ? "Placing order…" : `Place Order — ৳${displaySummary?.total.toLocaleString() ?? "—"}`}
-            </button>
-          )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label htmlFor="division" className="mb-1 block text-sm font-medium">
+                    Division
+                  </label>
+                  <select
+                    id="division"
+                    value={division}
+                    onChange={(e) => {
+                      setDivision(e.target.value);
+                      setDistrict("");
+                    }}
+                    className={inputClass}
+                  >
+                    <option value="">Select division</option>
+                    {BD_DIVISIONS.map((d) => (
+                      <option key={d.name} value={d.name}>
+                        {d.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="district" className="mb-1 block text-sm font-medium">
+                    District
+                  </label>
+                  <select
+                    id="district"
+                    value={district}
+                    onChange={(e) => setDistrict(e.target.value)}
+                    disabled={!division}
+                    className={`${inputClass} disabled:opacity-50`}
+                  >
+                    <option value="">Select district</option>
+                    {districtsForDivision(division).map((d) => (
+                      <option key={d} value={d}>
+                        {d}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="area" className="mb-1 block text-sm font-medium">
+                  Area
+                </label>
+                <input id="area" value={area} onChange={(e) => setArea(e.target.value)} className={inputClass} />
+              </div>
+
+              <div>
+                <label htmlFor="detailedAddress" className="mb-1 block text-sm font-medium">
+                  Detailed address
+                </label>
+                <textarea
+                  id="detailedAddress"
+                  rows={2}
+                  value={detailedAddress}
+                  onChange={(e) => setDetailedAddress(e.target.value)}
+                  className={inputClass}
+                />
+              </div>
+
+              {displaySummary && (
+                <div
+                  className={`flex items-center gap-3 rounded-xl border p-3 text-sm ${
+                    displaySummary.deliveryZone === "inside_dhaka"
+                      ? "border-primary-strong bg-primary/10"
+                      : "border-border bg-background"
+                  }`}
+                >
+                  <FaLocationDot className="h-4 w-4 shrink-0 text-primary-strong" />
+                  <span>
+                    Delivery zone:{" "}
+                    <span className="font-medium text-foreground">
+                      {displaySummary.deliveryZone === "inside_dhaka" ? "Inside Dhaka" : "Outside Dhaka"}
+                    </span>{" "}
+                    — please confirm this looks right.
+                  </span>
+                </div>
+              )}
+            </div>
+          </section>
+
+          <section className="rounded-2xl border border-border bg-surface p-4 sm:p-6">
+            <h2 className="text-sm font-semibold sm:text-base">Payment method</h2>
+            <div className="mt-4 space-y-2">
+              {PAYMENT_METHODS.map((m) => {
+                const selected = paymentMethod === m.value;
+                return (
+                  <button
+                    key={m.value}
+                    type="button"
+                    onClick={() => setPaymentMethod(m.value)}
+                    aria-pressed={selected}
+                    className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-colors ${
+                      selected ? "border-primary-strong bg-primary/10" : "border-border bg-background hover:border-primary"
+                    }`}
+                  >
+                    <span
+                      className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${
+                        selected ? "bg-primary-strong text-white" : "border border-border"
+                      }`}
+                    >
+                      {selected && <FaCheck className="h-2.5 w-2.5" />}
+                    </span>
+
+                    {m.logo ? (
+                      <span className="flex h-8 w-20 shrink-0 items-center justify-center rounded-md bg-white p-1">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={m.logo} alt={m.label} className="max-h-full max-w-full object-contain" />
+                      </span>
+                    ) : (
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-surface text-primary-strong">
+                        {m.value === "cod" ? <FaMoneyBillWave className="h-4 w-4" /> : <FaCreditCard className="h-4 w-4" />}
+                      </span>
+                    )}
+
+                    <span className="min-w-0">
+                      <span className="block text-sm font-medium">{m.label}</span>
+                      <span className="block truncate text-xs text-muted-foreground">{m.description}</span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {(paymentMethod === "bkash" || paymentMethod === "nagad") && (
+              <div className="mt-4 space-y-3 rounded-lg border border-border bg-background p-3">
+                <p className="text-sm">
+                  Send ৳{displaySummary?.total.toLocaleString() ?? "—"} to{" "}
+                  <span className="font-medium">
+                    {(paymentMethod === "bkash"
+                      ? process.env.NEXT_PUBLIC_BKASH_NUMBER
+                      : process.env.NEXT_PUBLIC_NAGAD_NUMBER) || "not configured yet — contact the seller"}
+                  </span>{" "}
+                  via {paymentMethod === "bkash" ? "bKash" : "Nagad"} &ldquo;Send Money&rdquo;, then enter the transaction ID below.
+                </p>
+                <div>
+                  <label htmlFor="transactionId" className="mb-1 block text-sm font-medium">
+                    Transaction ID
+                  </label>
+                  <input
+                    id="transactionId"
+                    required
+                    value={transactionId}
+                    onChange={(e) => setTransactionId(e.target.value)}
+                    className={inputClass}
+                  />
+                </div>
+              </div>
+            )}
+
+            {paymentMethod === "stripe" && (
+              <div className="mt-5">
+                {displaySummary && displayClientSecret ? (
+                  <Elements stripe={stripePromise} options={{ clientSecret: displayClientSecret }}>
+                    <StripeCardSection
+                      items={cartItemInputs}
+                      address={address}
+                      phone={phone}
+                      summary={displaySummary}
+                      onSuccess={handleOrderPlaced}
+                    />
+                  </Elements>
+                ) : displaySummary ? (
+                  <p className="text-sm text-muted-foreground">Preparing payment…</p>
+                ) : (
+                  <p className="text-sm text-muted-foreground">Complete your address above to continue to payment.</p>
+                )}
+              </div>
+            )}
+          </section>
         </div>
-      </section>
+
+        <aside className="mt-6 lg:sticky lg:top-24 lg:mt-0">
+          <section className="rounded-2xl border border-border bg-surface p-4 sm:p-6">
+            <h2 className="text-sm font-semibold sm:text-base">Order summary</h2>
+            <div className="mt-4 space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Subtotal</span>
+                <span>৳{subtotal.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Delivery</span>
+                <span>
+                  {!addressComplete
+                    ? "Enter address"
+                    : summaryLoading
+                      ? "Calculating…"
+                      : displaySummary
+                        ? `৳${displaySummary.deliveryCharge.toLocaleString()}`
+                        : "—"}
+                </span>
+              </div>
+              {displaySummary && (
+                <div className="flex justify-between border-t border-border pt-3 text-base font-semibold">
+                  <span>Total</span>
+                  <span>৳{displaySummary.total.toLocaleString()}</span>
+                </div>
+              )}
+            </div>
+
+            {paymentMethod !== "stripe" && (
+              <button
+                type="button"
+                onClick={handlePlaceOrder}
+                disabled={!displaySummary || !phone || placing}
+                className="mt-5 w-full rounded-full bg-primary px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-strong disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {placing ? "Placing order…" : `Place Order — ৳${displaySummary?.total.toLocaleString() ?? "—"}`}
+              </button>
+            )}
+          </section>
+        </aside>
+      </div>
     </main>
   );
 }
