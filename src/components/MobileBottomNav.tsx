@@ -21,9 +21,9 @@ export function MobileBottomNav() {
           <HomeIcon className="h-5 w-5" />
           Home
         </Link>
-        <Link href="/categories" className={itemClass(pathname.startsWith("/categories"))}>
+        <Link href="/products" className={itemClass(pathname.startsWith("/products"))}>
           <GridIcon className="h-5 w-5" />
-          Categories
+          Products
         </Link>
 
         {/* Opens the cart drawer as a bottom sheet instead of navigating away —

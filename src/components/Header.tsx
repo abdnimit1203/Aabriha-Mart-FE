@@ -1,16 +1,10 @@
 import Link from "next/link";
 import Image from "next/image";
-import { getTopLevelCategories } from "@/lib/catalog";
-import { CategoriesMenu } from "@/components/CategoriesMenu";
 import { AccountMenu } from "@/components/AccountMenu";
 import { CartButton } from "@/components/CartButton";
 import { SearchIcon } from "@/components/icons";
 
-export async function Header() {
-  // A header that fails to render breaks every page — degrade to an empty
-  // category list instead of throwing if the API is briefly unreachable.
-  const categories = await getTopLevelCategories().catch(() => []);
-
+export function Header() {
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-surface/95 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center gap-2 px-3 py-2 sm:gap-4 sm:px-6 sm:py-3">
@@ -27,7 +21,12 @@ export async function Header() {
         </Link>
 
         <nav className="hidden items-center gap-1 sm:flex">
-          <CategoriesMenu categories={categories} />
+          <Link
+            href="/products"
+            className="rounded-full px-3 py-2 text-sm font-medium transition-colors hover:bg-background"
+          >
+            Products
+          </Link>
           <Link
             href="/new-arrivals"
             className="rounded-full px-3 py-2 text-sm font-medium transition-colors hover:bg-background"

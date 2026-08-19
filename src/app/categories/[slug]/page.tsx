@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { ProductCard } from "@/components/ProductCard";
 import { SortFilterBar } from "@/components/SortFilterBar";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { ProductListingLayout } from "@/components/ProductListingLayout";
 import { apiFetch } from "@/lib/api";
 import { getAllCategories, categoryAndChildrenIds } from "@/lib/catalog";
 import { Product } from "@/types/catalog";
@@ -34,8 +35,12 @@ export default async function CategoryPage(props: PageProps<"/categories/[slug]"
 
   const sort = typeof searchParams.sort === "string" ? searchParams.sort : "newest";
   const inStock = searchParams.inStock === "true";
+  // Explicit selection (from the sidebar) overrides the default rollup of
+  // this category + its children, so checking a sibling/other-branch
+  // category in the sidebar actually changes the results shown here.
+  const categoryParam = typeof searchParams.category === "string" ? searchParams.category : "";
+  const categoryIds = categoryParam ? categoryParam.split(",").filter(Boolean) : categoryAndChildrenIds(category, categories);
 
-  const categoryIds = categoryAndChildrenIds(category, categories);
   const query = new URLSearchParams({
     category: categoryIds.join(","),
     status: "active",
@@ -61,21 +66,18 @@ export default async function CategoryPage(props: PageProps<"/categories/[slug]"
       />
       <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{category.name}</h1>
 
-      <div className="mt-6">
+      <ProductListingLayout categories={categories} defaultSelectedId={category._id}>
         <SortFilterBar resultCount={total} />
-      </div>
-
-      {products.length === 0 ? (
-        <p className="mt-8 text-sm text-muted-foreground">
-          No products found. Try another category or filter.
-        </p>
-      ) : (
-        <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          {products.map((product) => (
-            <ProductCard key={product._id} product={product} />
-          ))}
-        </div>
-      )}
+        {products.length === 0 ? (
+          <p className="mt-8 text-sm text-muted-foreground">No products found. Try another category or filter.</p>
+        ) : (
+          <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {products.map((product) => (
+              <ProductCard key={product._id} product={product} />
+            ))}
+          </div>
+        )}
+      </ProductListingLayout>
     </main>
   );
 }

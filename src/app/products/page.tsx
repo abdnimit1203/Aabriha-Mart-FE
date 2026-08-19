@@ -10,11 +10,11 @@ import { Product } from "@/types/catalog";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "Offers — Aabriha Mart",
-  description: "Products currently on sale at Aabriha Mart.",
+  title: "All Products — Aabriha Mart",
+  description: "Browse everything at Aabriha Mart — clothing, shoes, bags & electronics.",
 };
 
-export default async function OffersPage(props: PageProps<"/offers">) {
+export default async function ProductsPage(props: PageProps<"/products">) {
   const searchParams = await props.searchParams;
   const sort = typeof searchParams.sort === "string" ? searchParams.sort : "newest";
   const inStock = searchParams.inStock === "true";
@@ -22,7 +22,7 @@ export default async function OffersPage(props: PageProps<"/offers">) {
 
   const categories = await getAllCategories();
 
-  const query = new URLSearchParams({ status: "active", onSale: "true", sort, limit: "24" });
+  const query = new URLSearchParams({ status: "active", sort, limit: "24" });
   if (inStock) query.set("inStock", "true");
   if (category) query.set("category", category);
 
@@ -32,13 +32,13 @@ export default async function OffersPage(props: PageProps<"/offers">) {
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-14">
-      <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Offers" }]} />
-      <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Offers</h1>
+      <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Products" }]} />
+      <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">All Products</h1>
 
       <ProductListingLayout categories={categories}>
         <SortFilterBar resultCount={total} />
         {products.length === 0 ? (
-          <p className="mt-8 text-sm text-muted-foreground">No offers right now — check back soon.</p>
+          <p className="mt-8 text-sm text-muted-foreground">No products found.</p>
         ) : (
           <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {products.map((product) => (

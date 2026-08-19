@@ -4,7 +4,7 @@ import { FaFacebook, FaInstagram, FaLinkedin, FaTwitter } from "react-icons/fa";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
-  { href: "/categories", label: "Categories" },
+  { href: "/products", label: "Products" },
   { href: "/new-arrivals", label: "New Arrivals" },
   { href: "/offers", label: "Offers" },
 ];
