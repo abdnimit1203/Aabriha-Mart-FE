@@ -13,11 +13,12 @@ export function Footer() {
   const email = process.env.NEXT_PUBLIC_CONTACT_EMAIL;
   const address = process.env.NEXT_PUBLIC_CONTACT_ADDRESS;
   const whatsapp = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
-  const facebook = process.env.NEXT_PUBLIC_FACEBOOK_URL;
-  const instagram = process.env.NEXT_PUBLIC_INSTAGRAM_URL;
-  const linkedin = process.env.NEXT_PUBLIC_LINKEDIN_URL;
-  const twitter = process.env.NEXT_PUBLIC_TWITTER_URL;
-  const hasSocial = Boolean(facebook || instagram || linkedin || twitter);
+  // Social icons always show — real profile URLs aren't set up yet, so each
+  // falls back to "#" rather than being hidden or pointing somewhere wrong.
+  const facebook = process.env.NEXT_PUBLIC_FACEBOOK_URL || "#";
+  const instagram = process.env.NEXT_PUBLIC_INSTAGRAM_URL || "#";
+  const linkedin = process.env.NEXT_PUBLIC_LINKEDIN_URL || "#";
+  const twitter = process.env.NEXT_PUBLIC_TWITTER_URL || "#";
   const hasContact = Boolean(email || address || whatsapp);
 
   return (
@@ -31,30 +32,20 @@ export function Footer() {
           <p className="mt-2 max-w-xs text-sm text-white/80">
             সহজ, দ্রুত ও নির্ভরযোগ্য অনলাইন শপিং — পোশাক, জুতা, ব্যাগ ও ইলেকট্রনিক্স, প্রতিদিনের বাংলাদেশের জন্য।
           </p>
-          {hasSocial && (
-            <div className="mt-4 flex gap-3">
-              {facebook && (
-                <a href={facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="text-white/80 hover:text-white">
-                  <FaFacebook className="h-5 w-5" />
-                </a>
-              )}
-              {instagram && (
-                <a href={instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="text-white/80 hover:text-white">
-                  <FaInstagram className="h-5 w-5" />
-                </a>
-              )}
-              {linkedin && (
-                <a href={linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="text-white/80 hover:text-white">
-                  <FaLinkedin className="h-5 w-5" />
-                </a>
-              )}
-              {twitter && (
-                <a href={twitter} target="_blank" rel="noopener noreferrer" aria-label="Twitter" className="text-white/80 hover:text-white">
-                  <FaTwitter className="h-5 w-5" />
-                </a>
-              )}
-            </div>
-          )}
+          <div className="mt-4 flex gap-3">
+            <a href={facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="text-white/80 hover:text-white">
+              <FaFacebook className="h-5 w-5" />
+            </a>
+            <a href={instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="text-white/80 hover:text-white">
+              <FaInstagram className="h-5 w-5" />
+            </a>
+            <a href={linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="text-white/80 hover:text-white">
+              <FaLinkedin className="h-5 w-5" />
+            </a>
+            <a href={twitter} target="_blank" rel="noopener noreferrer" aria-label="Twitter" className="text-white/80 hover:text-white">
+              <FaTwitter className="h-5 w-5" />
+            </a>
+          </div>
         </div>
 
         <div>
