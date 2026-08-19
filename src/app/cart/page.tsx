@@ -38,9 +38,9 @@ export default function CartPage() {
           </div>
 
           <div className="mt-5 border-t border-border pt-5 sm:mt-6 sm:pt-6">
-            <div className="flex items-center justify-between text-sm font-medium sm:text-base">
-              <span>Subtotal</span>
-              <span>৳{subtotal.toLocaleString()}</span>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground sm:text-base">Subtotal</span>
+              <span className="text-xl font-semibold sm:text-2xl">৳{subtotal.toLocaleString()}</span>
             </div>
             <p className="mt-2 text-xs text-muted-foreground sm:text-sm">
               Delivery charge is calculated at checkout, based on your address.
@@ -48,7 +48,7 @@ export default function CartPage() {
             <button
               type="button"
               onClick={handleCheckout}
-              className="mt-4 w-full rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary-strong sm:mt-5 sm:w-auto sm:py-3"
+              className="mt-4 w-full rounded-full bg-primary px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-strong sm:mt-5 sm:w-auto sm:py-3.5"
             >
               Proceed to Checkout
             </button>

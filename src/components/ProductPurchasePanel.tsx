@@ -1,84 +1,57 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import { Product, Variant } from "@/types/catalog";
+import { useRouter } from "next/navigation";
+import { Product } from "@/types/catalog";
 import { useCart } from "@/context/CartContext";
-
-function findMatchingVariant(variants: Variant[], selected: Record<string, string>): Variant | undefined {
-  return variants.find((v) => Object.entries(selected).every(([key, value]) => v.attributes[key] === value));
-}
+import { useAuth } from "@/context/AuthContext";
+import { useVariantSelector } from "@/hooks/useVariantSelector";
 
 export function ProductPurchasePanel({ product }: { product: Product }) {
+  const router = useRouter();
   const { addItem, openDrawer } = useCart();
-  const hasVariants = product.variants.length > 0;
+  const { user } = useAuth();
+  const v = useVariantSelector(product);
 
-  const [selected, setSelected] = useState<Record<string, string>>(() => {
-    if (!hasVariants) return {};
-    const first = product.variants.find((v) => v.status === "active") ?? product.variants[0];
-    return { ...first.attributes };
-  });
-  const [quantity, setQuantity] = useState(1);
-
-  const activeVariant = useMemo(
-    () => (hasVariants ? findMatchingVariant(product.variants, selected) : undefined),
-    [hasVariants, product.variants, selected]
-  );
-
-  const price = hasVariants ? activeVariant?.price : product.price;
-  const discountPrice = hasVariants ? activeVariant?.discountPrice : product.discountPrice;
-  const stock = hasVariants ? activeVariant?.stock ?? 0 : product.stock ?? 0;
-  const isOnSale = discountPrice !== undefined && price !== undefined && discountPrice < price;
-  const available = hasVariants ? Boolean(activeVariant) && stock > 0 : stock > 0;
-
-  function selectAttribute(name: string, value: string) {
-    setSelected((prev) => ({ ...prev, [name]: value }));
-    setQuantity(1);
-  }
-
-  function valuesFor(attributeName: string): string[] {
-    return Array.from(new Set(product.variants.map((v) => v.attributes[attributeName]).filter(Boolean)));
+  function lineItem() {
+    return {
+      productId: product._id,
+      productSlug: product.slug,
+      variantId: v.activeVariant?._id,
+      name: product.name,
+      image: (v.activeVariant?.images[0] ?? product.images[0])?.url,
+      attributes: v.hasVariants ? v.activeVariant?.attributes : undefined,
+      unitPrice: v.unitPrice,
+      maxStock: v.stock,
+    };
   }
 
   function handleAddToCart() {
-    if (!available || price === undefined) return;
-
-    addItem(
-      {
-        productId: product._id,
-        productSlug: product.slug,
-        variantId: activeVariant?._id,
-        name: product.name,
-        image: (activeVariant?.images[0] ?? product.images[0])?.url,
-        attributes: hasVariants ? activeVariant?.attributes : undefined,
-        unitPrice: isOnSale ? discountPrice! : price,
-        maxStock: stock,
-      },
-      quantity
-    );
+    if (!v.available) return;
+    addItem(lineItem(), v.quantity);
     toast.success(`Added ${product.name} to cart`);
     openDrawer();
   }
 
   function handleBuyNow() {
-    toast("Checkout is coming soon — you can't order yet.");
+    if (!v.available) return;
+    addItem(lineItem(), v.quantity);
+    router.push(user ? "/checkout" : "/login");
   }
 
   return (
     <div className="space-y-5">
       <div>
         <div className="flex items-baseline gap-2">
-          {price !== undefined && (
-            <span className="text-2xl font-semibold">৳{(isOnSale ? discountPrice! : price).toLocaleString()}</span>
-          )}
-          {isOnSale && <span className="text-muted-foreground line-through">৳{price!.toLocaleString()}</span>}
+          {v.price !== undefined && <span className="text-2xl font-semibold">৳{v.unitPrice.toLocaleString()}</span>}
+          {v.isOnSale && <span className="text-muted-foreground line-through">৳{v.price!.toLocaleString()}</span>}
         </div>
-        <p className={`mt-1 text-sm ${available ? "text-success" : "text-danger"}`}>
-          {hasVariants && !activeVariant
+        <p className={`mt-1 text-sm ${v.available ? "text-success" : "text-danger"}`}>
+          {v.hasVariants && !v.activeVariant
             ? "This combination is not available"
-            : available
-              ? stock <= 5
-                ? `Only ${stock} left in stock`
+            : v.available
+              ? v.stock <= 5
+                ? `Only ${v.stock} left in stock`
                 : "In stock"
               : "Out of stock"}
         </p>
@@ -88,13 +61,13 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
         <div key={attributeName}>
           <p className="mb-2 text-sm font-medium capitalize">{attributeName}</p>
           <div className="flex flex-wrap gap-2">
-            {valuesFor(attributeName).map((value) => {
-              const isSelected = selected[attributeName] === value;
+            {v.valuesFor(attributeName).map((value) => {
+              const isSelected = v.selected[attributeName] === value;
               return (
                 <button
                   key={value}
                   type="button"
-                  onClick={() => selectAttribute(attributeName, value)}
+                  onClick={() => v.selectAttribute(attributeName, value)}
                   aria-pressed={isSelected}
                   className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
                     isSelected
@@ -115,18 +88,18 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
         <div className="flex items-center rounded-full border border-border">
           <button
             type="button"
-            onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-            disabled={quantity <= 1}
+            onClick={() => v.setQuantity((q) => Math.max(1, q - 1))}
+            disabled={v.quantity <= 1}
             aria-label="Decrease quantity"
             className="px-3 py-1.5 text-lg disabled:opacity-40"
           >
             −
           </button>
-          <span className="min-w-8 text-center text-sm">{quantity}</span>
+          <span className="min-w-8 text-center text-sm">{v.quantity}</span>
           <button
             type="button"
-            onClick={() => setQuantity((q) => Math.min(stock || 1, q + 1))}
-            disabled={!available || quantity >= stock}
+            onClick={() => v.setQuantity((q) => Math.min(v.stock || 1, q + 1))}
+            disabled={!v.available || v.quantity >= v.stock}
             aria-label="Increase quantity"
             className="px-3 py-1.5 text-lg disabled:opacity-40"
           >
@@ -139,7 +112,7 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
         <button
           type="button"
           onClick={handleAddToCart}
-          disabled={!available}
+          disabled={!v.available}
           className="flex-1 rounded-full border border-primary-strong px-6 py-3 text-sm font-medium text-primary-strong transition-colors hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-40"
         >
           Add to Cart
@@ -147,7 +120,7 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
         <button
           type="button"
           onClick={handleBuyNow}
-          disabled={!available}
+          disabled={!v.available}
           className="flex-1 rounded-full bg-primary px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-strong disabled:cursor-not-allowed disabled:opacity-40"
         >
           Buy Now

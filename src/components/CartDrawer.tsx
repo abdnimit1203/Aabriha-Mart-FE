@@ -80,11 +80,11 @@ export function CartDrawer() {
             </div>
 
             <div className="border-t border-border p-4 sm:p-6">
-              <div className="flex items-center justify-between text-sm font-medium sm:text-base">
-                <span>Subtotal</span>
-                <span>৳{subtotal.toLocaleString()}</span>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground sm:text-base">Subtotal</span>
+                <span className="text-lg font-semibold sm:text-xl">৳{subtotal.toLocaleString()}</span>
               </div>
-              <div className="mt-3 flex flex-col gap-2 sm:mt-4 sm:flex-row sm:gap-3">
+              <div className="mt-4 flex flex-col gap-2 sm:mt-5 sm:flex-row sm:gap-3">
                 <Link
                   href="/cart"
                   onClick={closeDrawer}
