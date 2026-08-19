@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { onAuthStateChanged, type User as FirebaseUser } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import { createFirebaseAccount, fetchMyProfile, syncProfile } from "@/lib/auth";
+import { createFirebaseAccount, decorateFirebaseAccount, fetchMyProfile, syncProfile } from "@/lib/auth";
 import { ApiError } from "@/lib/api";
 import { UserProfile } from "@/types/user";
 
@@ -85,10 +85,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   async function signUp(email: string, password: string, fields: { username: string; phone: string }) {
     suppressAutoSync.current = true;
     try {
-      const fbUser = await createFirebaseAccount(email, password, fields.username);
+      const fbUser = await createFirebaseAccount(email, password);
       const idToken = await fbUser.getIdToken();
       const created = await syncProfile(idToken, fields);
       setProfile(created);
+      // Best-effort, after the profile that actually matters is safely
+      // created — a failure here must not undo or fail the signup.
+      await decorateFirebaseAccount(fbUser, fields.username);
       return fbUser;
     } finally {
       suppressAutoSync.current = false;

@@ -14,14 +14,27 @@ import { UserProfile } from "@/types/user";
 
 const googleProvider = new GoogleAuthProvider();
 
-/** Firebase side of signup only — see AuthContext's `signUp` for the full
- * sequence including the Mongo profile, which needs React state to
- * coordinate against the auth-state listener. */
-export async function createFirebaseAccount(email: string, password: string, username: string): Promise<FirebaseUser> {
+/** Creates the Firebase account only — nothing else. See AuthContext's
+ * `signUp` for the full sequence including the Mongo profile, which needs
+ * React state to coordinate against the auth-state listener. Kept minimal
+ * on purpose: the account must exist before anything else can happen, so
+ * this is the one step that's allowed to block/fail the whole signup. */
+export async function createFirebaseAccount(email: string, password: string): Promise<FirebaseUser> {
   const credential = await createUserWithEmailAndPassword(auth, email, password);
-  await updateProfile(credential.user, { displayName: username });
-  await sendEmailVerification(credential.user);
   return credential.user;
+}
+
+/** Display name + verification email — cosmetic, non-critical follow-ups
+ * to account creation. Best-effort: a hiccup here (e.g. Firebase rate
+ * limits on repeated signups) must not be allowed to abort a signup whose
+ * account and Mongo profile already exist. */
+export async function decorateFirebaseAccount(user: FirebaseUser, username: string): Promise<void> {
+  try {
+    await updateProfile(user, { displayName: username });
+    await sendEmailVerification(user);
+  } catch (err) {
+    console.error("Non-critical post-signup step failed:", err);
+  }
 }
 
 export async function signInWithEmail(email: string, password: string): Promise<FirebaseUser> {
