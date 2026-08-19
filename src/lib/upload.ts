@@ -57,3 +57,10 @@ export async function uploadAvatar(file: File, idToken: string): Promise<string>
   const compressed = await compressImage(file, 0.3, 512);
   return uploadToImageKit(compressed, idToken, "/avatars");
 }
+
+/** Product/category gallery images need more headroom than an avatar —
+ * 1600px/1MB keeps zoomed product photos sharp while still capping upload size. */
+export async function uploadCatalogImage(file: File, idToken: string, folder: "/products" | "/categories"): Promise<string> {
+  const compressed = await compressImage(file, 1, 1600);
+  return uploadToImageKit(compressed, idToken, folder);
+}

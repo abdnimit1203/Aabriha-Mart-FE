@@ -93,6 +93,16 @@ export function AccountMenu() {
             >
               Orders
             </Link>
+            {profile?.role === "super_admin" && (
+              <Link
+                href="/admin"
+                role="menuitem"
+                onClick={() => setOpen(false)}
+                className="block rounded-xl px-3 py-2 text-sm hover:bg-background"
+              >
+                Dashboard
+              </Link>
+            )}
             <button
               type="button"
               role="menuitem"
