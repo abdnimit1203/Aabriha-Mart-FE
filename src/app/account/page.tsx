@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useAuth } from "@/context/AuthContext";
 import { updateMyProfile, resendVerificationEmail, signOutUser } from "@/lib/auth";
+import { uploadAvatar } from "@/lib/upload";
 import { BD_DIVISIONS, districtsForDivision } from "@/data/bd-locations";
 
 export default function AccountPage() {
@@ -18,6 +19,8 @@ export default function AccountPage() {
   const [area, setArea] = useState("");
   const [detailedAddress, setDetailedAddress] = useState("");
   const [saving, setSaving] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
   // Tracks which profile the form fields were last synced from, so a
   // freshly (re)loaded profile can reset the form during render — the
   // React-endorsed alternative to setState-in-an-effect for this case.
@@ -56,6 +59,36 @@ export default function AccountPage() {
     }
   }
 
+  async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please choose an image file.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image must be under 5MB.");
+      return;
+    }
+
+    const idToken = await getIdToken();
+    if (!idToken) return;
+
+    setUploadingAvatar(true);
+    try {
+      const url = await uploadAvatar(file, idToken);
+      await updateMyProfile(idToken, { profileImage: url });
+      await refreshProfile();
+      toast.success("Profile photo updated.");
+    } catch {
+      toast.error("Couldn't upload that image. Please try again.");
+    } finally {
+      setUploadingAvatar(false);
+    }
+  }
+
   async function handleResendVerification() {
     await resendVerificationEmail();
     toast.success("Verification email sent.");
@@ -86,6 +119,47 @@ export default function AccountPage() {
         >
           Sign out
         </button>
+      </div>
+
+      <div className="mt-6 flex items-center gap-4">
+        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full border border-border bg-surface">
+          {profile.profileImage || firebaseUser?.photoURL ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={profile.profileImage || firebaseUser?.photoURL || ""}
+              alt=""
+              className="h-full w-full object-cover"
+              referrerPolicy="no-referrer"
+            />
+          ) : (
+            <span className="flex h-full w-full items-center justify-center text-2xl font-medium text-primary-strong">
+              {profile.username.charAt(0).toUpperCase()}
+            </span>
+          )}
+          {uploadingAvatar && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/40 text-xs text-white">
+              Uploading…
+            </div>
+          )}
+        </div>
+        <div>
+          <button
+            type="button"
+            onClick={() => avatarInputRef.current?.click()}
+            disabled={uploadingAvatar}
+            className="rounded-full border border-border bg-surface px-4 py-2 text-sm font-medium transition-colors hover:bg-background disabled:opacity-50"
+          >
+            Change photo
+          </button>
+          <input
+            ref={avatarInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleAvatarChange}
+            className="hidden"
+          />
+          <p className="mt-1 text-xs text-muted-foreground">JPG or PNG, up to 5MB.</p>
+        </div>
       </div>
 
       <div className="mt-4 rounded-2xl border border-border bg-surface p-4">

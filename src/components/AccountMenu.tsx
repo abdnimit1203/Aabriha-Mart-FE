@@ -74,9 +74,14 @@ export function AccountMenu() {
         onClick={() => setOpen((v) => !v)}
         className="flex items-center justify-center rounded-full p-0.5 hover:bg-background"
       >
-        {firebaseUser.photoURL ? (
+        {profile?.profileImage || firebaseUser.photoURL ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={firebaseUser.photoURL} alt="" className="h-8 w-8 rounded-full object-cover" referrerPolicy="no-referrer" />
+          <img
+            src={profile?.profileImage || firebaseUser.photoURL || ""}
+            alt=""
+            className="h-8 w-8 rounded-full object-cover"
+            referrerPolicy="no-referrer"
+          />
         ) : (
           <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-strong text-sm font-medium text-white">
             {(profile?.username ?? firebaseUser.email ?? "?").charAt(0).toUpperCase()}

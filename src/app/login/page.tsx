@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { signInWithEmail, signInWithGoogle } from "@/lib/auth";
 import { GoogleIcon } from "@/components/icons";
+import { PasswordInput } from "@/components/PasswordInput";
+import { AuthBrandHeader } from "@/components/AuthBrandHeader";
 
 function friendlyAuthError(err: unknown): string {
   const code = (err as { code?: string })?.code ?? "";
@@ -52,7 +54,8 @@ export default function LoginPage() {
 
   return (
     <main className="mx-auto max-w-sm px-4 py-12 sm:px-6">
-      <h1 className="text-2xl font-semibold tracking-tight">Sign in</h1>
+      <AuthBrandHeader />
+      <h1 className="mt-8 text-center text-2xl font-semibold tracking-tight">Sign in</h1>
 
       <div className="mt-6 rounded-2xl border border-border bg-surface p-6 shadow-sm sm:p-8">
         <form onSubmit={handleEmailLogin} className="space-y-4">
@@ -73,14 +76,7 @@ export default function LoginPage() {
             <label htmlFor="password" className="mb-1 block text-sm font-medium">
               Password
             </label>
-            <input
-              id="password"
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong"
-            />
+            <PasswordInput id="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
           </div>
           <button
             type="submit"

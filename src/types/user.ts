@@ -12,6 +12,7 @@ export interface UserProfile {
   email: string;
   emailVerified: boolean;
   phone: string;
+  profileImage?: string;
   defaultAddress?: Address;
   role: "customer" | "super_admin" | "order_manager";
 }
