@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Cormorant_Garamond } from "next/font/google";
 import { Providers } from "./providers";
 import { Header } from "@/components/Header";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
@@ -15,6 +15,14 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// Elegant serif for the "Aabriha Mart" wordmark specifically — not the body
+// font, which stays Geist for readability.
+const logoFont = Cormorant_Garamond({
+  variable: "--font-logo",
+  subsets: ["latin"],
+  weight: ["600", "700"],
+});
+
 export const metadata: Metadata = {
   title: "Aabriha Mart",
   description: "Clothing, shoes, bags & electronics — Aabriha Mart",
@@ -24,7 +32,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${logoFont.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground pb-14 sm:pb-0">
         <Providers>
