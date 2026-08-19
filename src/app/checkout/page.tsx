@@ -7,15 +7,15 @@ import toast from "react-hot-toast";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { BD_DIVISIONS, districtsForDivision } from "@/data/bd-locations";
-import { getCheckoutSummary, createOrder } from "@/lib/orders";
+import { getCheckoutSummary, createStripeIntent, createOrder } from "@/lib/orders";
 import { stripePromise } from "@/lib/stripe";
 import { StripeCardSection } from "@/components/StripeCardSection";
 import { CheckoutItemInput, CheckoutSummary, Order, PaymentMethod } from "@/types/order";
 
-const PAYMENT_METHODS: { value: PaymentMethod; label: string }[] = [
+const PAYMENT_METHODS: { value: PaymentMethod; label: string; logo?: string }[] = [
   { value: "cod", label: "Cash on Delivery" },
-  { value: "bkash", label: "bKash" },
-  { value: "nagad", label: "Nagad" },
+  { value: "bkash", label: "bKash", logo: "/logo-bkash.png" },
+  { value: "nagad", label: "Nagad", logo: "/logo-nagad.png" },
   { value: "stripe", label: "Card" },
 ];
 
@@ -94,6 +94,32 @@ export default function CheckoutPage() {
     // their identities change every render despite equal content.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canQuote, JSON.stringify(cartItemInputs), JSON.stringify(address)]);
+
+  // PaymentElement needs a clientSecret up front (unlike the old CardElement),
+  // so the intent is created as soon as pricing is known for Stripe — and
+  // recreated whenever price-relevant state changes, so it can't go stale.
+  const wantsStripeIntent = paymentMethod === "stripe" && Boolean(displaySummary);
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const displayClientSecret = wantsStripeIntent ? clientSecret : null;
+
+  useEffect(() => {
+    if (!wantsStripeIntent) return;
+    let cancelled = false;
+    (async () => {
+      const idToken = await getIdToken();
+      if (!idToken || cancelled) return;
+      try {
+        const intent = await createStripeIntent(idToken, { items: cartItemInputs, address });
+        if (!cancelled) setClientSecret(intent.clientSecret);
+      } catch {
+        if (!cancelled) setClientSecret(null);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wantsStripeIntent, JSON.stringify(cartItemInputs), JSON.stringify(address)]);
 
   function handleOrderPlaced(order: Order) {
     setOrderPlaced(true);
@@ -262,16 +288,30 @@ export default function CheckoutPage() {
               type="button"
               onClick={() => setPaymentMethod(m.value)}
               aria-pressed={paymentMethod === m.value}
-              className={`rounded-full border px-3 py-2 text-sm font-medium transition-colors ${
+              aria-label={m.label}
+              className={`flex h-11 items-center justify-center rounded-full border px-3 py-2 text-sm font-medium transition-colors ${
                 paymentMethod === m.value
                   ? "border-primary-strong bg-primary-strong text-white"
                   : "border-border bg-background hover:border-primary"
               }`}
             >
-              {m.label}
+              {m.logo ? (
+                <span className="flex h-8 w-24 items-center justify-center rounded-md bg-white p-1">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={m.logo} alt={m.label} className="max-h-full max-w-full object-contain" />
+                </span>
+              ) : (
+                m.label
+              )}
             </button>
           ))}
         </div>
+
+        {paymentMethod === "cod" && displaySummary && (
+          <div className="mt-4 rounded-lg border border-border bg-background p-3 text-sm text-muted-foreground">
+            Delivery zone: <span className="font-medium text-foreground">{displaySummary.deliveryZone === "inside_dhaka" ? "Inside Dhaka" : "Outside Dhaka"}</span> — please confirm this looks right before placing your order.
+          </div>
+        )}
 
         {(paymentMethod === "bkash" || paymentMethod === "nagad") && (
           <div className="mt-4 space-y-3 rounded-lg border border-border bg-background p-3">
@@ -301,8 +341,8 @@ export default function CheckoutPage() {
 
         <div className="mt-5">
           {paymentMethod === "stripe" ? (
-            displaySummary ? (
-              <Elements stripe={stripePromise}>
+            displaySummary && displayClientSecret ? (
+              <Elements stripe={stripePromise} options={{ clientSecret: displayClientSecret }}>
                 <StripeCardSection
                   items={cartItemInputs}
                   address={address}
@@ -311,6 +351,8 @@ export default function CheckoutPage() {
                   onSuccess={handleOrderPlaced}
                 />
               </Elements>
+            ) : displaySummary ? (
+              <p className="text-sm text-muted-foreground">Preparing payment…</p>
             ) : (
               <p className="text-sm text-muted-foreground">Complete your address above to continue to payment.</p>
             )
