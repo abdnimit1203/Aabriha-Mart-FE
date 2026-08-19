@@ -23,7 +23,7 @@ export async function Header() {
             className="h-7 w-7 object-contain sm:h-9 sm:w-9"
             priority
           />
-          <span className="font-logo text-lg font-normal tracking-wide sm:text-2xl">Aabriha Mart</span>
+          <span className="font-logo text-base font-normal tracking-wide sm:text-xl">Aabriha Mart</span>
         </Link>
 
         <nav className="hidden items-center gap-1 sm:flex">

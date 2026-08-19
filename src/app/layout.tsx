@@ -27,8 +27,14 @@ const logoFont = Playfair_Display({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
   title: "Aabriha Mart",
   description: "Clothing, shoes, bags & electronics — Aabriha Mart",
+  openGraph: {
+    title: "Aabriha Mart",
+    description: "Clothing, shoes, bags & electronics — Aabriha Mart",
+    images: ["/logo.png"],
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

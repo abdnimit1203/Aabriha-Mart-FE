@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { FaFacebook, FaInstagram } from "react-icons/fa";
 
 const NAV_LINKS = [
@@ -21,7 +22,10 @@ export function Footer() {
     <footer className="border-t border-border bg-surface">
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:grid-cols-3 sm:px-6">
         <div>
-          <span className="font-logo text-xl font-normal tracking-wide">Aabriha Mart</span>
+          <div className="flex items-center gap-2">
+            <Image src="/logo.png" alt="" width={28} height={28} className="h-7 w-7 object-contain" />
+            <span className="font-logo text-lg font-normal tracking-wide">Aabriha Mart</span>
+          </div>
           <p className="mt-2 max-w-xs text-sm text-muted-foreground">
             সহজ, দ্রুত ও নির্ভরযোগ্য অনলাইন শপিং — পোশাক, জুতা, ব্যাগ ও ইলেকট্রনিক্স, প্রতিদিনের বাংলাদেশের জন্য।
           </p>
