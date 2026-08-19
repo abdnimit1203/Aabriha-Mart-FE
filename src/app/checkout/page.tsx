@@ -367,7 +367,31 @@ export default function CheckoutPage() {
         <aside className="mt-6 lg:sticky lg:top-24 lg:mt-0">
           <section className="rounded-2xl border border-border bg-surface p-4 sm:p-6">
             <h2 className="text-sm font-semibold sm:text-base">Order summary</h2>
-            <div className="mt-4 space-y-2 text-sm">
+
+            <div className="mt-4 max-h-72 space-y-3 overflow-y-auto pr-1">
+              {items.map((item) => (
+                <div key={`${item.productId}-${item.variantId ?? "simple"}`} className="flex gap-3">
+                  <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg border border-border bg-background">
+                    {item.image ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={item.image} alt="" className="h-full w-full object-cover" />
+                    ) : null}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">{item.name}</p>
+                    {item.attributes && Object.keys(item.attributes).length > 0 && (
+                      <p className="truncate text-xs text-muted-foreground">
+                        {Object.values(item.attributes).filter(Boolean).join(" • ")}
+                      </p>
+                    )}
+                    <p className="mt-0.5 text-xs text-muted-foreground">Qty {item.quantity}</p>
+                  </div>
+                  <p className="shrink-0 text-sm font-medium">৳{(item.unitPrice * item.quantity).toLocaleString()}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-4 space-y-2 border-t border-border pt-4 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Subtotal</span>
                 <span>৳{subtotal.toLocaleString()}</span>
