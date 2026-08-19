@@ -29,3 +29,7 @@ export async function createOrder(idToken: string, req: CreateOrderRequest) {
 export async function getOrder(idToken: string, id: string) {
   return apiFetch<Order>(`/api/orders/${id}`, {}, idToken);
 }
+
+export async function listOrders(idToken: string) {
+  return apiFetch<{ orders: Order[] }>("/api/orders", {}, idToken);
+}
