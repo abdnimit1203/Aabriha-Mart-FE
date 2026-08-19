@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Cormorant_Garamond } from "next/font/google";
+import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import { Providers } from "./providers";
 import { Header } from "@/components/Header";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
@@ -17,10 +17,10 @@ const geistMono = Geist_Mono({
 
 // Elegant serif for the "Aabriha Mart" wordmark specifically — not the body
 // font, which stays Geist for readability.
-const logoFont = Cormorant_Garamond({
+const logoFont = Playfair_Display({
   variable: "--font-logo",
   subsets: ["latin"],
-  weight: ["600", "700"],
+  weight: ["400", "600"],
 });
 
 export const metadata: Metadata = {

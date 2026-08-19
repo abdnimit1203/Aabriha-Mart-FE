@@ -3,12 +3,14 @@
 import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { Product, Variant } from "@/types/catalog";
+import { useCart } from "@/context/CartContext";
 
 function findMatchingVariant(variants: Variant[], selected: Record<string, string>): Variant | undefined {
   return variants.find((v) => Object.entries(selected).every(([key, value]) => v.attributes[key] === value));
 }
 
 export function ProductPurchasePanel({ product }: { product: Product }) {
+  const { addItem, openDrawer } = useCart();
   const hasVariants = product.variants.length > 0;
 
   const [selected, setSelected] = useState<Record<string, string>>(() => {
@@ -39,7 +41,23 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
   }
 
   function handleAddToCart() {
-    toast("Cart is coming soon — you can't add items yet.");
+    if (!available || price === undefined) return;
+
+    addItem(
+      {
+        productId: product._id,
+        productSlug: product.slug,
+        variantId: activeVariant?._id,
+        name: product.name,
+        image: (activeVariant?.images[0] ?? product.images[0])?.url,
+        attributes: hasVariants ? activeVariant?.attributes : undefined,
+        unitPrice: isOnSale ? discountPrice! : price,
+        maxStock: stock,
+      },
+      quantity
+    );
+    toast.success(`Added ${product.name} to cart`);
+    openDrawer();
   }
 
   function handleBuyNow() {

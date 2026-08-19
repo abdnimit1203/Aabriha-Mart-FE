@@ -3,7 +3,8 @@ import Image from "next/image";
 import { getTopLevelCategories } from "@/lib/catalog";
 import { CategoriesMenu } from "@/components/CategoriesMenu";
 import { AccountMenu } from "@/components/AccountMenu";
-import { SearchIcon, CartIcon } from "@/components/icons";
+import { CartButton } from "@/components/CartButton";
+import { SearchIcon } from "@/components/icons";
 
 export async function Header() {
   // A header that fails to render breaks every page — degrade to an empty
@@ -15,7 +16,7 @@ export async function Header() {
       <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3 sm:px-6">
         <Link href="/" className="flex items-center gap-2">
           <Image src="/logo.png" alt="" width={36} height={36} className="object-contain" priority />
-          <span className="font-logo text-2xl font-semibold tracking-wide">Aabriha Mart</span>
+          <span className="font-logo text-2xl font-normal tracking-wide">Aabriha Mart</span>
         </Link>
 
         <nav className="hidden items-center gap-1 sm:flex">
@@ -55,9 +56,7 @@ export async function Header() {
           <SearchIcon className="h-5 w-5" />
         </Link>
         <AccountMenu />
-        <Link href="/cart" aria-label="Cart" className="rounded-full p-2 hover:bg-background">
-          <CartIcon className="h-5 w-5" />
-        </Link>
+        <CartButton />
       </div>
     </header>
   );
