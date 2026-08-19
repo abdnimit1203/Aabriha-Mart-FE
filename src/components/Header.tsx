@@ -13,10 +13,17 @@ export async function Header() {
 
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-surface/95 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3 sm:px-6">
-        <Link href="/" className="flex items-center gap-2">
-          <Image src="/logo.png" alt="" width={36} height={36} className="object-contain" priority />
-          <span className="font-logo text-2xl font-normal tracking-wide">Aabriha Mart</span>
+      <div className="mx-auto flex max-w-6xl items-center gap-2 px-3 py-2 sm:gap-4 sm:px-6 sm:py-3">
+        <Link href="/" className="flex items-center gap-1.5 sm:gap-2">
+          <Image
+            src="/logo.png"
+            alt=""
+            width={36}
+            height={36}
+            className="h-7 w-7 object-contain sm:h-9 sm:w-9"
+            priority
+          />
+          <span className="font-logo text-lg font-normal tracking-wide sm:text-2xl">Aabriha Mart</span>
         </Link>
 
         <nav className="hidden items-center gap-1 sm:flex">
@@ -51,9 +58,9 @@ export async function Header() {
         <Link
           href="/search"
           aria-label="Search"
-          className="ml-auto rounded-full p-2 hover:bg-background sm:ml-0 sm:hidden"
+          className="ml-auto rounded-full p-1.5 hover:bg-background sm:ml-0 sm:hidden"
         >
-          <SearchIcon className="h-5 w-5" />
+          <SearchIcon className="h-4 w-4" />
         </Link>
         <AccountMenu />
         <CartButton />

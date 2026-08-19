@@ -35,7 +35,7 @@ export default async function ProductPage(props: PageProps<"/products/[slug]">) 
   const category = typeof product.category === "object" ? product.category : null;
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
+    <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-14">
       <Breadcrumb
         items={[
           { label: "Home", href: "/" },
@@ -61,8 +61,10 @@ export default async function ProductPage(props: PageProps<"/products/[slug]">) 
 
           {product.description && (
             <div className="mt-8 border-t border-border pt-6">
-              <h2 className="text-base font-semibold">Description</h2>
-              <p className="mt-2 text-base leading-relaxed text-muted-foreground">{product.description}</p>
+              <h2 className="text-sm font-semibold sm:text-base">Description</h2>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground sm:text-base">
+                {product.description}
+              </p>
             </div>
           )}
         </div>

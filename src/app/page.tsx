@@ -11,7 +11,7 @@ export default async function HomePage() {
   const [categories, products] = await Promise.all([getTopLevelCategories(), getFeaturedProducts()]);
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
+    <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-14">
       <section className="text-center">
         <h1 className="text-3xl font-semibold tracking-tight sm:text-5xl">
           Everyday essentials, delivered.

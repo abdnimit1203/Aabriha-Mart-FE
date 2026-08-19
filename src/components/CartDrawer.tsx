@@ -53,54 +53,54 @@ export function CartDrawer() {
           isDrawerOpen ? "translate-y-0 sm:translate-x-0" : "translate-y-full sm:translate-y-0 sm:translate-x-full"
         }`}
       >
-        <div className="flex items-center justify-between border-b border-border p-5 sm:p-6">
-          <h2 className="text-xl font-semibold">Your Cart</h2>
+        <div className="flex items-center justify-between border-b border-border p-4 sm:p-6">
+          <h2 className="text-base font-semibold sm:text-xl">Your Cart</h2>
           <button
             type="button"
             aria-label="Close cart"
             onClick={closeDrawer}
-            className="rounded-full p-2 hover:bg-background"
+            className="rounded-full p-1.5 hover:bg-background sm:p-2"
           >
-            <CloseIcon className="h-5 w-5" />
+            <CloseIcon className="h-4 w-4 sm:h-5 sm:w-5" />
           </button>
         </div>
 
         {items.length === 0 ? (
-          <div className="flex flex-1 flex-col items-center justify-center gap-4 p-8 text-center">
-            <p className="text-base text-muted-foreground">Your cart is empty.</p>
+          <div className="flex flex-1 flex-col items-center justify-center gap-3 p-6 text-center sm:gap-4 sm:p-8">
+            <p className="text-sm text-muted-foreground sm:text-base">Your cart is empty.</p>
             <button
               type="button"
               onClick={closeDrawer}
-              className="rounded-full bg-primary px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-strong"
+              className="rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary-strong sm:px-6 sm:py-3"
             >
               Continue Shopping
             </button>
           </div>
         ) : (
           <>
-            <div className="flex-1 space-y-3 overflow-y-auto p-5 sm:p-6">
+            <div className="flex-1 space-y-2 overflow-y-auto p-4 sm:space-y-3 sm:p-6">
               {items.map((item) => (
                 <CartLineItem key={`${item.productId}-${item.variantId ?? "simple"}`} item={item} />
               ))}
             </div>
 
-            <div className="border-t border-border p-5 sm:p-6">
-              <div className="flex items-center justify-between text-base font-medium">
+            <div className="border-t border-border p-4 sm:p-6">
+              <div className="flex items-center justify-between text-sm font-medium sm:text-base">
                 <span>Subtotal</span>
                 <span>৳{subtotal.toLocaleString()}</span>
               </div>
-              <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+              <div className="mt-3 flex flex-col gap-2 sm:mt-4 sm:flex-row sm:gap-3">
                 <Link
                   href="/cart"
                   onClick={closeDrawer}
-                  className="flex-1 rounded-full border border-primary-strong px-5 py-3 text-center text-sm font-medium text-primary-strong transition-colors hover:bg-primary/10"
+                  className="flex-1 rounded-full border border-primary-strong px-5 py-2.5 text-center text-sm font-medium text-primary-strong transition-colors hover:bg-primary/10 sm:py-3"
                 >
                   View Cart
                 </Link>
                 <button
                   type="button"
                   onClick={handleCheckout}
-                  className="flex-1 rounded-full bg-primary px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-strong"
+                  className="flex-1 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary-strong sm:py-3"
                 >
                   Checkout
                 </button>
