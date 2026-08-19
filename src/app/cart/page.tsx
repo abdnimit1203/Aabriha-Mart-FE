@@ -8,11 +8,11 @@ import { CartLineItem } from "@/components/CartLineItem";
 
 export default function CartPage() {
   const { items, subtotal } = useCart();
-  const { firebaseUser } = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
 
   function handleCheckout() {
-    router.push(firebaseUser ? "/checkout" : "/login");
+    router.push(user ? "/checkout" : "/login");
   }
 
   return (

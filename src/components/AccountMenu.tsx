@@ -1,39 +1,20 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { signOutUser } from "@/lib/auth";
+import { useDismissableOverlay } from "@/hooks/useDismissableOverlay";
 
 const CLOSE_DELAY_MS = 150;
 
 export function AccountMenu() {
   const router = useRouter();
-  const { firebaseUser, profile, loading } = useAuth();
+  const { user, profile, loading } = useAuth();
   const [open, setOpen] = useState(false);
-  const rootRef = useRef<HTMLDivElement>(null);
+  const rootRef = useDismissableOverlay<HTMLDivElement>({ open, onDismiss: () => setOpen(false) });
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    if (!open) return;
-
-    function handlePointerDown(event: PointerEvent) {
-      if (rootRef.current && !rootRef.current.contains(event.target as Node)) {
-        setOpen(false);
-      }
-    }
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") setOpen(false);
-    }
-
-    document.addEventListener("pointerdown", handlePointerDown);
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("pointerdown", handlePointerDown);
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [open]);
 
   function openNow() {
     if (closeTimer.current) clearTimeout(closeTimer.current);
@@ -54,7 +35,7 @@ export function AccountMenu() {
     return <div className="h-7 w-7 animate-pulse rounded-full bg-border sm:h-9 sm:w-9" aria-hidden />;
   }
 
-  if (!firebaseUser) {
+  if (!user) {
     return (
       <Link
         href="/login"
@@ -74,17 +55,17 @@ export function AccountMenu() {
         onClick={() => setOpen((v) => !v)}
         className="flex items-center justify-center rounded-full p-0.5 hover:bg-background"
       >
-        {profile?.profileImage || firebaseUser.photoURL ? (
+        {user.photoURL ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={profile?.profileImage || firebaseUser.photoURL || ""}
+            src={user.photoURL}
             alt=""
             className="h-7 w-7 rounded-full object-cover sm:h-8 sm:w-8"
             referrerPolicy="no-referrer"
           />
         ) : (
           <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary-strong text-xs font-medium text-white sm:h-8 sm:w-8 sm:text-sm">
-            {(profile?.username ?? firebaseUser.email ?? "?").charAt(0).toUpperCase()}
+            {user.initial}
           </span>
         )}
       </button>

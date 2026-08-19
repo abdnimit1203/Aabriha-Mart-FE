@@ -7,10 +7,11 @@ import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { CloseIcon } from "@/components/icons";
 import { CartLineItem } from "@/components/CartLineItem";
+import { useDismissableOverlay } from "@/hooks/useDismissableOverlay";
 
 export function CartDrawer() {
   const { items, subtotal, isDrawerOpen, closeDrawer } = useCart();
-  const { firebaseUser } = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -22,18 +23,12 @@ export function CartDrawer() {
     };
   }, [isDrawerOpen]);
 
-  useEffect(() => {
-    if (!isDrawerOpen) return;
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") closeDrawer();
-    }
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isDrawerOpen, closeDrawer]);
+  // Outside-click is off — the backdrop div below already closes on click.
+  useDismissableOverlay({ open: isDrawerOpen, onDismiss: closeDrawer, outsideClick: false });
 
   function handleCheckout() {
     closeDrawer();
-    router.push(firebaseUser ? "/checkout" : "/login");
+    router.push(user ? "/checkout" : "/login");
   }
 
   return (

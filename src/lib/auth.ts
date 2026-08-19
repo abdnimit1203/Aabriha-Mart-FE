@@ -14,7 +14,10 @@ import { UserProfile } from "@/types/user";
 
 const googleProvider = new GoogleAuthProvider();
 
-export async function signUpWithEmail(email: string, password: string, username: string): Promise<FirebaseUser> {
+/** Firebase side of signup only — see AuthContext's `signUp` for the full
+ * sequence including the Mongo profile, which needs React state to
+ * coordinate against the auth-state listener. */
+export async function createFirebaseAccount(email: string, password: string, username: string): Promise<FirebaseUser> {
   const credential = await createUserWithEmailAndPassword(auth, email, password);
   await updateProfile(credential.user, { displayName: username });
   await sendEmailVerification(credential.user);

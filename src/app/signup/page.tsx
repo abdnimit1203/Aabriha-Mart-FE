@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { signUpWithEmail, signInWithGoogle } from "@/lib/auth";
+import { signInWithGoogle } from "@/lib/auth";
 import { GoogleIcon } from "@/components/icons";
 import { PasswordInput } from "@/components/PasswordInput";
 import { AuthBrandHeader } from "@/components/AuthBrandHeader";
@@ -21,7 +21,7 @@ function friendlyAuthError(err: unknown): string {
 
 export default function SignupPage() {
   const router = useRouter();
-  const { setPendingProfileFields } = useAuth();
+  const { signUp } = useAuth();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -38,12 +38,7 @@ export default function SignupPage() {
 
     setSubmitting(true);
     try {
-      // Must be set before signUpWithEmail — that call flips Firebase's auth
-      // state, which triggers AuthContext's own profile-creating sync. Only
-      // one thing may ever create the profile; this is how it learns the
-      // username/phone instead of racing a second sync call against it.
-      setPendingProfileFields({ username, phone });
-      await signUpWithEmail(email, password, username);
+      await signUp(email, password, { username, phone });
       toast.success(`Welcome, ${username}!`);
       router.push("/account");
     } catch (err) {

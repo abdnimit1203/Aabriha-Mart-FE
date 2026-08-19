@@ -10,7 +10,7 @@ import { BD_DIVISIONS, districtsForDivision } from "@/data/bd-locations";
 
 export default function AccountPage() {
   const router = useRouter();
-  const { firebaseUser, profile, loading, getIdToken, refreshProfile, needsProfileCompletion } = useAuth();
+  const { user, profile, loading, getIdToken, refreshProfile, needsProfileCompletion } = useAuth();
 
   const [username, setUsername] = useState("");
   const [phone, setPhone] = useState("");
@@ -27,8 +27,8 @@ export default function AccountPage() {
   const [loadedProfileId, setLoadedProfileId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!loading && !firebaseUser) router.replace("/login");
-  }, [loading, firebaseUser, router]);
+    if (!loading && !user) router.replace("/login");
+  }, [loading, user, router]);
 
   if (profile && profile._id !== loadedProfileId) {
     setLoadedProfileId(profile._id);
@@ -123,10 +123,10 @@ export default function AccountPage() {
 
       <div className="mt-6 flex items-center gap-4">
         <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full border border-border bg-surface">
-          {profile.profileImage || firebaseUser?.photoURL ? (
+          {user?.photoURL ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={profile.profileImage || firebaseUser?.photoURL || ""}
+              src={user.photoURL}
               alt=""
               className="h-full w-full object-cover"
               referrerPolicy="no-referrer"
