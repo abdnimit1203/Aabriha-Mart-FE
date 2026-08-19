@@ -7,10 +7,17 @@ import { FaCartPlus } from "react-icons/fa";
 import { Product } from "@/types/catalog";
 import { QuickAddModal } from "@/components/QuickAddModal";
 
+// Picks the variant with the lowest effective (discounted-if-set) price and
+// reports its price/discountPrice together — not the minimum of each field
+// independently, which would let a "Sale" badge be triggered by combining
+// numbers from two different variants that don't actually reflect one real
+// discount relationship.
 function priceRange(product: Product): { price: number; discountPrice?: number } {
   if (product.variants.length > 0) {
-    const prices = product.variants.map((v) => v.discountPrice ?? v.price);
-    return { price: Math.min(...prices) };
+    const cheapest = product.variants.reduce((min, v) =>
+      (v.discountPrice ?? v.price) < (min.discountPrice ?? min.price) ? v : min
+    );
+    return { price: cheapest.price, discountPrice: cheapest.discountPrice };
   }
   return { price: product.price ?? 0, discountPrice: product.discountPrice };
 }

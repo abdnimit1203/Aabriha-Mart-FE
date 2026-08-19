@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Elements } from "@stripe/react-stripe-js";
 import { FaMoneyBillWave, FaCreditCard, FaCheck, FaLocationDot } from "react-icons/fa6";
+import { ChevronIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
@@ -194,41 +195,47 @@ export default function CheckoutPage() {
                   <label htmlFor="division" className="mb-1 block text-sm font-medium">
                     Division
                   </label>
-                  <select
-                    id="division"
-                    value={division}
-                    onChange={(e) => {
-                      setDivision(e.target.value);
-                      setDistrict("");
-                    }}
-                    className={inputClass}
-                  >
-                    <option value="">Select division</option>
-                    {BD_DIVISIONS.map((d) => (
-                      <option key={d.name} value={d.name}>
-                        {d.name}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <select
+                      id="division"
+                      value={division}
+                      onChange={(e) => {
+                        setDivision(e.target.value);
+                        setDistrict("");
+                      }}
+                      className={`${inputClass} appearance-none pr-8`}
+                    >
+                      <option value="">Select division</option>
+                      {BD_DIVISIONS.map((d) => (
+                        <option key={d.name} value={d.name}>
+                          {d.name}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronIcon className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 rotate-90 text-muted-foreground" />
+                  </div>
                 </div>
                 <div>
                   <label htmlFor="district" className="mb-1 block text-sm font-medium">
                     District
                   </label>
-                  <select
-                    id="district"
-                    value={district}
-                    onChange={(e) => setDistrict(e.target.value)}
-                    disabled={!division}
-                    className={`${inputClass} disabled:opacity-50`}
-                  >
-                    <option value="">Select district</option>
-                    {districtsForDivision(division).map((d) => (
-                      <option key={d} value={d}>
-                        {d}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <select
+                      id="district"
+                      value={district}
+                      onChange={(e) => setDistrict(e.target.value)}
+                      disabled={!division}
+                      className={`${inputClass} appearance-none pr-8 disabled:opacity-50`}
+                    >
+                      <option value="">Select district</option>
+                      {districtsForDivision(division).map((d) => (
+                        <option key={d} value={d}>
+                          {d}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronIcon className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 rotate-90 text-muted-foreground" />
+                  </div>
                 </div>
               </div>
 
