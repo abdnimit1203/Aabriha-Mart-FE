@@ -9,12 +9,15 @@ interface CartContextValue {
   items: CartItem[];
   itemCount: number;
   subtotal: number;
+  /** False until localStorage has been read — guard "cart is empty" redirects on it. */
+  hydrated: boolean;
   isDrawerOpen: boolean;
   openDrawer: () => void;
   closeDrawer: () => void;
   addItem: (item: Omit<CartItem, "quantity">, quantity?: number) => void;
   updateQuantity: (productId: string, variantId: string | undefined, quantity: number) => void;
   removeItem: (productId: string, variantId: string | undefined) => void;
+  clearCart: () => void;
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -78,6 +81,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setItems((prev) => prev.filter((line) => !sameLine(line, productId, variantId)));
   }, []);
 
+  const clearCart = useCallback(() => setItems([]), []);
+
   const itemCount = useMemo(() => items.reduce((sum, line) => sum + line.quantity, 0), [items]);
   const subtotal = useMemo(() => items.reduce((sum, line) => sum + line.unitPrice * line.quantity, 0), [items]);
 
@@ -87,12 +92,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         items,
         itemCount,
         subtotal,
+        hydrated,
         isDrawerOpen,
         openDrawer: () => setDrawerOpen(true),
         closeDrawer: () => setDrawerOpen(false),
         addItem,
         updateQuantity,
         removeItem,
+        clearCart,
       }}
     >
       {children}
