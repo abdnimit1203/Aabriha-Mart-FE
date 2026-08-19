@@ -30,6 +30,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
   title: "Aabriha Mart",
   description: "Clothing, shoes, bags & electronics — Aabriha Mart",
+  icons: { icon: "/favicon.ico" },
   openGraph: {
     title: "Aabriha Mart",
     description: "Clothing, shoes, bags & electronics — Aabriha Mart",
