@@ -9,6 +9,11 @@ interface ImageKitAuthParams {
 
 const IMAGEKIT_PUBLIC_KEY = process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY ?? "";
 
+// Every upload nests under one root folder in the ImageKit media library
+// instead of scattering top-level folders per resource type, so the library
+// stays tidy as more upload types get added.
+const ROOT_FOLDER = "/aabriha-mart";
+
 async function compressImage(file: File, maxSizeMB: number, maxWidthOrHeight: number): Promise<File> {
   // Skip compression for files already under budget — recompressing a small
   // file can occasionally make it larger (re-encoding overhead).
@@ -33,7 +38,7 @@ async function uploadToImageKit(file: File, idToken: string, folder: string): Pr
   form.append("signature", auth.signature);
   form.append("expire", String(auth.expire));
   form.append("token", auth.token);
-  form.append("folder", folder);
+  form.append("folder", `${ROOT_FOLDER}${folder}`);
   form.append("useUniqueFileName", "true");
 
   const res = await fetch("https://upload.imagekit.io/api/v1/files/upload", {
