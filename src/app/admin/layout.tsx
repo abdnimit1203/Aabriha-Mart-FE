@@ -86,8 +86,8 @@ const SETTINGS_NAV: NavItem[] = [
 ];
 
 const SIDEBAR_COLLAPSED_KEY = "aabriha-admin-sidebar-collapsed";
-const EXPANDED_WIDTH = 232;
-const COLLAPSED_WIDTH = 68;
+const EXPANDED_WIDTH = 212;
+const COLLAPSED_WIDTH = 60;
 
 function roleLabel(role: Role): string {
   return role === "super_admin" ? "Super Admin" : "Order Manager";
@@ -112,7 +112,7 @@ function NavLink({
     return (
       <div
         title={collapsed ? `${item.label} (coming soon)` : undefined}
-        className="flex cursor-not-allowed items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-muted-foreground/50"
+        className="flex cursor-not-allowed items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-muted-foreground/50"
       >
         <Icon className="h-4 w-4 shrink-0" />
         {!collapsed && (
@@ -132,7 +132,7 @@ function NavLink({
       href={item.href}
       onClick={onNavigate}
       title={collapsed ? item.label : undefined}
-      className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors ${
+      className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-sm font-medium transition-colors ${
         active ? "bg-primary text-white" : "text-muted-foreground hover:bg-white/8 hover:text-foreground"
       }`}
     >
@@ -171,15 +171,15 @@ function SidebarContent({
 
   return (
     <>
-      <nav className="flex flex-1 flex-col gap-4 overflow-y-auto p-3">
+      <nav className="flex flex-1 flex-col gap-3 overflow-y-auto p-2.5">
         {groups.map((group, i) => (
-          <div key={i} className={i > 0 ? "border-t border-border pt-3" : undefined}>
+          <div key={i} className={i > 0 ? "border-t border-border pt-2.5" : undefined}>
             {group.label && !collapsed && (
-              <p className="mb-1 px-3 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground/70">
+              <p className="mb-1 px-2.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground/70">
                 {group.label}
               </p>
             )}
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-0.5">
               {group.items.map((item) => (
                 <NavLink
                   key={item.href}
@@ -195,9 +195,9 @@ function SidebarContent({
         ))}
       </nav>
 
-      <div className="border-t border-border p-3">
+      <div className="border-t border-border p-2.5">
         {!collapsed && (
-          <div className="mb-2 px-3">
+          <div className="mb-1.5 px-2.5">
             <p className="truncate text-sm font-medium text-foreground">{username}</p>
             <p className="text-xs text-muted-foreground">{roleLabel(role)}</p>
           </div>
@@ -205,7 +205,7 @@ function SidebarContent({
         <Link
           href="/"
           title={collapsed ? "Back to store" : undefined}
-          className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-muted-foreground hover:bg-white/8 hover:text-foreground"
+          className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-sm text-muted-foreground hover:bg-white/8 hover:text-foreground"
         >
           <HomeIcon className="h-4 w-4 shrink-0" />
           {!collapsed && "Back to store"}
@@ -227,7 +227,7 @@ function SignOutRow({ collapsed }: { collapsed: boolean }) {
       type="button"
       onClick={handleSignOut}
       title={collapsed ? "Sign out" : undefined}
-      className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm text-danger hover:bg-white/8"
+      className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-sm text-danger hover:bg-white/8"
     >
       <LogoutIcon className="h-4 w-4 shrink-0" />
       {!collapsed && "Sign out"}
@@ -301,10 +301,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         transition={{ duration: 0.2, ease: "easeInOut" }}
         className="admin-sidebar sticky top-0 hidden h-dvh shrink-0 flex-col border-r border-border bg-surface sm:flex"
       >
-        <div className={`flex items-center border-b border-border py-5 ${collapsed ? "justify-center px-3" : "justify-between px-5"}`}>
+        <div className={`flex items-center border-b border-border py-4 ${collapsed ? "justify-center px-2.5" : "justify-between px-4"}`}>
           {!collapsed && (
             <div>
-              <p className="text-lg font-semibold text-foreground">Aabriha Mart</p>
+              <p className="text-sm font-semibold text-foreground">Aabriha Mart</p>
               <p className="text-xs text-muted-foreground">Admin</p>
             </div>
           )}
@@ -352,9 +352,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             mobileOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
-          <div className="flex items-center justify-between border-b border-border px-5 py-5">
+          <div className="flex items-center justify-between border-b border-border px-4 py-4">
             <div>
-              <p className="text-lg font-semibold text-foreground">Aabriha Mart</p>
+              <p className="text-sm font-semibold text-foreground">Aabriha Mart</p>
               <p className="text-xs text-muted-foreground">Admin</p>
             </div>
             <button

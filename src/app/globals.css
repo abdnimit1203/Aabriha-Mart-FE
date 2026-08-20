@@ -34,11 +34,11 @@
    Linear/Vercel's dashboards). --primary stays put: the active-item
    highlight is the same blue accent used everywhere else. */
 .admin-sidebar {
-  --background: #0f131a;
-  --surface: #161b24;
-  --foreground: #f1f5f9;
-  --muted-foreground: #94a3b8;
-  --border: #262c38;
+  --background: #0b0c0f;
+  --surface: #111318;
+  --foreground: #f4f4f5;
+  --muted-foreground: #8b8f97;
+  --border: #1f2127;
 }
 
 @theme inline {
