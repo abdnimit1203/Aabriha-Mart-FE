@@ -129,7 +129,8 @@ body {
 .aabriha-popup {
   border-radius: 1.5rem !important;
   padding: 0 0 1.75rem !important;
-  max-width: 26rem !important;
+  width: min(92vw, 34rem) !important;
+  max-height: 90vh !important;
 }
 .aabriha-popup-html {
   margin: 0 !important;
@@ -137,10 +138,17 @@ body {
 .aabriha-popup-body {
   padding: 0 1.5rem;
 }
+/* Bleeds edge-to-edge across the popup's own width (countering
+   aabriha-popup-body's side padding) and sizes off the image's own aspect
+   ratio (height: auto) rather than a fixed box — so the popup's shape
+   follows the picture instead of letterboxing it. max-height only kicks in
+   as a safety net for unusually tall portrait images on short viewports. */
 .aabriha-popup-image {
+  display: block;
   width: calc(100% + 3rem);
   margin: 0 -1.5rem 1.25rem;
-  max-height: 22rem;
+  height: auto;
+  max-height: 70vh;
   object-fit: contain;
   border-radius: 1.5rem 1.5rem 0 0;
 }

@@ -15,13 +15,13 @@ export function PromotionalBanner({ promotion }: { promotion: Promotion | null }
     <section className="mt-16">
       <Link
         href={promotion.ctaUrl}
-        className="group relative mx-auto flex max-h-[480px] w-full max-w-2xl items-center justify-center overflow-hidden rounded-3xl bg-background"
+        className="group relative mx-auto flex max-h-120 w-full max-w-2xl items-center justify-center overflow-hidden rounded-3xl bg-background"
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={promotion.image}
           alt={promotion.titleEn || "Promotion"}
-          className="max-h-[480px] w-full object-contain transition-transform duration-300 group-hover:scale-[1.02]"
+          className="max-h-120 w-full object-contain transition-transform duration-300 group-hover:scale-[1.02]"
         />
         {hasOverlay && (
           <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/70 to-transparent p-6 text-white">
