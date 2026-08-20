@@ -16,6 +16,31 @@
   --danger: #d64545;
 }
 
+/* Admin dashboard is an operational tool, not the storefront — it overrides
+   the same token names (not a parallel --admin-* set) inside this scope, so
+   every existing bg-surface/text-muted-foreground/border-border class used
+   across admin pages picks up the neutral palette automatically. --primary/
+   --primary-strong are left untouched to keep the brand accent. */
+.admin-shell {
+  --background: #f7f8fa;
+  --surface: #ffffff;
+  --foreground: #14181f;
+  --muted-foreground: #64748b;
+  --border: #e2e5ea;
+}
+
+/* The sidebar nests a second override inside .admin-shell — dark chrome
+   against the light content canvas, for wayfinding contrast (same idea as
+   Linear/Vercel's dashboards). --primary stays put: the active-item
+   highlight is the same blue accent used everywhere else. */
+.admin-sidebar {
+  --background: #0f131a;
+  --surface: #161b24;
+  --foreground: #f1f5f9;
+  --muted-foreground: #94a3b8;
+  --border: #262c38;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-surface: var(--surface);
@@ -37,5 +62,83 @@ body {
   color: var(--foreground);
 }
 
+/* Admin selects don't use the storefront's JSX-chevron pattern (a custom
+   icon absolutely positioned over an appearance-none select) — with ~10
+   selects across the admin forms, one scoped CSS rule covers all of them
+   (present and future) instead of repeating that wrapper at every call site. */
+.admin-shell select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.65rem center;
+  background-size: 0.9rem;
+  padding-right: 2rem;
+}
+
 /* Hero slider nav buttons and pagination are custom-rendered React elements
    (see HeroSlider.tsx), not Swiper's default modules — no overrides needed here. */
+
+/* AnnouncementBar's scrolling marquee. Reduced-motion visitors never see
+   this class applied at all (AnnouncementBar swaps to a static layout via
+   usePrefersReducedMotion instead of relying on this animation being
+   overridden), so no @media query is needed here. */
+@keyframes marquee {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+.animate-marquee {
+  animation: marquee 18s linear infinite;
+}
+
+/* WelcomePopup's SweetAlert2 instance — overrides SweetAlert2's default
+   theme entirely (no default icon, no default button colors) so it reads as
+   an Aabriha Mart promo, not generic SweetAlert chrome. */
+.aabriha-popup {
+  border-radius: 1.5rem !important;
+  padding: 0 0 1.75rem !important;
+  max-width: 26rem !important;
+}
+.aabriha-popup-html {
+  margin: 0 !important;
+}
+.aabriha-popup-body {
+  padding: 0 1.5rem;
+}
+.aabriha-popup-image {
+  width: calc(100% + 3rem);
+  margin: 0 -1.5rem 1.25rem;
+  max-height: 22rem;
+  object-fit: contain;
+  border-radius: 1.5rem 1.5rem 0 0;
+}
+.aabriha-popup-title {
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--foreground);
+  margin-bottom: 0.5rem;
+}
+.aabriha-popup-description {
+  font-size: 0.9rem;
+  color: var(--muted-foreground);
+  margin-bottom: 0;
+}
+.aabriha-popup-cta {
+  margin-top: 1.25rem !important;
+  border-radius: 9999px !important;
+  padding: 0.65rem 1.75rem !important;
+  font-weight: 500 !important;
+  background: var(--primary) !important;
+  color: white !important;
+  box-shadow: none !important;
+}
+.aabriha-popup-cta:hover {
+  background: var(--primary-strong) !important;
+}
+.aabriha-popup-close {
+  color: var(--muted-foreground) !important;
+  box-shadow: none !important;
+}

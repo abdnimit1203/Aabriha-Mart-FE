@@ -12,7 +12,22 @@ import { TrashIcon } from "@/components/icons";
 
 const inputClass =
   "w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong";
+// Variant fields sit inside an already-bordered card on a light admin
+// background — the default border was too faint to read as a distinct box,
+// and placeholder-only labels disappeared once a value was typed. Darker
+// border + a persistent label above each field fixes both.
+const variantInputClass =
+  "w-full rounded-lg border border-gray-300 bg-surface px-3 py-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong";
 const MAX_IMAGES = 6;
+
+function VariantField({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <span className="mb-1 block text-xs font-medium text-muted-foreground">{label}</span>
+      {children}
+    </div>
+  );
+}
 
 function flattenForSelect(categories: Category[]): { id: string; label: string }[] {
   const byParent = new Map<string | null, Category[]>();
@@ -52,6 +67,7 @@ export function ProductForm({ product, categories }: { product?: Product; catego
   );
   const [description, setDescription] = useState(product?.description ?? "");
   const [images, setImages] = useState<ProductImage[]>(product?.images ?? []);
+  const [imageUrlInput, setImageUrlInput] = useState("");
   const [weightGrams, setWeightGrams] = useState(product?.weightGrams ?? 0);
   const [status, setStatus] = useState<"active" | "inactive">(product?.status ?? "active");
   const [attributeNames, setAttributeNames] = useState<string[]>(product?.attributeNames ?? []);
@@ -94,6 +110,20 @@ export function ProductForm({ product, categories }: { product?: Product; catego
 
   function removeImage(index: number) {
     setImages((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  // Lets an admin relink an image already sitting in ImageKit (e.g. from a
+  // product that was recreated after a data loss) without re-uploading a
+  // duplicate file — the uploader only otherwise supports picking a new one.
+  function addImageByUrl() {
+    const url = imageUrlInput.trim();
+    if (!url) return;
+    if (images.length >= MAX_IMAGES) {
+      toast.error(`A product can have at most ${MAX_IMAGES} images.`);
+      return;
+    }
+    setImages((prev) => [...prev, { url }]);
+    setImageUrlInput("");
   }
 
   function addAttribute() {
@@ -270,6 +300,29 @@ export function ProductForm({ product, categories }: { product?: Product; catego
             </label>
           )}
         </div>
+        {images.length < MAX_IMAGES && (
+          <div className="mt-2 flex gap-2">
+            <input
+              value={imageUrlInput}
+              onChange={(e) => setImageUrlInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addImageByUrl();
+                }
+              }}
+              placeholder="Or paste an existing image URL (e.g. from ImageKit)"
+              className={`${inputClass} max-w-md`}
+            />
+            <button
+              type="button"
+              onClick={addImageByUrl}
+              className="whitespace-nowrap rounded-lg border border-border px-3 py-2 text-sm hover:bg-background"
+            >
+              Add
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-3">
@@ -349,7 +402,7 @@ export function ProductForm({ product, categories }: { product?: Product; catego
 
           <div className="space-y-3">
             {variants.map((variant, i) => (
-              <div key={i} className="rounded-xl border border-border p-3">
+              <div key={i} className="rounded-xl border border-primary/30 bg-primary/5 p-3.5 backdrop-blur-sm">
                 <div className="mb-2 flex items-center justify-between">
                   <span className="text-sm font-medium">Variant {i + 1}</span>
                   <button
@@ -362,58 +415,69 @@ export function ProductForm({ product, categories }: { product?: Product; catego
                     <TrashIcon className="h-4 w-4" />
                   </button>
                 </div>
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                  <input
-                    required
-                    placeholder="SKU"
-                    value={variant.sku}
-                    onChange={(e) => updateVariant(i, { sku: e.target.value })}
-                    className={inputClass}
-                  />
-                  {attributeNames.map((attr) => (
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  <VariantField label="SKU">
                     <input
-                      key={attr}
                       required
-                      placeholder={attr}
-                      value={variant.attributes[attr] ?? ""}
-                      onChange={(e) => updateVariantAttribute(i, attr, e.target.value)}
-                      className={inputClass}
+                      placeholder="SKU"
+                      value={variant.sku}
+                      onChange={(e) => updateVariant(i, { sku: e.target.value })}
+                      className={variantInputClass}
                     />
+                  </VariantField>
+                  {attributeNames.map((attr) => (
+                    <VariantField key={attr} label={attr}>
+                      <input
+                        required
+                        placeholder={attr}
+                        value={variant.attributes[attr] ?? ""}
+                        onChange={(e) => updateVariantAttribute(i, attr, e.target.value)}
+                        className={variantInputClass}
+                      />
+                    </VariantField>
                   ))}
-                  <input
-                    required
-                    type="number"
-                    min={0}
-                    placeholder="Price"
-                    value={variant.price}
-                    onChange={(e) => updateVariant(i, { price: Number(e.target.value) })}
-                    className={inputClass}
-                  />
-                  <input
-                    type="number"
-                    min={0}
-                    placeholder="Discount price"
-                    value={variant.discountPrice ?? ""}
-                    onChange={(e) => updateVariant(i, { discountPrice: e.target.value ? Number(e.target.value) : undefined })}
-                    className={inputClass}
-                  />
-                  <input
-                    required
-                    type="number"
-                    min={0}
-                    placeholder="Stock"
-                    value={variant.stock}
-                    onChange={(e) => updateVariant(i, { stock: Number(e.target.value) })}
-                    className={inputClass}
-                  />
-                  <select
-                    value={variant.status}
-                    onChange={(e) => updateVariant(i, { status: e.target.value as "active" | "inactive" })}
-                    className={inputClass}
-                  >
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                  </select>
+                  <VariantField label="Price">
+                    <input
+                      required
+                      type="number"
+                      min={0}
+                      placeholder="Price"
+                      value={variant.price}
+                      onChange={(e) => updateVariant(i, { price: Number(e.target.value) })}
+                      className={variantInputClass}
+                    />
+                  </VariantField>
+                  <VariantField label="Discount price">
+                    <input
+                      type="number"
+                      min={0}
+                      placeholder="Discount price"
+                      value={variant.discountPrice ?? ""}
+                      onChange={(e) => updateVariant(i, { discountPrice: e.target.value ? Number(e.target.value) : undefined })}
+                      className={variantInputClass}
+                    />
+                  </VariantField>
+                  <VariantField label="Stock">
+                    <input
+                      required
+                      type="number"
+                      min={0}
+                      placeholder="Stock"
+                      value={variant.stock}
+                      onChange={(e) => updateVariant(i, { stock: Number(e.target.value) })}
+                      className={variantInputClass}
+                    />
+                  </VariantField>
+                  <VariantField label="Status">
+                    <select
+                      value={variant.status}
+                      onChange={(e) => updateVariant(i, { status: e.target.value as "active" | "inactive" })}
+                      className={variantInputClass}
+                    >
+                      <option value="active">Active</option>
+                      <option value="inactive">Inactive</option>
+                    </select>
+                  </VariantField>
                 </div>
               </div>
             ))}
@@ -473,13 +537,23 @@ export function ProductForm({ product, categories }: { product?: Product; catego
         </div>
       )}
 
-      <button
-        type="submit"
-        disabled={saving || uploading}
-        className="rounded-full bg-primary px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-strong disabled:cursor-not-allowed disabled:opacity-50"
-      >
-        {saving ? "Saving…" : isEdit ? "Save changes" : "Create product"}
-      </button>
+      <div className="flex items-center gap-3">
+        <button
+          type="submit"
+          disabled={saving || uploading}
+          className="rounded-full bg-primary px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-strong disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {saving ? "Saving…" : isEdit ? "Save changes" : "Create product"}
+        </button>
+        <button
+          type="button"
+          onClick={() => router.push("/admin/products")}
+          disabled={saving}
+          className="rounded-full border border-border px-5 py-2 text-sm font-medium hover:bg-background disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          Cancel
+        </button>
+      </div>
     </form>
   );
 }

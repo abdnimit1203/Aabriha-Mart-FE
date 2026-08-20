@@ -7,6 +7,8 @@ import { useAuth } from "@/context/AuthContext";
 import { Product } from "@/types/catalog";
 import { listProductsAdmin, deleteProduct } from "@/lib/admin/products";
 import { TrashIcon } from "@/components/icons";
+import { AdminPageHeader } from "@/components/AdminPageHeader";
+import { confirmToast } from "@/lib/confirmToast";
 
 function priceSummary(product: Product): string {
   if (product.variants.length > 0) {
@@ -43,7 +45,7 @@ export default function AdminProductsPage() {
   useEffect(load, [load]);
 
   async function handleDelete(product: Product) {
-    if (!confirm(`Delete "${product.name}"? This cannot be undone.`)) return;
+    if (!(await confirmToast(`Delete "${product.name}"? This cannot be undone.`))) return;
     const idToken = await getIdToken();
     if (!idToken) return;
     try {
@@ -59,7 +61,7 @@ export default function AdminProductsPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-xl font-semibold">Products</h1>
+      <AdminPageHeader title="Products" description="Manage your catalog, variants, and stock." />
       <div className="mb-4 flex items-center justify-between gap-3">
         <input
           value={search}

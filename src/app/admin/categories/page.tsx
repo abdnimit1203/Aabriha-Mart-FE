@@ -8,6 +8,8 @@ import { getAllCategories } from "@/lib/catalog";
 import { deleteCategory } from "@/lib/admin/categories";
 import { Category } from "@/types/catalog";
 import { TrashIcon } from "@/components/icons";
+import { AdminPageHeader } from "@/components/AdminPageHeader";
+import { confirmToast } from "@/lib/confirmToast";
 
 interface AdminCategoryNode extends Category {
   children: AdminCategoryNode[];
@@ -40,7 +42,7 @@ function Row({ node, depth }: { node: AdminCategoryNode; depth: number }) {
   const [deleting, setDeleting] = useState(false);
 
   async function handleDelete() {
-    if (!confirm(`Delete "${node.name}"? This cannot be undone.`)) return;
+    if (!(await confirmToast(`Delete "${node.name}"? This cannot be undone.`))) return;
     const idToken = await getIdToken();
     if (!idToken) return;
     setDeleting(true);
@@ -108,15 +110,18 @@ export default function AdminCategoriesPage() {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Categories</h1>
-        <Link
-          href="/admin/categories/new"
-          className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-strong"
-        >
-          New Category
-        </Link>
-      </div>
+      <AdminPageHeader
+        title="Categories"
+        description="Organize your catalog into a browsable hierarchy."
+        actions={
+          <Link
+            href="/admin/categories/new"
+            className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-strong"
+          >
+            New Category
+          </Link>
+        }
+      />
 
       {tree.length === 0 ? (
         <p className="text-sm text-muted-foreground">No categories yet.</p>

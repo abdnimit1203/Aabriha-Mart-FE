@@ -1,10 +1,13 @@
 import { apiFetch } from "@/lib/api";
-import { AdminOrder, OrderStatus, PaymentStatus } from "@/types/order";
+import { AdminOrder, DeliveryZone, OrderStatus, PaymentStatus } from "@/types/order";
 
 export interface AdminOrderFilters {
   status?: OrderStatus;
   paymentStatus?: PaymentStatus;
   source?: string;
+  deliveryZone?: DeliveryZone;
+  dateFrom?: string;
+  dateTo?: string;
   search?: string;
   page?: number;
   limit?: number;
@@ -15,6 +18,9 @@ export async function listOrdersAdmin(idToken: string, filters: AdminOrderFilter
   if (filters.status) query.set("status", filters.status);
   if (filters.paymentStatus) query.set("paymentStatus", filters.paymentStatus);
   if (filters.source) query.set("source", filters.source);
+  if (filters.deliveryZone) query.set("deliveryZone", filters.deliveryZone);
+  if (filters.dateFrom) query.set("dateFrom", filters.dateFrom);
+  if (filters.dateTo) query.set("dateTo", filters.dateTo);
   if (filters.search) query.set("search", filters.search);
   query.set("page", String(filters.page ?? 1));
   query.set("limit", String(filters.limit ?? 20));

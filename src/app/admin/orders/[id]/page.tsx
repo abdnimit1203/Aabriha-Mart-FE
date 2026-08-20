@@ -1,15 +1,28 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import toast from "react-hot-toast";
 import { useAuth } from "@/context/AuthContext";
 import { getOrderAdmin, updateOrderStatus, updateOrderPayment } from "@/lib/admin/orders";
 import { AdminOrder, OrderStatus, PaymentStatus } from "@/types/order";
-import { STATUS_OPTIONS, STATUS_CLASS, PAYMENT_STATUS_OPTIONS, PAYMENT_STATUS_CLASS, formatStatusLabel } from "../orderStatusStyles";
+import {
+  STATUS_CLASS,
+  PAYMENT_STATUS_OPTIONS,
+  PAYMENT_STATUS_CLASS,
+  PAYMENT_METHOD_LABEL,
+  DELIVERY_ZONE_LABEL,
+  NEXT_STATUSES,
+  formatStatusLabel,
+} from "../orderStatusStyles";
 
 const inputClass =
   "rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong";
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{children}</h2>;
+}
 
 export default function AdminOrderDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -79,13 +92,24 @@ export default function AdminOrderDetailPage() {
   if (order === undefined) return <p className="text-sm text-muted-foreground">Loading…</p>;
   if (!order) return <p className="text-sm text-danger">Order not found.</p>;
 
+  const statusOptions = [order.status, ...NEXT_STATUSES[order.status]];
+
   return (
     <div className="max-w-4xl">
-      <div className="mb-6 flex items-center justify-between">
+      <Link href="/admin/orders" className="mb-3 inline-block text-sm text-muted-foreground hover:text-foreground">
+        ← Orders
+      </Link>
+      <div className="mb-5 flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold">Order #{order._id.slice(-8).toUpperCase()}</h1>
+          <h1 className="text-xl font-semibold text-foreground">Order #{order._id.slice(-8).toUpperCase()}</h1>
           <p className="text-sm text-muted-foreground">
-            {new Date(order.createdAt).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+            {new Date(order.createdAt).toLocaleString("en-GB", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
             {" · "}
             {formatStatusLabel(order.source)}
           </p>
@@ -95,26 +119,26 @@ export default function AdminOrderDetailPage() {
         </span>
       </div>
 
-      <div className="grid gap-6 sm:grid-cols-2">
-        <div className="rounded-xl border border-border p-4">
-          <h2 className="mb-2 text-sm font-semibold">Customer</h2>
-          <p className="text-sm">{order.customer?.username ?? "Deleted user"}</p>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="rounded-xl border border-border bg-surface p-4">
+          <SectionLabel>Customer</SectionLabel>
+          <p className="text-sm font-medium">{order.customer?.username ?? "Deleted user"}</p>
           <p className="text-sm text-muted-foreground">{order.customer?.email}</p>
           <p className="text-sm text-muted-foreground">{order.phone}</p>
         </div>
 
-        <div className="rounded-xl border border-border p-4">
-          <h2 className="mb-2 text-sm font-semibold">Delivery address</h2>
+        <div className="rounded-xl border border-border bg-surface p-4">
+          <SectionLabel>Delivery address</SectionLabel>
           <p className="text-sm">{order.deliveryAddress.detailedAddress}</p>
           <p className="text-sm text-muted-foreground">
             {order.deliveryAddress.area}, {order.deliveryAddress.district}, {order.deliveryAddress.division}
           </p>
-          <p className="mt-1 text-xs text-muted-foreground capitalize">{formatStatusLabel(order.deliveryZone)}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{DELIVERY_ZONE_LABEL[order.deliveryZone]}</p>
         </div>
       </div>
 
-      <div className="mt-6 rounded-xl border border-border p-4">
-        <h2 className="mb-3 text-sm font-semibold">Items</h2>
+      <div className="mt-4 rounded-xl border border-border bg-surface p-4">
+        <SectionLabel>Items</SectionLabel>
         <table className="w-full border-collapse">
           <tbody>
             {order.items.map((item, i) => (
@@ -157,16 +181,17 @@ export default function AdminOrderDetailPage() {
         </div>
       </div>
 
-      <div className="mt-6 grid gap-6 sm:grid-cols-2">
-        <div className="rounded-xl border border-border p-4">
-          <h2 className="mb-3 text-sm font-semibold">Order status</h2>
+      <div className="mt-4 grid gap-4 sm:grid-cols-2">
+        <div className="rounded-xl border border-border bg-surface p-4">
+          <SectionLabel>Order status</SectionLabel>
           <div className="flex items-center gap-2">
             <select
               value={statusDraft}
               onChange={(e) => setStatusDraft(e.target.value as OrderStatus)}
-              className={`${inputClass} flex-1`}
+              disabled={statusOptions.length <= 1}
+              className={`${inputClass} flex-1 disabled:opacity-50`}
             >
-              {STATUS_OPTIONS.map((s) => (
+              {statusOptions.map((s) => (
                 <option key={s} value={s}>
                   {formatStatusLabel(s)}
                 </option>
@@ -181,15 +206,16 @@ export default function AdminOrderDetailPage() {
               Save
             </button>
           </div>
+          {statusOptions.length <= 1 && <p className="mt-2 text-xs text-muted-foreground">This order is in a final state.</p>}
           {(statusDraft === "cancelled" || statusDraft === "returned") && statusDraft !== order.status && (
             <p className="mt-2 text-xs text-muted-foreground">Saving this will restore stock for every item in the order.</p>
           )}
         </div>
 
-        <div className="rounded-xl border border-border p-4">
-          <h2 className="mb-3 text-sm font-semibold">Payment</h2>
-          <p className="mb-2 text-xs text-muted-foreground capitalize">
-            {formatStatusLabel(order.paymentMethod)}
+        <div className="rounded-xl border border-border bg-surface p-4">
+          <SectionLabel>Payment</SectionLabel>
+          <p className="mb-2 text-xs text-muted-foreground">
+            {PAYMENT_METHOD_LABEL[order.paymentMethod]}
             {order.paymentTransactionId && ` · Ref: ${order.paymentTransactionId}`}
           </p>
           <div className="flex items-center gap-2">
