@@ -3,6 +3,7 @@ import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { AnnouncementBar } from "@/components/AnnouncementBar";
 import { Footer } from "@/components/Footer";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
+import { WelcomePopup } from "@/components/WelcomePopup";
 
 export default function StorefrontLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -17,6 +18,7 @@ export default function StorefrontLayout({ children }: { children: React.ReactNo
       <Footer />
       <WhatsAppButton />
       <MobileBottomNav />
+      <WelcomePopup />
     </div>
   );
 }

@@ -1,12 +1,18 @@
 import Link from "next/link";
 import Image from "next/image";
 import { FaFacebook, FaInstagram, FaLinkedin, FaTwitter } from "react-icons/fa";
+import { FaMoneyBillWave, FaCreditCard } from "react-icons/fa6";
 
-const NAV_LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/products", label: "Products" },
+const SHOP_LINKS = [
+  { href: "/categories", label: "Categories" },
   { href: "/new-arrivals", label: "New Arrivals" },
-  { href: "/offers", label: "Offers" },
+  { href: "/offers", label: "Special Offers" },
+  { href: "/products", label: "All Products" },
+];
+
+const ACCOUNT_LINKS = [
+  { href: "/account", label: "My Account" },
+  { href: "/orders", label: "My Orders" },
 ];
 
 export function Footer() {
@@ -23,7 +29,7 @@ export function Footer() {
 
   return (
     <footer className="bg-primary-strong text-white">
-      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:grid-cols-3 sm:px-6">
+      <div className={`mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:px-6 ${hasContact ? "sm:grid-cols-4" : "sm:grid-cols-3"}`}>
         <div>
           <div className="flex h-16 w-16 items-center justify-center rounded-2xl border-2 border-white bg-white">
             <Image src="/logo.png" alt="" width={48} height={48} className="h-12 w-12 object-contain" />
@@ -51,7 +57,20 @@ export function Footer() {
         <div>
           <p className="text-sm font-semibold">Shop</p>
           <ul className="mt-3 space-y-2">
-            {NAV_LINKS.map((link) => (
+            {SHOP_LINKS.map((link) => (
+              <li key={link.href}>
+                <Link href={link.href} className="text-sm text-white/80 hover:text-white">
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div>
+          <p className="text-sm font-semibold">Account</p>
+          <ul className="mt-3 space-y-2">
+            {ACCOUNT_LINKS.map((link) => (
               <li key={link.href}>
                 <Link href={link.href} className="text-sm text-white/80 hover:text-white">
                   {link.label}
@@ -77,6 +96,33 @@ export function Footer() {
             </ul>
           </div>
         )}
+      </div>
+
+      <div className="border-t border-white/10 px-4 py-5 sm:px-6">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-4">
+          <span className="flex items-center gap-1.5 text-xs text-white/70">
+            <FaMoneyBillWave className="h-4 w-4" /> Cash on Delivery
+          </span>
+          <Image
+            src="/logo-bkash.png"
+            alt="bKash"
+            width={56}
+            height={20}
+            style={{ width: "auto" }}
+            className="h-5 object-contain opacity-90"
+          />
+          <Image
+            src="/logo-nagad.png"
+            alt="Nagad"
+            width={56}
+            height={20}
+            style={{ width: "auto" }}
+            className="h-5 object-contain opacity-90"
+          />
+          <span className="flex items-center gap-1.5 text-xs text-white/70">
+            <FaCreditCard className="h-4 w-4" /> Card via Stripe
+          </span>
+        </div>
       </div>
 
       <div className="border-t border-white/20 px-4 py-4 text-center text-xs text-white/70 sm:px-6">

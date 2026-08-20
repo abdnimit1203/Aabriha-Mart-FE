@@ -69,6 +69,13 @@ export function ProductCard({ product }: { product: Product }) {
               Sale
             </span>
           )}
+          {!available && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+              <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold uppercase tracking-wide text-foreground">
+                Out of Stock
+              </span>
+            </div>
+          )}
         </div>
 
         <div className="pointer-events-none space-y-1 p-3 pr-9">
