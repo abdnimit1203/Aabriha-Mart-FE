@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
@@ -8,6 +8,7 @@ import { signInWithEmail, signInWithGoogle } from "@/lib/auth";
 import { GoogleIcon } from "@/components/icons";
 import { PasswordInput } from "@/components/PasswordInput";
 import { AuthBrandHeader } from "@/components/AuthBrandHeader";
+import { useAuth } from "@/context/AuthContext";
 
 function friendlyAuthError(err: unknown): string {
   const code = (err as { code?: string })?.code ?? "";
@@ -21,9 +22,14 @@ function friendlyAuthError(err: unknown): string {
 
 export default function LoginPage() {
   const router = useRouter();
+  const { user, loading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!loading && user) router.replace("/");
+  }, [loading, user, router]);
 
   async function handleEmailLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -50,6 +56,10 @@ export default function LoginPage() {
     } finally {
       setSubmitting(false);
     }
+  }
+
+  if (loading || user) {
+    return <main className="mx-auto max-w-sm px-4 py-12 sm:px-6" />;
   }
 
   return (

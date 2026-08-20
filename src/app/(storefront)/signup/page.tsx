@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
@@ -21,13 +21,17 @@ function friendlyAuthError(err: unknown): string {
 
 export default function SignupPage() {
   const router = useRouter();
-  const { signUp } = useAuth();
+  const { user, loading, signUp } = useAuth();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!loading && user) router.replace("/");
+  }, [loading, user, router]);
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
@@ -59,6 +63,10 @@ export default function SignupPage() {
     } finally {
       setSubmitting(false);
     }
+  }
+
+  if (loading || user) {
+    return <main className="mx-auto max-w-sm px-4 py-12 sm:px-6" />;
   }
 
   return (
