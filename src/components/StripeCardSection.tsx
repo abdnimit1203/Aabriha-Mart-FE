@@ -8,8 +8,10 @@ import { createOrder } from "@/lib/orders";
 import { CheckoutItemInput, CheckoutSummary, Order } from "@/types/order";
 import { Address } from "@/types/user";
 
-// No billing details collected — the delivery address above already covers
-// "where," and nothing else in checkout needs a name/email/postal code.
+// Billing details aren't collected again here — the checkout form above
+// already has the customer's phone/address, and the account has their
+// email/username. Those get passed to stripe.confirmPayment() instead
+// (Stripe requires *something* for any field suppressed like this).
 const PAYMENT_ELEMENT_OPTIONS = {
   fields: {
     billingDetails: { name: "never" as const, email: "never" as const, phone: "never" as const, address: "never" as const },
@@ -31,7 +33,7 @@ export function StripeCardSection({
 }) {
   const stripe = useStripe();
   const elements = useElements();
-  const { getIdToken } = useAuth();
+  const { getIdToken, profile } = useAuth();
   const [submitting, setSubmitting] = useState(false);
 
   async function handlePay() {
@@ -50,7 +52,32 @@ export function StripeCardSection({
 
       const result = await stripe.confirmPayment({
         elements,
-        confirmParams: { return_url: `${window.location.origin}/checkout` },
+        confirmParams: {
+          return_url: `${window.location.origin}/checkout`,
+          // Every billing_details field the Payment Element opts out of
+          // collecting (fields.billingDetails: all "never" above) must be
+          // supplied here instead — Stripe requires it, even though we
+          // don't need to show these fields again since we already have
+          // them from the account/checkout form.
+          payment_method_data: {
+            billing_details: {
+              name: profile?.username || phone,
+              email: profile?.email,
+              phone,
+              address: {
+                line1: address.detailedAddress,
+                city: address.district,
+                state: address.division,
+                // Not collected anywhere in this app (Bangladeshi delivery
+                // addresses here don't use postal codes) — Stripe still
+                // requires the key to be present since address collection
+                // is suppressed in the Payment Element.
+                postal_code: "",
+                country: "BD",
+              },
+            },
+          },
+        },
         redirect: "if_required",
       });
 
