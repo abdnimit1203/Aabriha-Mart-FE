@@ -1,12 +1,13 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useAuth } from "@/context/AuthContext";
 import { Promotion } from "@/types/storefront";
 import { createPromotion, updatePromotion, PromotionInput } from "@/lib/admin/promotions";
 import { uploadCatalogImage } from "@/lib/upload";
+import { ImageUploadField } from "@/components/ImageUploadField";
 
 const inputClass =
   "w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong";
@@ -20,7 +21,6 @@ export function PromotionForm({ promotion }: { promotion?: Promotion }) {
   const router = useRouter();
   const { getIdToken } = useAuth();
   const isEdit = Boolean(promotion);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [image, setImage] = useState(promotion?.image ?? "");
   const [titleEn, setTitleEn] = useState(promotion?.titleEn ?? "");
@@ -37,21 +37,10 @@ export function PromotionForm({ promotion }: { promotion?: Promotion }) {
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  async function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  async function uploadImage(file: File): Promise<string> {
     const idToken = await getIdToken();
-    if (!idToken) return;
-    setUploading(true);
-    try {
-      const url = await uploadCatalogImage(file, idToken, "/promotions");
-      setImage(url);
-    } catch {
-      toast.error("Image upload failed. Please try again.");
-    } finally {
-      setUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    }
+    if (!idToken) throw new Error("Not signed in.");
+    return uploadCatalogImage(file, idToken, "/promotions");
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -100,18 +89,15 @@ export function PromotionForm({ promotion }: { promotion?: Promotion }) {
   return (
     <form onSubmit={handleSubmit} className="max-w-xl space-y-4">
       <div>
-        <span className="mb-1 block text-sm font-medium">Image</span>
-        <div className="flex items-center gap-3">
-          {image ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={image} alt="" className="h-20 w-16 rounded-lg border border-border object-cover" />
-          ) : (
-            <div className="flex h-20 w-16 items-center justify-center rounded-lg border border-dashed border-border text-xs text-muted-foreground">
-              None
-            </div>
-          )}
-          <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageChange} disabled={uploading} className="text-sm" />
-        </div>
+        <ImageUploadField
+          label="Image"
+          image={image}
+          onChange={setImage}
+          onUploadFile={uploadImage}
+          uploading={uploading}
+          setUploading={setUploading}
+          previewSize="h-20 w-16"
+        />
         <p className="mt-1 text-xs text-muted-foreground">
           A self-contained flyer (text baked into the image) works fine — leave Title/Description below blank and it renders as-is.
         </p>

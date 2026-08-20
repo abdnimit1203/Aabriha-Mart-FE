@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useAuth } from "@/context/AuthContext";
@@ -8,6 +8,7 @@ import { Category } from "@/types/catalog";
 import { createCategory, updateCategory, CategoryInput } from "@/lib/admin/categories";
 import { uploadCatalogImage } from "@/lib/upload";
 import { slugify } from "@/lib/slugify";
+import { ImageUploadField } from "@/components/ImageUploadField";
 
 const inputClass =
   "w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong";
@@ -43,26 +44,14 @@ export function CategoryForm({ category, allCategories }: { category?: Category;
   const [sortOrder, setSortOrder] = useState(category?.sortOrder ?? 0);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const excludedParentIds = category ? selfAndDescendantIds(category._id, allCategories) : new Set<string>();
   const parentOptions = allCategories.filter((c) => !excludedParentIds.has(c._id));
 
-  async function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  async function uploadImage(file: File): Promise<string> {
     const idToken = await getIdToken();
-    if (!idToken) return;
-    setUploading(true);
-    try {
-      const url = await uploadCatalogImage(file, idToken, "/categories");
-      setImage(url);
-    } catch {
-      toast.error("Image upload failed. Please try again.");
-    } finally {
-      setUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    }
+    if (!idToken) throw new Error("Not signed in.");
+    return uploadCatalogImage(file, idToken, "/categories");
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -138,20 +127,7 @@ export function CategoryForm({ category, allCategories }: { category?: Category;
         </select>
       </div>
 
-      <div>
-        <span className="mb-1 block text-sm font-medium">Image</span>
-        <div className="flex items-center gap-3">
-          {image ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={image} alt="" className="h-16 w-16 rounded-lg border border-border object-cover" />
-          ) : (
-            <div className="flex h-16 w-16 items-center justify-center rounded-lg border border-dashed border-border text-xs text-muted-foreground">
-              None
-            </div>
-          )}
-          <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageChange} disabled={uploading} className="text-sm" />
-        </div>
-      </div>
+      <ImageUploadField label="Image" image={image} onChange={setImage} onUploadFile={uploadImage} uploading={uploading} setUploading={setUploading} />
 
       <div className="grid grid-cols-2 gap-3">
         <div>

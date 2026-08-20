@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useAuth } from "@/context/AuthContext";
 import { getWelcomePopup } from "@/lib/catalog";
@@ -8,6 +8,7 @@ import { updateWelcomePopup } from "@/lib/admin/storefrontConfig";
 import { uploadCatalogImage } from "@/lib/upload";
 import { WelcomePopup } from "@/types/storefront";
 import { AdminPageHeader } from "@/components/AdminPageHeader";
+import { ImageUploadField } from "@/components/ImageUploadField";
 
 const inputClass =
   "w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong";
@@ -17,7 +18,6 @@ export default function AdminWelcomePopupPage() {
   const [config, setConfig] = useState<WelcomePopup | null>(null);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     getWelcomePopup()
@@ -27,21 +27,10 @@ export default function AdminWelcomePopupPage() {
       );
   }, []);
 
-  async function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file || !config) return;
+  async function uploadImage(file: File): Promise<string> {
     const idToken = await getIdToken();
-    if (!idToken) return;
-    setUploading(true);
-    try {
-      const url = await uploadCatalogImage(file, idToken, "/welcome-popup");
-      setConfig({ ...config, image: url });
-    } catch {
-      toast.error("Image upload failed. Please try again.");
-    } finally {
-      setUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    }
+    if (!idToken) throw new Error("Not signed in.");
+    return uploadCatalogImage(file, idToken, "/welcome-popup");
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -77,20 +66,15 @@ export default function AdminWelcomePopupPage() {
           Enabled
         </label>
 
-        <div>
-          <span className="mb-1 block text-sm font-medium">Image</span>
-          <div className="flex items-center gap-3">
-            {config.image ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={config.image} alt="" className="h-24 w-20 rounded-lg border border-border object-cover" />
-            ) : (
-              <div className="flex h-24 w-20 items-center justify-center rounded-lg border border-dashed border-border text-xs text-muted-foreground">
-                None
-              </div>
-            )}
-            <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageChange} disabled={uploading} className="text-sm" />
-          </div>
-        </div>
+        <ImageUploadField
+          label="Image"
+          image={config.image}
+          onChange={(url) => setConfig({ ...config, image: url })}
+          onUploadFile={uploadImage}
+          uploading={uploading}
+          setUploading={setUploading}
+          previewSize="h-24 w-20"
+        />
 
         <div className="grid grid-cols-2 gap-3">
           <div>

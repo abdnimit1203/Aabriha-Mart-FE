@@ -21,6 +21,7 @@ export default function AccountPage() {
   const [detailedAddress, setDetailedAddress] = useState("");
   const [saving, setSaving] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [avatarUrlInput, setAvatarUrlInput] = useState("");
   const [checkingVerification, setCheckingVerification] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
   // Tracks which profile the form fields were last synced from, so a
@@ -86,6 +87,25 @@ export default function AccountPage() {
       toast.success("Profile photo updated.");
     } catch {
       toast.error("Couldn't upload that image. Please try again.");
+    } finally {
+      setUploadingAvatar(false);
+    }
+  }
+
+  async function handleSetAvatarUrl() {
+    const url = avatarUrlInput.trim();
+    if (!url) return;
+    const idToken = await getIdToken();
+    if (!idToken) return;
+
+    setUploadingAvatar(true);
+    try {
+      await updateMyProfile(idToken, { profileImage: url });
+      await refreshProfile();
+      toast.success("Profile photo updated.");
+      setAvatarUrlInput("");
+    } catch {
+      toast.error("Couldn't set that image. Please try again.");
     } finally {
       setUploadingAvatar(false);
     }
@@ -173,6 +193,29 @@ export default function AccountPage() {
             className="hidden"
           />
           <p className="mt-1 text-xs text-muted-foreground">JPG or PNG, up to 5MB.</p>
+          <div className="mt-2 flex gap-2">
+            <input
+              value={avatarUrlInput}
+              onChange={(e) => setAvatarUrlInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleSetAvatarUrl();
+                }
+              }}
+              placeholder="Or paste an existing image URL"
+              disabled={uploadingAvatar}
+              className="w-full max-w-xs rounded-full border border-border bg-surface px-3 py-1.5 text-xs outline-none focus-visible:outline-2 focus-visible:outline-primary-strong disabled:opacity-50"
+            />
+            <button
+              type="button"
+              onClick={handleSetAvatarUrl}
+              disabled={uploadingAvatar}
+              className="whitespace-nowrap rounded-full border border-border px-3 py-1.5 text-xs font-medium hover:bg-background disabled:opacity-50"
+            >
+              Set
+            </button>
+          </div>
         </div>
       </div>
 

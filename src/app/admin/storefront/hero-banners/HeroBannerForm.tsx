@@ -1,66 +1,16 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useAuth } from "@/context/AuthContext";
 import { HeroBanner } from "@/types/storefront";
 import { createHeroBanner, updateHeroBanner, HeroBannerInput } from "@/lib/admin/heroBanners";
 import { uploadCatalogImage } from "@/lib/upload";
+import { ImageUploadField } from "@/components/ImageUploadField";
 
 const inputClass =
   "w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong";
-
-function ImageField({
-  label,
-  image,
-  onChange,
-  uploading,
-  setUploading,
-}: {
-  label: string;
-  image: string;
-  onChange: (url: string) => void;
-  uploading: boolean;
-  setUploading: (v: boolean) => void;
-}) {
-  const { getIdToken } = useAuth();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  async function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const idToken = await getIdToken();
-    if (!idToken) return;
-    setUploading(true);
-    try {
-      const url = await uploadCatalogImage(file, idToken, "/hero-banners");
-      onChange(url);
-    } catch {
-      toast.error("Image upload failed. Please try again.");
-    } finally {
-      setUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    }
-  }
-
-  return (
-    <div>
-      <span className="mb-1 block text-sm font-medium">{label}</span>
-      <div className="flex items-center gap-3">
-        {image ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={image} alt="" className="h-16 w-24 rounded-lg border border-border object-cover" />
-        ) : (
-          <div className="flex h-16 w-24 items-center justify-center rounded-lg border border-dashed border-border text-xs text-muted-foreground">
-            None
-          </div>
-        )}
-        <input ref={fileInputRef} type="file" accept="image/*" onChange={handleChange} disabled={uploading} className="text-sm" />
-      </div>
-    </div>
-  );
-}
 
 export function HeroBannerForm({ banner }: { banner?: HeroBanner }) {
   const router = useRouter();
@@ -81,6 +31,12 @@ export function HeroBannerForm({ banner }: { banner?: HeroBanner }) {
   const [sortOrder, setSortOrder] = useState(banner?.sortOrder ?? 0);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  async function uploadImage(file: File): Promise<string> {
+    const idToken = await getIdToken();
+    if (!idToken) throw new Error("Not signed in.");
+    return uploadCatalogImage(file, idToken, "/hero-banners");
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -179,8 +135,24 @@ export function HeroBannerForm({ banner }: { banner?: HeroBanner }) {
         <input id="ctaUrl" required placeholder="/categories/womens-dresses" value={ctaUrl} onChange={(e) => setCtaUrl(e.target.value)} className={inputClass} />
       </div>
 
-      <ImageField label="Desktop image" image={desktopImage} onChange={setDesktopImage} uploading={uploading} setUploading={setUploading} />
-      <ImageField label="Mobile image (optional)" image={mobileImage} onChange={setMobileImage} uploading={uploading} setUploading={setUploading} />
+      <ImageUploadField
+        label="Desktop image"
+        image={desktopImage}
+        onChange={setDesktopImage}
+        onUploadFile={uploadImage}
+        uploading={uploading}
+        setUploading={setUploading}
+        previewSize="h-16 w-24"
+      />
+      <ImageUploadField
+        label="Mobile image (optional)"
+        image={mobileImage}
+        onChange={setMobileImage}
+        onUploadFile={uploadImage}
+        uploading={uploading}
+        setUploading={setUploading}
+        previewSize="h-16 w-24"
+      />
 
       <div>
         <label htmlFor="objectPosition" className="mb-1 block text-sm font-medium">
