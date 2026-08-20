@@ -16,6 +16,35 @@
   --danger: #d64545;
 }
 
+/* Slim, modern scrollbars everywhere. WebKit thumb stays transparent at
+   rest and only fills in on hover (--muted-foreground, scope-aware); Firefox
+   has no hover state to hook into, so scrollbar-color shows a fixed
+   brand-blue thumb on a white track at all times. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #1c75adcb white;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--muted-foreground);
+}
+
 /* Admin dashboard is an operational tool, not the storefront — it overrides
    the same token names (not a parallel --admin-* set) inside this scope, so
    every existing bg-surface/text-muted-foreground/border-border class used
