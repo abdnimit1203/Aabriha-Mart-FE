@@ -68,7 +68,14 @@ export function ImageUploadField({
             None
           </div>
         )}
-        <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} disabled={uploading} className="text-sm" />
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          disabled={uploading}
+          className="cursor-pointer text-xs text-muted-foreground file:mr-3 file:cursor-pointer file:rounded-full file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-white hover:file:bg-primary-strong disabled:cursor-not-allowed disabled:opacity-50"
+        />
       </div>
       <div className="mt-2 flex gap-2">
         <input
