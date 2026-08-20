@@ -4,9 +4,10 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { GridIcon, FilterIcon } from "@/components/icons";
+import { GridIcon, FilterIcon, CartIcon } from "@/components/icons";
 
 const NAV_LINKS = [
+  { href: "/admin/orders", label: "Orders", icon: CartIcon },
   { href: "/admin/products", label: "Products", icon: GridIcon },
   { href: "/admin/categories", label: "Categories", icon: FilterIcon },
 ];
