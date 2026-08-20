@@ -47,6 +47,10 @@ function formatDate(value: string): string {
   return new Date(value).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 }
 
+function formatTime(value: string): string {
+  return new Date(value).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+}
+
 function SkeletonRows() {
   return (
     <>
@@ -318,7 +322,10 @@ export default function AdminOrdersPage() {
                         <StatusPill order={order} />
                       </td>
                       <td className="py-3.5 pr-3 text-sm text-muted-foreground">{DELIVERY_ZONE_LABEL[order.deliveryZone]}</td>
-                      <td className="py-3.5 pr-3 text-sm text-muted-foreground">{formatDate(order.createdAt)}</td>
+                      <td className="py-3.5 pr-3 text-sm text-muted-foreground">
+                        <p>{formatDate(order.createdAt)}</p>
+                        <p className="text-xs">{formatTime(order.createdAt)}</p>
+                      </td>
                       <td className="py-3.5 pr-4 text-right">
                         <OrderActionsMenu order={order} onStatusChange={handleStatusChange} />
                       </td>
@@ -346,7 +353,9 @@ export default function AdminOrdersPage() {
                     <p className="mt-1 text-sm">{order.customer?.username ?? order.phone}</p>
                     <div className="mt-2 flex items-center justify-between text-sm">
                       <span className="font-medium">৳{order.total.toLocaleString()}</span>
-                      <span className="text-xs text-muted-foreground">{formatDate(order.createdAt)}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {formatDate(order.createdAt)} · {formatTime(order.createdAt)}
+                      </span>
                     </div>
                   </Link>
                 ))}
