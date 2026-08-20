@@ -21,6 +21,7 @@ export default function AccountPage() {
   const [detailedAddress, setDetailedAddress] = useState("");
   const [saving, setSaving] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [checkingVerification, setCheckingVerification] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
   // Tracks which profile the form fields were last synced from, so a
   // freshly (re)loaded profile can reset the form during render — the
@@ -93,6 +94,18 @@ export default function AccountPage() {
   async function handleResendVerification() {
     await resendVerificationEmail();
     toast.success("Verification email sent.");
+  }
+
+  async function handleCheckVerification() {
+    setCheckingVerification(true);
+    try {
+      await refreshProfile();
+      toast.success("Checked — refreshed your verification status.");
+    } catch {
+      toast.error("Couldn't check verification status. Please try again.");
+    } finally {
+      setCheckingVerification(false);
+    }
   }
 
   async function handleSignOut() {
@@ -173,13 +186,23 @@ export default function AccountPage() {
           )}
         </p>
         {!profile.emailVerified && (
-          <button
-            type="button"
-            onClick={handleResendVerification}
-            className="mt-2 text-sm font-medium text-primary-strong hover:underline"
-          >
-            Resend verification email
-          </button>
+          <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
+            <button
+              type="button"
+              onClick={handleResendVerification}
+              className="text-sm font-medium text-primary-strong hover:underline"
+            >
+              Resend verification email
+            </button>
+            <button
+              type="button"
+              onClick={handleCheckVerification}
+              disabled={checkingVerification}
+              className="text-sm font-medium text-primary-strong hover:underline disabled:opacity-50"
+            >
+              {checkingVerification ? "Checking…" : "I've verified — check again"}
+            </button>
+          </div>
         )}
       </div>
 

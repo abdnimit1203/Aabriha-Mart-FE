@@ -20,7 +20,10 @@ interface AuthContextValue {
   /** True once signed in but the profile still needs a phone number (Google
    * sign-in defers this — see backend authController). */
   needsProfileCompletion: boolean;
-  getIdToken: () => Promise<string | null>;
+  getIdToken: (forceRefresh?: boolean) => Promise<string | null>;
+  /** Forces a fresh ID token before re-fetching the profile — needed
+   * specifically after email verification, since Firebase's cached token
+   * keeps its stale email_verified claim for up to an hour otherwise. */
   refreshProfile: () => Promise<void>;
   /** Creates the Firebase account and its Mongo profile as one sequenced
    * operation, in that order, and is the only thing that ever passes
@@ -42,8 +45,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // username/phone the signup form collected.
   const suppressAutoSync = useRef(false);
 
-  const loadProfile = useCallback(async (user: FirebaseUser) => {
-    const idToken = await user.getIdToken();
+  const loadProfile = useCallback(async (user: FirebaseUser, forceToken = false) => {
+    const idToken = await user.getIdToken(forceToken);
     try {
       const existing = await fetchMyProfile(idToken);
       setProfile(existing);
@@ -73,13 +76,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return unsubscribe;
   }, [loadProfile]);
 
-  async function getIdToken() {
+  async function getIdToken(forceRefresh = false) {
     if (!auth.currentUser) return null;
-    return auth.currentUser.getIdToken();
+    return auth.currentUser.getIdToken(forceRefresh);
   }
 
   async function refreshProfile() {
-    if (auth.currentUser) await loadProfile(auth.currentUser);
+    if (!auth.currentUser) return;
+    // reload() pulls Firebase's current verification status onto the local
+    // user object; forcing the *token* refresh (not just reload) is what
+    // actually gets email_verified into the JWT claim the backend reads.
+    await auth.currentUser.reload();
+    await loadProfile(auth.currentUser, true);
   }
 
   async function signUp(email: string, password: string, fields: { username: string; phone: string }) {
