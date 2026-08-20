@@ -7,6 +7,9 @@ import { motion } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
 import { signOutUser } from "@/lib/auth";
 import { useDismissableOverlay } from "@/hooks/useDismissableOverlay";
+import { NotificationBell } from "@/components/NotificationBell";
+
+
 import {
   HomeIcon,
   ReceiptIcon,
@@ -23,6 +26,7 @@ import {
   ImageIcon,
   BellIcon,
 } from "@/components/icons";
+import { FaStore } from "react-icons/fa";
 
 type Role = "super_admin" | "order_manager";
 type IconComponent = (props: { className?: string }) => React.ReactElement;
@@ -82,7 +86,7 @@ const SECONDARY_NAV: NavItem[] = [
 ];
 
 const SETTINGS_NAV: NavItem[] = [
-  { href: "/admin/settings", label: "Settings", icon: SettingsIcon, roles: ["super_admin"], soon: true },
+  { href: "/admin/settings", label: "Settings", icon: SettingsIcon, roles: ["super_admin"] },
 ];
 
 const SIDEBAR_COLLAPSED_KEY = "aabriha-admin-sidebar-collapsed";
@@ -132,9 +136,8 @@ function NavLink({
       href={item.href}
       onClick={onNavigate}
       title={collapsed ? item.label : undefined}
-      className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-sm font-medium transition-colors ${
-        active ? "bg-primary text-white" : "text-muted-foreground hover:bg-white/8 hover:text-foreground"
-      }`}
+      className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-sm font-medium transition-colors ${active ? "bg-primary text-white" : "text-muted-foreground hover:bg-white/8 hover:text-foreground"
+        }`}
     >
       <Icon className="h-4 w-4 shrink-0" />
       {!collapsed && (
@@ -328,18 +331,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           aria-label="Open navigation"
           className="rounded-lg p-1.5 text-muted-foreground hover:bg-black/3"
         >
-          <MenuIcon className="h-5 w-5" />
+          <MenuIcon className="h-6 w-6" />
         </button>
         <p className="text-sm font-semibold text-foreground">{currentLabel}</p>
-        <Link href="/" className="text-xs text-muted-foreground hover:underline">
-          Store
-        </Link>
+        <div className="flex items-center gap-1">
+          <NotificationBell />
+          <Link href="/" className="px-1 text-xs text-muted-foreground hover:underline">
+            <FaStore className="h-5 w-5 text-danger" />
+          </Link>
+        </div>
       </div>
 
       <div
-        className={`fixed inset-0 z-40 transition-opacity duration-300 sm:hidden ${
-          mobileOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
-        }`}
+        className={`fixed inset-0 z-40 transition-opacity duration-300 sm:hidden ${mobileOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
+          }`}
         aria-hidden={!mobileOpen}
       >
         <div className="absolute inset-0 bg-black/40" onClick={() => setMobileOpen(false)} />
@@ -348,9 +353,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           role="dialog"
           aria-label="Admin navigation"
           aria-modal="true"
-          className={`admin-sidebar absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col bg-surface shadow-xl transition-transform duration-300 ${
-            mobileOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
+          className={`admin-sidebar absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col bg-surface shadow-xl transition-transform duration-300 ${mobileOpen ? "translate-x-0" : "-translate-x-full"
+            }`}
         >
           <div className="flex items-center justify-between border-b border-border px-4 py-4">
             <div>
@@ -376,7 +380,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
       </div>
 
-      <main className="min-w-0 flex-1 px-4 py-6 sm:px-8 sm:py-8">{children}</main>
+      <div className="flex min-w-0 flex-1 flex-col">
+        {/* Desktop top bar — the sidebar/mobile bar have no room for a
+           persistent bell, so this exists purely to host it on sm+. */}
+        <div className="sticky top-0 z-20 hidden items-center justify-end border-b border-border bg-surface px-8 py-2.5 sm:flex">
+          <NotificationBell />
+        </div>
+        <main className="min-w-0 flex-1 px-4 py-6 sm:px-8 sm:py-8">{children}</main>
+      </div>
     </div>
   );
 }
