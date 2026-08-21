@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { getOrder } from "@/lib/orders";
 import { Order, PaymentStatus } from "@/types/order";
@@ -15,14 +15,13 @@ const PAYMENT_STATUS_LABEL: Record<PaymentStatus, string> = {
 
 export default function OrderConfirmationPage() {
   const { id } = useParams<{ id: string }>();
-  const router = useRouter();
-  const { user, loading, getIdToken } = useAuth();
+  const { user, loading, getIdToken, openLoginModal } = useAuth();
   const [order, setOrder] = useState<Order | null>(null);
   const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
-    if (!loading && !user) router.replace("/login");
-  }, [loading, user, router]);
+    if (!loading && !user) openLoginModal();
+  }, [loading, user, openLoginModal]);
 
   useEffect(() => {
     if (!user) return;

@@ -4,6 +4,7 @@ import { AnnouncementBar } from "@/components/AnnouncementBar";
 import { Footer } from "@/components/Footer";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { WelcomePopup } from "@/components/WelcomePopup";
+import { LoginModal } from "@/components/LoginModal";
 
 export default function StorefrontLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -19,6 +20,7 @@ export default function StorefrontLayout({ children }: { children: React.ReactNo
       <WhatsAppButton />
       <MobileBottomNav />
       <WelcomePopup />
+      <LoginModal />
     </div>
   );
 }

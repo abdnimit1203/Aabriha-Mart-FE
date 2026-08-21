@@ -11,7 +11,7 @@ import { useDismissableOverlay } from "@/hooks/useDismissableOverlay";
 
 export function CartDrawer() {
   const { items, subtotal, isDrawerOpen, closeDrawer } = useCart();
-  const { user } = useAuth();
+  const { user, openLoginModal } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -28,7 +28,8 @@ export function CartDrawer() {
 
   function handleCheckout() {
     closeDrawer();
-    router.push(user ? "/checkout" : "/login");
+    if (user) router.push("/checkout");
+    else openLoginModal();
   }
 
   return (

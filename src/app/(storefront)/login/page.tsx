@@ -87,6 +87,11 @@ export default function LoginPage() {
               Password
             </label>
             <PasswordInput id="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+            <div className="mt-1.5 text-right">
+              <Link href="/forgot-password" className="text-xs font-medium text-primary-strong hover:underline">
+                Forgot password?
+              </Link>
+            </div>
           </div>
           <button
             type="submit"
@@ -116,8 +121,8 @@ export default function LoginPage() {
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
         Don&apos;t have an account?{" "}
-        <Link href="/signup" className="font-medium text-primary-strong hover:underline">
-          Sign up
+        <Link href="/create-account" className="font-medium text-primary-strong hover:underline">
+          Create an Account
         </Link>
       </p>
     </main>

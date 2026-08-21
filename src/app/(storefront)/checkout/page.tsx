@@ -26,7 +26,7 @@ const inputClass =
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { user, profile, loading, getIdToken } = useAuth();
+  const { user, profile, loading, getIdToken, openLoginModal } = useAuth();
   const { items, subtotal, hydrated, clearCart } = useCart();
 
   const [division, setDivision] = useState("");
@@ -47,8 +47,8 @@ export default function CheckoutPage() {
   const [prefilledFromId, setPrefilledFromId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!loading && !user) router.replace("/login");
-  }, [loading, user, router]);
+    if (!loading && !user) openLoginModal();
+  }, [loading, user, openLoginModal]);
 
   useEffect(() => {
     if (hydrated && items.length === 0 && !orderPlaced) router.replace("/cart");
@@ -157,7 +157,7 @@ export default function CheckoutPage() {
     }
   }
 
-  if (loading || !hydrated || items.length === 0) {
+  if (loading || !user || !hydrated || items.length === 0) {
     return (
       <main className="mx-auto max-w-350 px-4 py-6 sm:px-6 sm:py-14">
         <div className="h-6 w-40 animate-pulse rounded bg-surface" />

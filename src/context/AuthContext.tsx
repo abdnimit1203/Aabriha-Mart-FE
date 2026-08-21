@@ -29,6 +29,14 @@ interface AuthContextValue {
    * operation, in that order, and is the only thing that ever passes
    * username/phone to the profile-sync endpoint. */
   signUp: (email: string, password: string, fields: { username: string; phone: string }) => Promise<FirebaseUser>;
+  /** Login is a modal, not a page — any storefront spot that used to
+   * navigate to /login opens this instead, staying on whatever page the
+   * user was already on. The modal watches `user` itself and closes the
+   * instant sign-in succeeds (email or Google), so callers never need to
+   * close it manually. */
+  isLoginModalOpen: boolean;
+  openLoginModal: () => void;
+  closeLoginModal: () => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -37,6 +45,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const openLoginModal = useCallback(() => setIsLoginModalOpen(true), []);
+  const closeLoginModal = useCallback(() => setIsLoginModalOpen(false), []);
   // Firebase's onAuthStateChanged is a single global listener — it also
   // fires mid-way through signUp() below (as soon as the Firebase account
   // exists), racing signUp()'s own explicit, field-carrying sync call. Set
@@ -68,6 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setFirebaseUser(user);
       if (user) {
         await loadProfile(user).catch(() => setProfile(null));
+        setIsLoginModalOpen(false); // covers email and Google sign-in uniformly
       } else {
         setProfile(null);
       }
@@ -119,7 +131,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const needsProfileCompletion = Boolean(profile && !profile.phone);
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, needsProfileCompletion, getIdToken, refreshProfile, signUp }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        profile,
+        loading,
+        needsProfileCompletion,
+        getIdToken,
+        refreshProfile,
+        signUp,
+        isLoginModalOpen,
+        openLoginModal,
+        closeLoginModal,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

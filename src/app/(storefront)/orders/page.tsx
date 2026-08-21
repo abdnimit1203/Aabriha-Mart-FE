@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { listOrders } from "@/lib/orders";
 import { Order, OrderStatus } from "@/types/order";
@@ -20,13 +19,12 @@ const STATUS_CLASS: Record<OrderStatus, string> = {
 };
 
 export default function OrdersPage() {
-  const router = useRouter();
-  const { user, loading, getIdToken } = useAuth();
+  const { user, loading, getIdToken, openLoginModal } = useAuth();
   const [orders, setOrders] = useState<Order[] | null>(null);
 
   useEffect(() => {
-    if (!loading && !user) router.replace("/login");
-  }, [loading, user, router]);
+    if (!loading && !user) openLoginModal();
+  }, [loading, user, openLoginModal]);
 
   useEffect(() => {
     if (!user) return;

@@ -11,7 +11,7 @@ const CLOSE_DELAY_MS = 150;
 
 export function AccountMenu() {
   const router = useRouter();
-  const { user, profile, loading } = useAuth();
+  const { user, profile, loading, openLoginModal } = useAuth();
   const [open, setOpen] = useState(false);
   const rootRef = useDismissableOverlay<HTMLDivElement>({ open, onDismiss: () => setOpen(false) });
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -37,12 +37,13 @@ export function AccountMenu() {
 
   if (!user) {
     return (
-      <Link
-        href="/login"
+      <button
+        type="button"
+        onClick={openLoginModal}
         className="whitespace-nowrap rounded-full px-2 py-1.5 text-xs font-medium transition-colors hover:bg-background sm:px-3 sm:py-2 sm:text-sm"
       >
         Sign in
-      </Link>
+      </button>
     );
   }
 

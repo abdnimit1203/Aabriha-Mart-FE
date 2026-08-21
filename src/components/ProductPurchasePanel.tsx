@@ -10,7 +10,7 @@ import { useVariantSelector } from "@/hooks/useVariantSelector";
 export function ProductPurchasePanel({ product }: { product: Product }) {
   const router = useRouter();
   const { addItem, openDrawer } = useCart();
-  const { user } = useAuth();
+  const { user, openLoginModal } = useAuth();
   const v = useVariantSelector(product);
 
   function lineItem() {
@@ -36,7 +36,8 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
   function handleBuyNow() {
     if (!v.available) return;
     addItem(lineItem(), v.quantity);
-    router.push(user ? "/checkout" : "/login");
+    if (user) router.push("/checkout");
+    else openLoginModal();
   }
 
   return (

@@ -4,6 +4,7 @@ import {
   signInWithPopup,
   signOut,
   sendEmailVerification,
+  sendPasswordResetEmail,
   GoogleAuthProvider,
   updateProfile,
   type User as FirebaseUser,
@@ -53,6 +54,13 @@ export async function signOutUser(): Promise<void> {
 
 export async function resendVerificationEmail(): Promise<void> {
   if (auth.currentUser) await sendEmailVerification(auth.currentUser);
+}
+
+/** Firebase sends the reset email directly — there's no Mongo-side step,
+ * since the account's password lives entirely in Firebase (see the
+ * "no password field on User" architecture decision). */
+export async function sendPasswordReset(email: string): Promise<void> {
+  await sendPasswordResetEmail(auth, email);
 }
 
 /** Creates (or fetches) the Mongo-side profile matching the current Firebase user. */

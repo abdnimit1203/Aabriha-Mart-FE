@@ -8,11 +8,12 @@ import { CartLineItem } from "@/components/CartLineItem";
 
 export default function CartPage() {
   const { items, subtotal } = useCart();
-  const { user } = useAuth();
+  const { user, openLoginModal } = useAuth();
   const router = useRouter();
 
   function handleCheckout() {
-    router.push(user ? "/checkout" : "/login");
+    if (user) router.push("/checkout");
+    else openLoginModal();
   }
 
   return (

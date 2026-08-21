@@ -11,7 +11,7 @@ import { BD_DIVISIONS, districtsForDivision } from "@/data/bd-locations";
 
 export default function AccountPage() {
   const router = useRouter();
-  const { user, profile, loading, getIdToken, refreshProfile, needsProfileCompletion } = useAuth();
+  const { user, profile, loading, getIdToken, refreshProfile, needsProfileCompletion, openLoginModal } = useAuth();
 
   const [username, setUsername] = useState("");
   const [phone, setPhone] = useState("");
@@ -30,8 +30,8 @@ export default function AccountPage() {
   const [loadedProfileId, setLoadedProfileId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!loading && !user) router.replace("/login");
-  }, [loading, user, router]);
+    if (!loading && !user) openLoginModal();
+  }, [loading, user, openLoginModal]);
 
   if (profile && profile._id !== loadedProfileId) {
     setLoadedProfileId(profile._id);
