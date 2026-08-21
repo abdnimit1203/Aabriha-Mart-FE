@@ -226,6 +226,15 @@ export function ClockIcon({ className }: IconProps) {
   );
 }
 
+export function ZoomInIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className={className} aria-hidden>
+      <circle cx="10.5" cy="10.5" r="6.5" />
+      <path d="M10.5 8v5M8 10.5h5M20 20l-4.3-4.3" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export function LogoutIcon({ className }: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className={className} aria-hidden>
