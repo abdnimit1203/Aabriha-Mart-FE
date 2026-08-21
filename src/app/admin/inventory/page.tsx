@@ -7,49 +7,9 @@ import { useAuth } from "@/context/AuthContext";
 import { listProductsAdmin, adjustProductStock } from "@/lib/admin/products";
 import { Product, Variant } from "@/types/catalog";
 import { AdminPageHeader } from "@/components/AdminPageHeader";
+import { StockBadge } from "@/components/StockBadge";
+import { levelForStock, productLevel, totalStock } from "@/lib/stockLevel";
 import { ChevronIcon, BoxesIcon } from "@/components/icons";
-
-// Mirrors LOW_STOCK_THRESHOLD in the backend's Product model — kept in sync
-// manually (same convention as the order-status mirror in orderStatusStyles.ts):
-// the backend enforces/computes the real filter, this copy only decides how
-// to badge a row already fetched from that filter.
-const LOW_STOCK_THRESHOLD = 5;
-
-type StockLevel = "out" | "low" | "ok";
-
-function levelForStock(stock: number): StockLevel {
-  if (stock <= 0) return "out";
-  if (stock <= LOW_STOCK_THRESHOLD) return "low";
-  return "ok";
-}
-
-function productLevel(product: Product): StockLevel {
-  const stocks = product.variants.length > 0 ? product.variants.map((v) => v.stock) : [product.stock ?? 0];
-  if (stocks.every((s) => s <= 0)) return "out";
-  if (stocks.some((s) => s > 0 && s <= LOW_STOCK_THRESHOLD)) return "low";
-  return "ok";
-}
-
-function totalStock(product: Product): number {
-  if (product.variants.length > 0) return product.variants.reduce((sum, v) => sum + v.stock, 0);
-  return product.stock ?? 0;
-}
-
-const LEVEL_CLASS: Record<StockLevel, string> = {
-  out: "bg-danger/10 text-danger",
-  low: "bg-yellow-100 text-yellow-700",
-  ok: "bg-green-100 text-green-700",
-};
-
-const LEVEL_LABEL: Record<StockLevel, string> = {
-  out: "Out of stock",
-  low: "Low stock",
-  ok: "In stock",
-};
-
-function StockBadge({ level }: { level: StockLevel }) {
-  return <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${LEVEL_CLASS[level]}`}>{LEVEL_LABEL[level]}</span>;
-}
 
 function StockAdjuster({
   label,
