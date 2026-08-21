@@ -5,7 +5,7 @@ import { PromotionalBanner } from "@/components/PromotionalBanner";
 import { EditorialBanner } from "@/components/EditorialBanner";
 import { WhyAabrihaMart } from "@/components/WhyAabrihaMart";
 import {
-  getTopLevelCategories,
+  getAllCategories,
   getPopularProducts,
   getHeroBanners,
   getActivePromotions,
@@ -31,13 +31,14 @@ async function safe<T>(promise: Promise<T>, fallback: T): Promise<T> {
 }
 
 export default async function HomePage() {
-  const [categories, popularProducts, heroBanners, activePromotions, specialOffers] = await Promise.all([
-    safe(getTopLevelCategories(), []),
+  const [allCategories, popularProducts, heroBanners, activePromotions, specialOffers] = await Promise.all([
+    safe(getAllCategories(), []),
     safe(getPopularProducts(), []),
     safe<HeroBanner[] | undefined>(getHeroBanners(), undefined),
     safe<Promotion[]>(getActivePromotions(), []),
     safe<Product[]>(getSpecialOffers(), []),
   ]);
+  const topLevelCategories = allCategories.filter((c) => !c.parent && c.isActive);
 
   // New Arrivals is the weakest signal of the three product sections ("newest"
   // is nearly meaningless on a small catalog) — it excludes whatever Popular
@@ -70,7 +71,7 @@ export default async function HomePage() {
         <HeroSlider banners={sliderBanners} />
       </section>
 
-      <FeaturedCollections categories={categories} />
+      <FeaturedCollections categories={topLevelCategories} allCategories={allCategories} />
 
       <ProductSection
         title="Popular Products"

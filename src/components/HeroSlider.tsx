@@ -38,7 +38,7 @@ const BANNERS: Banner[] = [
     subtitleEn: "Elegant, everyday-ready fits.",
     ctaLabelBn: "কেনাকাটা করুন",
     ctaLabelEn: "Shop Women",
-    ctaUrl: "/categories/womens-dresses",
+    ctaUrl: "/categories/womens-wear",
     desktopImage: "https://ik.imagekit.io/abdnimit/Model_wearing_women.jpeg",
     objectPosition: "80% center",
     isActive: true,

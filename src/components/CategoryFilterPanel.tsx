@@ -6,13 +6,7 @@ import { CategorySidebar } from "@/components/CategorySidebar";
 import { useDismissableOverlay } from "@/hooks/useDismissableOverlay";
 import { FilterIcon, CloseIcon } from "@/components/icons";
 
-export function CategoryFilterPanel({
-  categories,
-  defaultSelectedId,
-}: {
-  categories: Category[];
-  defaultSelectedId?: string;
-}) {
+export function CategoryFilterPanel({ categories }: { categories: Category[] }) {
   const [open, setOpen] = useState(false);
   const rootRef = useDismissableOverlay<HTMLDivElement>({ open, onDismiss: () => setOpen(false), outsideClick: false });
 
@@ -49,12 +43,12 @@ export function CategoryFilterPanel({
               <CloseIcon className="h-4 w-4" />
             </button>
           </div>
-          <CategorySidebar categories={categories} defaultSelectedId={defaultSelectedId} />
+          <CategorySidebar categories={categories} />
         </div>
       </div>
 
       <div className="hidden sm:block sm:w-56 sm:shrink-0">
-        <CategorySidebar categories={categories} defaultSelectedId={defaultSelectedId} />
+        <CategorySidebar categories={categories} />
       </div>
     </>
   );

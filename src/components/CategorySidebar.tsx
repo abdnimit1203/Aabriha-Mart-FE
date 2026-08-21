@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Category } from "@/types/catalog";
-import { buildCategoryTree, collectIds, findNode, CategoryTreeNode } from "@/lib/categoryTree";
+import { buildCategoryTree, collectIds, CategoryTreeNode } from "@/lib/categoryTree";
 import { ChevronIcon } from "@/components/icons";
+import { useProductFilterTransition } from "@/context/ProductFilterTransitionContext";
 
 function TreeNode({
   node,
@@ -23,9 +23,10 @@ function TreeNode({
   const checked = checkedCount === ids.length;
   const indeterminate = checkedCount > 0 && !checked;
   // Collapsed by default — expands automatically if something inside this
-  // branch is already selected (e.g. landing directly on a subcategory page).
+  // branch is already selected (e.g. arriving via a category link/filter).
   const [expanded, setExpanded] = useState(checkedCount > 0);
   const checkboxRef = useRef<HTMLInputElement>(null);
+  const checkboxId = `category-${node._id}`;
 
   useEffect(() => {
     if (checkboxRef.current) checkboxRef.current.indeterminate = indeterminate;
@@ -49,14 +50,18 @@ function TreeNode({
         )}
         <input
           ref={checkboxRef}
+          id={checkboxId}
           type="checkbox"
           checked={checked}
           onChange={(e) => onToggle(node, e.target.checked)}
           className="h-4 w-4 shrink-0 rounded border-border accent-primary-strong"
         />
-        <Link href={`/categories/${node.slug}`} className="truncate text-sm hover:text-primary-strong">
+        {/* A label, not a link — categories filter this same page now, they
+           don't navigate to a separate one, so clicking the name just toggles
+           the checkbox like clicking any other form label would. */}
+        <label htmlFor={checkboxId} className="cursor-pointer truncate text-sm hover:text-primary-strong">
           {node.name}
-        </Link>
+        </label>
       </div>
       {node.children.length > 0 && expanded && (
         <div>
@@ -69,26 +74,17 @@ function TreeNode({
   );
 }
 
-export function CategorySidebar({
-  categories,
-  defaultSelectedId,
-}: {
-  categories: Category[];
-  /** Used only while the URL has no explicit `category` param — e.g. a
-   * category page's own id, so its checkboxes read as checked on first
-   * load without forcing a query-param redirect for a clean URL. */
-  defaultSelectedId?: string;
-}) {
+export function CategorySidebar({ categories }: { categories: Category[] }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { startFilterTransition } = useProductFilterTransition();
   const tree = buildCategoryTree(categories);
 
   const categoryParam = searchParams.get("category");
-  const defaultNode = defaultSelectedId ? findNode(tree, defaultSelectedId) : undefined;
 
   function computeFromUrl() {
-    return categoryParam ? new Set(categoryParam.split(",").filter(Boolean)) : new Set(defaultNode ? collectIds(defaultNode) : []);
+    return new Set(categoryParam ? categoryParam.split(",").filter(Boolean) : []);
   }
 
   // A checkbox driven purely by searchParams doesn't visually update until
@@ -129,7 +125,11 @@ export function CategorySidebar({
       const params = new URLSearchParams(searchParams.toString());
       if (value) params.set("category", value);
       else params.delete("category");
-      router.push(`${pathname}?${params.toString()}`, { scroll: false });
+      // Wrapped in a transition purely so ProductListingLayout's shared
+      // "pending" flag fades the grid while this resolves — unrelated to
+      // the waitingFor/computeFromUrl resync above (isPending was already
+      // ruled out for that specific job, see the comment near waitingFor).
+      startFilterTransition(() => router.push(`${pathname}?${params.toString()}`, { scroll: false }));
     }, 350);
   }
 

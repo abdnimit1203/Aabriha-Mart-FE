@@ -39,3 +39,25 @@ export function findNode(tree: CategoryTreeNode[], id: string): CategoryTreeNode
   }
   return undefined;
 }
+
+/** Turns the id(s) a user actually clicked/checked into the full, flat set to
+ * filter products by — each given id expands to itself plus every descendant
+ * at any depth, unioned across all given ids. This is the ONE place that
+ * expansion happens: every category link and the sidebar's own checkbox
+ * toggle both funnel through here (or through `collectIds` directly, which
+ * this wraps), so the URL's `category` param is always already the complete,
+ * ground-truth set — nothing downstream needs to re-derive or second-guess
+ * it. (A previous, shallower one-level-only version of this same idea living
+ * in a different file was the root cause of a real bug: it disagreed with
+ * this file's recursive `collectIds` the moment a category tree went 3+
+ * levels deep, desyncing the sidebar's checked state from the product query.) */
+export function expandCategorySelection(ids: string[], categories: Category[]): string[] {
+  const tree = buildCategoryTree(categories);
+  const expanded = new Set<string>();
+  for (const id of ids) {
+    const node = findNode(tree, id);
+    if (node) collectIds(node).forEach((descendantId) => expanded.add(descendantId));
+    else expanded.add(id); // unknown id (e.g. inactive) — pass through rather than silently drop it
+  }
+  return [...expanded];
+}

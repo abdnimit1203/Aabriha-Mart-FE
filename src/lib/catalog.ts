@@ -6,24 +6,12 @@ export async function getAllCategories(): Promise<Category[]> {
   return apiFetch<Category[]>("/api/categories");
 }
 
-export async function getTopLevelCategories(): Promise<Category[]> {
-  const categories = await getAllCategories();
-  return categories.filter((c) => !c.parent && c.isActive);
-}
-
 /** Ranked by real units sold, not a fake "featured" flag — see the backend's
  * getPopularProducts for why. Empty when the store has no sales history yet;
  * never backfilled with unrelated products just to fill the section. */
 export async function getPopularProducts(limit = 8): Promise<Product[]> {
   const { products } = await apiFetch<{ products: Product[] }>(`/api/products/popular?limit=${limit}`);
   return products;
-}
-
-/** The category itself plus its direct children's ids — a parent category
- * page should show products from both, not just ones tagged to the parent. */
-export function categoryAndChildrenIds(category: Category, allCategories: Category[]): string[] {
-  const childIds = allCategories.filter((c) => c.parent === category._id).map((c) => c._id);
-  return [category._id, ...childIds];
 }
 
 /** "Genuinely newest" on a small catalog otherwise means "almost the whole

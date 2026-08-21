@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ChevronIcon } from "@/components/icons";
+import { useProductFilterTransition } from "@/context/ProductFilterTransitionContext";
 
 const SORT_OPTIONS = [
   { value: "newest", label: "Newest" },
@@ -13,6 +14,7 @@ export function SortFilterBar({ resultCount }: { resultCount: number }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { startFilterTransition } = useProductFilterTransition();
 
   const sort = searchParams.get("sort") ?? "newest";
   const inStock = searchParams.get("inStock") === "true";
@@ -24,7 +26,7 @@ export function SortFilterBar({ resultCount }: { resultCount: number }) {
     } else {
       params.set(key, value);
     }
-    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+    startFilterTransition(() => router.push(`${pathname}?${params.toString()}`, { scroll: false }));
   }
 
   return (
