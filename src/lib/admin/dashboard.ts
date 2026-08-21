@@ -12,6 +12,8 @@ export interface DashboardSummary {
   todayRevenue: number;
   pendingOrders: number;
   needsAttentionCount: number;
+  totalProducts: number;
+  totalOrders: number;
   statusCounts: Record<OrderStatus, number>;
   last7Days: DashboardTrendDay[];
 }

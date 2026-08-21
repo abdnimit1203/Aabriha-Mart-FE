@@ -12,6 +12,7 @@ import { listProductsAdmin } from "@/lib/admin/products";
 import { AdminOrder, OrderStatus } from "@/types/order";
 import { Product } from "@/types/catalog";
 import { StockBadge } from "@/components/StockBadge";
+import { StatCard, StatCardSkeleton } from "@/components/StatCard";
 import { productLevel, totalStock } from "@/lib/stockLevel";
 import { STATUS_CLASS, PAYMENT_METHOD_LABEL, formatStatusLabel } from "@/app/admin/orders/orderStatusStyles";
 import { ReceiptIcon, BellIcon, BoxesIcon, GridIcon, TagIcon, ClockIcon } from "@/components/icons";
@@ -101,48 +102,6 @@ function DashboardHeader({
   );
 }
 
-// ---------------------------------------------------------------------------
-// KPI cards (unchanged from the first pass)
-// ---------------------------------------------------------------------------
-
-function StatCard({
-  icon,
-  label,
-  value,
-  href,
-  tone = "default",
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-  href?: string;
-  tone?: "default" | "warning";
-}) {
-  const content = (
-    <div className="rounded-xl border border-border bg-surface p-5 transition-colors hover:border-primary/40">
-      <div
-        className={`mb-3 flex h-9 w-9 items-center justify-center rounded-lg ${
-          tone === "warning" ? "bg-yellow-100 text-yellow-700" : "bg-primary/10 text-primary-strong"
-        }`}
-      >
-        {icon}
-      </div>
-      <p className="text-2xl font-semibold text-foreground">{value}</p>
-      <p className="mt-0.5 text-sm text-muted-foreground">{label}</p>
-    </div>
-  );
-  return href ? <Link href={href}>{content}</Link> : content;
-}
-
-function StatCardSkeleton() {
-  return (
-    <div className="rounded-xl border border-border bg-surface p-5">
-      <div className="mb-3 h-9 w-9 animate-pulse rounded-lg bg-background" />
-      <div className="h-7 w-16 animate-pulse rounded bg-background" />
-      <div className="mt-2 h-4 w-24 animate-pulse rounded bg-background" />
-    </div>
-  );
-}
 
 // ---------------------------------------------------------------------------
 // Quick actions — role-gated: Order Manager can't create products/categories,
@@ -562,9 +521,11 @@ export default function AdminDashboardPage() {
         </div>
       ) : (
         <>
-          <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
             {!summary ? (
               <>
+                <StatCardSkeleton />
+                <StatCardSkeleton />
                 <StatCardSkeleton />
                 <StatCardSkeleton />
                 <StatCardSkeleton />
@@ -593,6 +554,8 @@ export default function AdminDashboardPage() {
                   href="/admin/inventory"
                   tone={summary.needsAttentionCount > 0 ? "warning" : "default"}
                 />
+                <StatCard icon={<ReceiptIcon className="h-4.5 w-4.5" />} label="Total Orders" value={summary.totalOrders.toLocaleString()} href="/admin/orders" />
+                <StatCard icon={<GridIcon className="h-4.5 w-4.5" />} label="Total Products" value={summary.totalProducts.toLocaleString()} href="/admin/products" />
               </>
             )}
           </div>

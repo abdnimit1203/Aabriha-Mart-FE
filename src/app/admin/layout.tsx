@@ -81,8 +81,8 @@ const STOREFRONT_NAV: NavItem[] = [
 ];
 
 const SECONDARY_NAV: NavItem[] = [
-  { href: "/admin/customers", label: "Customers", icon: UsersIcon, roles: ["super_admin"], soon: true },
-  { href: "/admin/analytics", label: "Analytics", icon: ChartIcon, roles: ["super_admin"], soon: true },
+  { href: "/admin/customers", label: "Customers", icon: UsersIcon, roles: ["super_admin"] },
+  { href: "/admin/analytics", label: "Analytics", icon: ChartIcon, roles: ["super_admin"] },
 ];
 
 const SETTINGS_NAV: NavItem[] = [
