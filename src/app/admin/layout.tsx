@@ -66,7 +66,7 @@ const PRIMARY_NAV: NavItem[] = [
     roles: ["super_admin", "order_manager"],
     viewOnlyFor: ["order_manager"],
   },
-  { href: "/admin/inventory", label: "Inventory", icon: BoxesIcon, roles: ["super_admin", "order_manager"], soon: true },
+  { href: "/admin/inventory", label: "Inventory", icon: BoxesIcon, roles: ["super_admin", "order_manager"] },
 ];
 
 // Super Admin only — Order Manager has no access to any storefront/CMS
