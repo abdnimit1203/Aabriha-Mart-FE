@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { AccountMenu } from "@/components/AccountMenu";
 import { CartButton } from "@/components/CartButton";
+import { MobileSearchButton } from "@/components/MobileSearchButton";
 import { SearchIcon } from "@/components/icons";
 
 export function Header() {
@@ -54,13 +55,7 @@ export function Header() {
           />
         </form>
 
-        <Link
-          href="/search"
-          aria-label="Search"
-          className="ml-auto rounded-full p-1.5 hover:bg-background sm:ml-0 sm:hidden"
-        >
-          <SearchIcon className="h-4 w-4" />
-        </Link>
+        <MobileSearchButton />
         <AccountMenu />
         <CartButton />
       </div>

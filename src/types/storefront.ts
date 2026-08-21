@@ -40,13 +40,10 @@ export interface Announcement {
   marquee: boolean;
 }
 
+// Image-only by design — no title/description/CTA-label. The image is the
+// whole popup; ctaUrl (if set) just makes the image itself a link.
 export interface WelcomePopup {
   enabled: boolean;
   image: string;
-  titleBn: string;
-  titleEn: string;
-  descriptionBn: string;
-  descriptionEn: string;
-  ctaLabel: string;
   ctaUrl: string;
 }

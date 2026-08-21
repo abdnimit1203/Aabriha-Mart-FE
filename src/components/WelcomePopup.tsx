@@ -11,8 +11,11 @@ const DISMISS_KEY = "aabriha-welcome-popup-dismissed";
 // Renders nothing itself — fires an imperative SweetAlert2 dialog on first
 // visit only, heavily restyled via customClass (see .aabriha-popup* rules in
 // globals.css) so it reads as an Aabriha Mart promo, not default SweetAlert
-// chrome. No `icon` option is passed, which is what keeps SweetAlert2's
-// default checkmark/warning icon from ever appearing.
+// chrome. Image-only by design: no title/description/CTA button — the image
+// fills the whole popup, and is itself the link when ctaUrl is set (a plain
+// <a>, so clicking anywhere on it navigates — no confirm-button click
+// handling needed). No `icon` option is passed, which is what keeps
+// SweetAlert2's default checkmark/warning icon from ever appearing.
 export function WelcomePopup() {
   const reducedMotion = usePrefersReducedMotion();
 
@@ -21,7 +24,7 @@ export function WelcomePopup() {
 
     getWelcomePopup()
       .then((popup) => {
-        if (cancelled || !popup.enabled) return;
+        if (cancelled || !popup.enabled || !popup.image) return;
 
         let alreadyDismissed = false;
         try {
@@ -31,31 +34,19 @@ export function WelcomePopup() {
         }
         if (alreadyDismissed) return;
 
-        const hasCta = Boolean(popup.ctaLabel && popup.ctaUrl);
+        const img = `<img src="${popup.image}" alt="" class="aabriha-popup-image" />`;
 
         Swal.fire({
-          html: `
-            <div class="aabriha-popup-body">
-              ${popup.image ? `<img src="${popup.image}" alt="" class="aabriha-popup-image" />` : ""}
-              ${popup.titleEn ? `<h2 class="aabriha-popup-title">${popup.titleEn}</h2>` : ""}
-              ${popup.descriptionEn ? `<p class="aabriha-popup-description">${popup.descriptionEn}</p>` : ""}
-            </div>
-          `,
-          showConfirmButton: hasCta,
-          confirmButtonText: popup.ctaLabel || "Shop Now",
+          html: popup.ctaUrl ? `<a href="${popup.ctaUrl}" class="aabriha-popup-link">${img}</a>` : img,
+          showConfirmButton: false,
           showCloseButton: true,
           buttonsStyling: false,
           animation: !reducedMotion,
           customClass: {
             popup: "aabriha-popup",
             htmlContainer: "aabriha-popup-html",
-            confirmButton: "aabriha-popup-cta",
             closeButton: "aabriha-popup-close",
           },
-        }).then((result) => {
-          if (result.isConfirmed && popup.ctaUrl) {
-            window.location.href = popup.ctaUrl;
-          }
         });
 
         try {

@@ -4,10 +4,9 @@ import { FaFacebook, FaInstagram, FaLinkedin, FaTwitter } from "react-icons/fa";
 import { FaMoneyBillWave, FaCreditCard } from "react-icons/fa6";
 
 const SHOP_LINKS = [
-  { href: "/categories", label: "Categories" },
+  { href: "/products", label: "All Products" },
   { href: "/new-arrivals", label: "New Arrivals" },
   { href: "/offers", label: "Special Offers" },
-  { href: "/products", label: "All Products" },
 ];
 
 const ACCOUNT_LINKS = [
@@ -85,7 +84,20 @@ export function Footer() {
             <p className="text-sm font-semibold">Contact</p>
             <ul className="mt-3 space-y-2 text-sm text-white/80">
               {address && <li>{address}</li>}
-              {whatsapp && <li>WhatsApp: 017XXXXXXXX</li>} {/* just use this for now*/}
+              {whatsapp && (
+                <li>
+                  {/* Number is never shown as visible text — only used as the
+                     link destination, matching WhatsAppButton's convention. */}
+                  <a
+                    href={`https://wa.me/${whatsapp}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-white"
+                  >
+                    Chat on WhatsApp
+                  </a>
+                </li>
+              )}
               {email && (
                 <li>
                   <a href={`mailto:${email}`} className="hover:text-white">

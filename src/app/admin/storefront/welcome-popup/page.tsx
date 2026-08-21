@@ -22,9 +22,7 @@ export default function AdminWelcomePopupPage() {
   useEffect(() => {
     getWelcomePopup()
       .then(setConfig)
-      .catch(() =>
-        setConfig({ enabled: false, image: "", titleEn: "", titleBn: "", descriptionEn: "", descriptionBn: "", ctaLabel: "", ctaUrl: "" })
-      );
+      .catch(() => setConfig({ enabled: false, image: "", ctaUrl: "" }));
   }, []);
 
   async function uploadImage(file: File): Promise<string> {
@@ -54,7 +52,10 @@ export default function AdminWelcomePopupPage() {
 
   return (
     <div>
-      <AdminPageHeader title="Welcome Popup" description="The first-visit promotional popup." />
+      <AdminPageHeader
+        title="Welcome Popup"
+        description="The first-visit promotional popup — image only, no title/description. The whole image becomes a link if you set a URL below."
+      />
       <form onSubmit={handleSubmit} className="max-w-xl space-y-4">
         <label className="flex items-center gap-2 text-sm font-medium">
           <input
@@ -76,59 +77,20 @@ export default function AdminWelcomePopupPage() {
           previewSize="h-24 w-20"
         />
 
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label htmlFor="titleEn" className="mb-1 block text-sm font-medium">
-              Title (English)
-            </label>
-            <input id="titleEn" value={config.titleEn} onChange={(e) => setConfig({ ...config, titleEn: e.target.value })} className={inputClass} />
-          </div>
-          <div>
-            <label htmlFor="titleBn" className="mb-1 block text-sm font-medium">
-              Title (Bangla)
-            </label>
-            <input id="titleBn" value={config.titleBn} onChange={(e) => setConfig({ ...config, titleBn: e.target.value })} className={inputClass} />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label htmlFor="descriptionEn" className="mb-1 block text-sm font-medium">
-              Description (English)
-            </label>
-            <input
-              id="descriptionEn"
-              value={config.descriptionEn}
-              onChange={(e) => setConfig({ ...config, descriptionEn: e.target.value })}
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <label htmlFor="descriptionBn" className="mb-1 block text-sm font-medium">
-              Description (Bangla)
-            </label>
-            <input
-              id="descriptionBn"
-              value={config.descriptionBn}
-              onChange={(e) => setConfig({ ...config, descriptionBn: e.target.value })}
-              className={inputClass}
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label htmlFor="ctaLabel" className="mb-1 block text-sm font-medium">
-              CTA label
-            </label>
-            <input id="ctaLabel" value={config.ctaLabel} onChange={(e) => setConfig({ ...config, ctaLabel: e.target.value })} className={inputClass} />
-          </div>
-          <div>
-            <label htmlFor="ctaUrl" className="mb-1 block text-sm font-medium">
-              CTA URL
-            </label>
-            <input id="ctaUrl" value={config.ctaUrl} onChange={(e) => setConfig({ ...config, ctaUrl: e.target.value })} className={inputClass} />
-          </div>
+        <div>
+          <label htmlFor="ctaUrl" className="mb-1 block text-sm font-medium">
+            Link URL (optional)
+          </label>
+          <input
+            id="ctaUrl"
+            value={config.ctaUrl}
+            onChange={(e) => setConfig({ ...config, ctaUrl: e.target.value })}
+            placeholder="/products?category=..."
+            className={inputClass}
+          />
+          <p className="mt-1 text-xs text-muted-foreground">
+            Leave blank for a plain image popup with no click-through.
+          </p>
         </div>
 
         <button

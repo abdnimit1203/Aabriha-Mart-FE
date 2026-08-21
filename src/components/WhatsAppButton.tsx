@@ -65,14 +65,17 @@ export function WhatsAppButton() {
         aria-expanded={open}
         className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white shadow-lg transition-transform hover:scale-105"
       >
-        <motion.span
-          key={open ? "close" : "chat"}
-          initial={{ opacity: 0, rotate: -45 }}
-          animate={{ opacity: 1, rotate: 0 }}
-          transition={{ duration: 0.15 }}
-        >
-          {open ? <CloseIcon className="h-5 w-5" /> : <FaCommentDots className="h-6 w-6" />}
-        </motion.span>
+        <AnimatePresence initial={false}>
+          <motion.span
+            key={open ? "close" : "chat"}
+            initial={{ opacity: 0, rotate: -45, scale: 0.6 }}
+            animate={{ opacity: 1, rotate: 0, scale: 1 }}
+            exit={{ opacity: 0, rotate: 45, scale: 0.6 }}
+            transition={{ duration: 0.15 }}
+          >
+            {open ? <CloseIcon className="h-5 w-5" /> : <FaCommentDots className="h-6 w-6" />}
+          </motion.span>
+        </AnimatePresence>
       </button>
     </div>
   );

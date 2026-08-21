@@ -125,57 +125,52 @@ body {
 
 /* WelcomePopup's SweetAlert2 instance — overrides SweetAlert2's default
    theme entirely (no default icon, no default button colors) so it reads as
-   an Aabriha Mart promo, not generic SweetAlert chrome. */
+   an Aabriha Mart promo, not generic SweetAlert chrome. Image-only: no
+   title/description/CTA button, just the image (optionally a link) filling
+   the whole popup with a close button overlaid on top. */
 .aabriha-popup {
   border-radius: 1.5rem !important;
-  padding: 0 0 1.75rem !important;
-  width: min(92vw, 34rem) !important;
+  padding: 0 !important;
+  width: min(92vw, 26rem) !important;
   max-height: 90vh !important;
+  /* No inset padding anymore, so this is what clips the image to the
+     popup's own rounded corners instead of it overhanging square-cornered. */
+  overflow: hidden !important;
 }
 .aabriha-popup-html {
   margin: 0 !important;
+  padding: 0 !important;
+  line-height: 0; /* kills the baseline whitespace gap under an inline img/a */
 }
-.aabriha-popup-body {
-  padding: 0 1.5rem;
+.aabriha-popup-link {
+  display: block;
 }
-/* Bleeds edge-to-edge across the popup's own width (countering
-   aabriha-popup-body's side padding) and sizes off the image's own aspect
-   ratio (height: auto) rather than a fixed box — so the popup's shape
-   follows the picture instead of letterboxing it. max-height only kicks in
-   as a safety net for unusually tall portrait images on short viewports. */
+/* Edge-to-edge — width fills the popup exactly, height follows the image's
+   own aspect ratio (no object-fit, no fixed box), so the popup's shape
+   always matches whatever image is uploaded, portrait or landscape, with no
+   letterboxing. .aabriha-popup's own max-height + SweetAlert2's built-in
+   popup scrolling is the safety net for a pathologically tall image. */
 .aabriha-popup-image {
   display: block;
-  width: calc(100% + 3rem);
-  margin: 0 -1.5rem 1.25rem;
+  width: 100%;
   height: auto;
-  max-height: 70vh;
-  object-fit: contain;
-  border-radius: 1.5rem 1.5rem 0 0;
 }
-.aabriha-popup-title {
-  font-size: 1.35rem;
-  font-weight: 600;
-  color: var(--foreground);
-  margin-bottom: 0.5rem;
-}
-.aabriha-popup-description {
-  font-size: 0.9rem;
-  color: var(--muted-foreground);
-  margin-bottom: 0;
-}
-.aabriha-popup-cta {
-  margin-top: 1.25rem !important;
+.aabriha-popup-close {
+  position: absolute !important;
+  top: 0.75rem !important;
+  right: 0.75rem !important;
+  z-index: 5 !important;
+  width: 2rem !important;
+  height: 2rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
   border-radius: 9999px !important;
-  padding: 0.65rem 1.75rem !important;
-  font-weight: 500 !important;
-  background: var(--primary) !important;
+  background: rgba(0, 0, 0, 0.45) !important;
   color: white !important;
   box-shadow: none !important;
 }
-.aabriha-popup-cta:hover {
-  background: var(--primary-strong) !important;
-}
-.aabriha-popup-close {
-  color: var(--muted-foreground) !important;
-  box-shadow: none !important;
+.aabriha-popup-close:hover {
+  background: rgba(0, 0, 0, 0.65) !important;
 }
