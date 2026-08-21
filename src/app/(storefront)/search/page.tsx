@@ -37,7 +37,7 @@ export default async function SearchPage(props: PageProps<"/search">) {
   }
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-14">
+    <main className="mx-auto max-w-350 px-4 py-6 sm:px-6 sm:py-14">
       <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Search" }]} />
       <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
         {q ? `Search results for "${q}"` : "Search"}

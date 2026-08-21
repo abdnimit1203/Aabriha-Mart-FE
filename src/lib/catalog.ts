@@ -11,8 +11,11 @@ export async function getTopLevelCategories(): Promise<Category[]> {
   return categories.filter((c) => !c.parent && c.isActive);
 }
 
-export async function getFeaturedProducts(): Promise<Product[]> {
-  const { products } = await apiFetch<{ products: Product[] }>("/api/products?status=active&limit=8");
+/** Ranked by real units sold, not a fake "featured" flag — see the backend's
+ * getPopularProducts for why. Empty when the store has no sales history yet;
+ * never backfilled with unrelated products just to fill the section. */
+export async function getPopularProducts(limit = 8): Promise<Product[]> {
+  const { products } = await apiFetch<{ products: Product[] }>(`/api/products/popular?limit=${limit}`);
   return products;
 }
 
@@ -23,9 +26,17 @@ export function categoryAndChildrenIds(category: Category, allCategories: Catego
   return [category._id, ...childIds];
 }
 
-export async function getNewArrivals(): Promise<Product[]> {
-  const { products } = await apiFetch<{ products: Product[] }>("/api/products?status=active&sort=newest&limit=8");
-  return products;
+/** "Genuinely newest" on a small catalog otherwise means "almost the whole
+ * catalog" — excludeIds lets the homepage keep this section from just
+ * repeating what Popular Products/Special Offers already showed above it.
+ * Fetches a wider pool than `limit` so filtering still leaves enough; if it
+ * doesn't, this correctly returns fewer than `limit` rather than backfilling
+ * with excluded products. */
+export async function getNewArrivals(excludeIds: string[] = [], limit = 8): Promise<Product[]> {
+  const { products } = await apiFetch<{ products: Product[] }>(
+    `/api/products?status=active&sort=newest&limit=${limit + excludeIds.length}`
+  );
+  return products.filter((p) => !excludeIds.includes(p._id)).slice(0, limit);
 }
 
 export async function getSpecialOffers(): Promise<Product[]> {
@@ -41,17 +52,19 @@ export async function getPromotions(): Promise<Promotion[]> {
   return apiFetch<Promotion[]>("/api/promotions");
 }
 
-/** First active promotion by sort order, or null if none is active — the
- * homepage section renders nothing in that case rather than an empty card. */
-export async function getActivePromotion(): Promise<Promotion | null> {
+/** Every currently-active promotion (within its date window, if set), sorted
+ * by admin-chosen order — the homepage picks which slots to fill from this
+ * list (campaign banner = the 1st, editorial banner = the 2nd) rather than
+ * needing a second CMS model for "the other kind of banner." Empty when
+ * nothing is active; callers render nothing in that case. */
+export async function getActivePromotions(): Promise<Promotion[]> {
   const promotions = await getPromotions();
   const now = Date.now();
-  const active = promotions
+  return promotions
     .filter((p) => p.isActive)
     .filter((p) => !p.startDate || new Date(p.startDate).getTime() <= now)
     .filter((p) => !p.endDate || new Date(p.endDate).getTime() >= now)
     .sort((a, b) => a.sortOrder - b.sortOrder);
-  return active[0] ?? null;
 }
 
 export async function getAnnouncement(): Promise<Announcement> {

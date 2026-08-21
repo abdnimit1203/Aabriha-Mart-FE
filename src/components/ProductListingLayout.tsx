@@ -1,5 +1,6 @@
 import { Category } from "@/types/catalog";
 import { CategoryFilterPanel } from "@/components/CategoryFilterPanel";
+import { ScrollReveal } from "@/components/ScrollReveal";
 
 /** Shared shell for every product-browsing page (all products, a single
  * category, search results, offers, new arrivals) — sidebar on the left
@@ -18,7 +19,7 @@ export function ProductListingLayout({
   return (
     <div className="mt-6 sm:flex sm:items-start sm:gap-8">
       <CategoryFilterPanel categories={categories} defaultSelectedId={defaultSelectedId} />
-      <div className="min-w-0 flex-1">{children}</div>
+      <ScrollReveal className="min-w-0 flex-1">{children}</ScrollReveal>
     </div>
   );
 }

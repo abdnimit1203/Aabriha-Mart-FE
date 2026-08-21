@@ -7,7 +7,7 @@ import { SearchIcon } from "@/components/icons";
 export function Header() {
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-surface/95 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center gap-2 px-3 py-2 sm:gap-4 sm:px-6 sm:py-3">
+      <div className="mx-auto flex max-w-350 items-center gap-2 px-3 py-2 sm:gap-4 sm:px-6 sm:py-3">
         <Link href="/" className="flex items-center gap-1.5 sm:gap-2">
           <Image
             src="/logo.png"

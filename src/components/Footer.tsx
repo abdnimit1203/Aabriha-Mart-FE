@@ -29,7 +29,7 @@ export function Footer() {
 
   return (
     <footer className="bg-primary-strong text-white">
-      <div className={`mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:px-6 ${hasContact ? "sm:grid-cols-4" : "sm:grid-cols-3"}`}>
+      <div className={`mx-auto grid max-w-350 gap-8 px-4 py-10 sm:px-6 ${hasContact ? "sm:grid-cols-4" : "sm:grid-cols-3"}`}>
         <div>
           <div className="flex h-16 w-16 items-center justify-center rounded-2xl border-2 border-white bg-white">
             <Image src="/logo.png" alt="" width={48} height={48} className="h-12 w-12 object-contain" />
@@ -85,7 +85,7 @@ export function Footer() {
             <p className="text-sm font-semibold">Contact</p>
             <ul className="mt-3 space-y-2 text-sm text-white/80">
               {address && <li>{address}</li>}
-              {whatsapp && <li>WhatsApp: {whatsapp}</li>}
+              {whatsapp && <li>WhatsApp: 017XXXXXXXX</li>} {/* just use this for now*/}
               {email && (
                 <li>
                   <a href={`mailto:${email}`} className="hover:text-white">
@@ -99,7 +99,7 @@ export function Footer() {
       </div>
 
       <div className="border-t border-white/10 px-4 py-5 sm:px-6">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-4">
+        <div className="mx-auto flex max-w-350 flex-wrap items-center justify-center gap-4">
           <span className="flex items-center gap-1.5 text-xs text-white/70">
             <FaMoneyBillWave className="h-4 w-4" /> Cash on Delivery
           </span>
@@ -109,7 +109,7 @@ export function Footer() {
             width={56}
             height={20}
             style={{ width: "auto" }}
-            className="h-5 object-contain opacity-90"
+            className="h-5 object-contain opacity-90 bg-amber-50 px-1 rounded-lg"
           />
           <Image
             src="/logo-nagad.png"
@@ -117,7 +117,7 @@ export function Footer() {
             width={56}
             height={20}
             style={{ width: "auto" }}
-            className="h-5 object-contain opacity-90"
+            className="h-5 object-contain opacity-90 bg-amber-50 px-1 rounded-lg"
           />
           <span className="flex items-center gap-1.5 text-xs text-white/70">
             <FaCreditCard className="h-4 w-4" /> Card via Stripe

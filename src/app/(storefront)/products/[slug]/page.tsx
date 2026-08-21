@@ -35,7 +35,7 @@ export default async function ProductPage(props: PageProps<"/products/[slug]">) 
   const category = typeof product.category === "object" ? product.category : null;
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-14">
+    <main className="mx-auto max-w-350 px-4 py-6 sm:px-6 sm:py-14">
       <Breadcrumb
         items={[
           { label: "Home", href: "/" },

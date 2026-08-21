@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import type { TooltipContentProps } from "recharts";
+import type { NameType, ValueType } from "recharts/types/component/DefaultTooltipContent";
 import { useAuth } from "@/context/AuthContext";
 import { getDashboardSummary, DashboardSummary, DashboardTrendDay } from "@/lib/admin/dashboard";
 import { listOrdersAdmin } from "@/lib/admin/orders";
@@ -434,50 +437,87 @@ function OrderStatusPipeline({ statusCounts }: { statusCounts: Record<OrderStatu
 }
 
 // ---------------------------------------------------------------------------
-// 7-day performance — single series (revenue), order count as a direct
-// label rather than a second axis. Bars ≤24px, 4px rounded tops, hover
-// tooltip carries the exact numbers; no legend needed for one series.
+// 7-day performance — single series (revenue) via recharts. Bars ≤24px thick,
+// 4px rounded tops, one hue (--primary-strong) since this is a magnitude
+// scale, not a set of distinct identities — order count rides along in the
+// tooltip rather than becoming a second axis. The week's best-revenue day
+// gets a second, categorical color (--success) as a "peak day" highlight —
+// a status distinction, not a second quantity, so it doesn't fight the
+// single-hue-for-magnitude rule above.
 // ---------------------------------------------------------------------------
 
+function weekdayLabel(date: string): string {
+  // timeZone: "UTC" forces the weekday to come from the date string as
+  // written (a Dhaka calendar day from the backend), not re-shifted by the
+  // viewer's own browser timezone.
+  return new Date(date).toLocaleDateString("en-GB", { weekday: "short", timeZone: "UTC" });
+}
+
+function TrendTooltip({ active, payload }: TooltipContentProps<ValueType, NameType>) {
+  if (!active || !payload?.length) return null;
+  const day = payload[0].payload as DashboardTrendDay & { isPeak: boolean };
+  return (
+    <div className="rounded-lg border border-border bg-surface px-3 py-2 text-xs shadow-lg">
+      <p className="font-semibold text-foreground">৳{day.revenue.toLocaleString()}</p>
+      <p className="text-muted-foreground">
+        {day.orders} order{day.orders !== 1 ? "s" : ""}
+        {day.isPeak && <span className="ml-1.5 font-medium text-success">· Best day</span>}
+      </p>
+    </div>
+  );
+}
+
 function WeeklyTrendChart({ days }: { days: DashboardTrendDay[] }) {
-  const [hovered, setHovered] = useState<number | null>(null);
-  const maxRevenue = Math.max(...days.map((d) => d.revenue), 1);
+  const totalRevenue = days.reduce((sum, d) => sum + d.revenue, 0);
+  const totalOrders = days.reduce((sum, d) => sum + d.orders, 0);
+  const peakRevenue = Math.max(...days.map((d) => d.revenue), 0);
+
+  const data = days.map((day) => ({
+    ...day,
+    label: weekdayLabel(day.date),
+    isPeak: peakRevenue > 0 && day.revenue === peakRevenue,
+  }));
 
   return (
     <div className="rounded-xl border border-border bg-surface p-5">
-      <h2 className="mb-5 text-sm font-semibold text-foreground">Last 7 Days</h2>
-      <div className="flex h-36 items-end justify-between gap-3">
-        {days.map((day, i) => {
-          const heightPct = Math.max(2, (day.revenue / maxRevenue) * 100);
-          const isHovered = hovered === i;
-          return (
-            <div
-              key={day.date}
-              className="relative flex flex-1 flex-col items-center"
-              onMouseEnter={() => setHovered(i)}
-              onMouseLeave={() => setHovered(null)}
-            >
-              {isHovered && (
-                <div className="absolute -top-14 z-10 whitespace-nowrap rounded-lg border border-border bg-surface px-2.5 py-1.5 text-xs shadow-lg">
-                  <p className="font-medium text-foreground">৳{day.revenue.toLocaleString()}</p>
-                  <p className="text-muted-foreground">{day.orders} order{day.orders !== 1 ? "s" : ""}</p>
-                </div>
-              )}
-              <div className="flex h-28 w-full max-w-6 items-end justify-center">
-                <div
-                  style={{ height: `${heightPct}%` }}
-                  className={`w-full rounded-t-sm transition-colors ${isHovered ? "bg-primary-strong" : "bg-primary"}`}
-                />
-              </div>
-              <p className="mt-2 text-[11px] text-muted-foreground">
-                {/* timeZone: "UTC" forces the weekday to come from the date
-                   string as written (a Dhaka calendar day from the backend),
-                   not re-shifted by the viewer's own browser timezone. */}
-                {new Date(day.date).toLocaleDateString("en-GB", { weekday: "short", timeZone: "UTC" })}
-              </p>
-            </div>
-          );
-        })}
+      <div className="mb-1 flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 className="text-sm font-semibold text-foreground">Revenue — Last 7 Days</h2>
+          <p className="text-xs text-muted-foreground">Daily order revenue, in ৳</p>
+        </div>
+        <div className="text-right">
+          <p className="text-lg font-semibold text-foreground">৳{totalRevenue.toLocaleString()}</p>
+          <p className="text-xs text-muted-foreground">{totalOrders} order{totalOrders !== 1 ? "s" : ""} this week</p>
+        </div>
+      </div>
+
+      <div className="h-64">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={data} margin={{ top: 16, right: 8, bottom: 0, left: 0 }} barCategoryGap="30%">
+            <CartesianGrid vertical={false} stroke="var(--color-border)" />
+            <XAxis
+              dataKey="label"
+              axisLine={false}
+              tickLine={false}
+              tick={{ fill: "var(--color-muted-foreground)", fontSize: 11 }}
+              dy={8}
+            />
+            <YAxis
+              axisLine={false}
+              tickLine={false}
+              width={44}
+              tick={{ fill: "var(--color-muted-foreground)", fontSize: 11 }}
+              tickFormatter={(value: number) => (value >= 1000 ? `৳${(value / 1000).toFixed(value % 1000 === 0 ? 0 : 1)}k` : `৳${value}`)}
+              allowDecimals={false}
+            />
+            <Tooltip content={TrendTooltip} cursor={{ fill: "var(--color-background)" }} />
+            <Bar dataKey="revenue" radius={[4, 4, 0, 0]} maxBarSize={24}>
+              {data.map((day) => (
+                <Cell key={day.date} fill={day.isPeak ? "var(--color-success)" : "var(--color-primary-strong)"} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );

@@ -14,7 +14,7 @@ export default async function CategoriesPage() {
   const [topLevel, all] = await Promise.all([getTopLevelCategories(), getAllCategories()]);
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-14">
+    <main className="mx-auto max-w-350 px-4 py-6 sm:px-6 sm:py-14">
       <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Categories" }]} />
       <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Categories</h1>
 

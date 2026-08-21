@@ -159,7 +159,7 @@ export default function CheckoutPage() {
 
   if (loading || !hydrated || items.length === 0) {
     return (
-      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-14">
+      <main className="mx-auto max-w-350 px-4 py-6 sm:px-6 sm:py-14">
         <div className="h-6 w-40 animate-pulse rounded bg-surface" />
         <div className="mt-6 h-96 animate-pulse rounded-2xl bg-surface" />
       </main>
@@ -167,7 +167,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-14">
+    <main className="mx-auto max-w-350 px-4 py-6 sm:px-6 sm:py-14">
       <h1 className="text-xl font-semibold tracking-tight sm:text-3xl">Checkout</h1>
 
       <div className="mt-6 lg:grid lg:grid-cols-[1fr_380px] lg:items-start lg:gap-8">
