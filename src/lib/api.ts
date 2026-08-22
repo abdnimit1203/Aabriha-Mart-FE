@@ -1,4 +1,7 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000";
+// "||" not "??": a blank dashboard env var can resolve to an empty string
+// rather than truly unset, which would otherwise silently send every
+// request to this frontend's own domain instead of the real backend.
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 export class ApiError extends Error {
   constructor(public status: number, message: string) {

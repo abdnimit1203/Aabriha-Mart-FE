@@ -28,7 +28,9 @@ const DEVELOPER = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  // "||" not "??": Vercel can store an env var left blank in the dashboard
+  // as an empty string rather than truly unset, and new URL("") throws.
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
   title: "Aabriha Mart",
   description: "Clothing, shoes, bags & electronics — Aabriha Mart",
   icons: {
@@ -58,7 +60,7 @@ const structuredData = {
   "@context": "https://schema.org",
   "@type": "WebSite",
   name: "Aabriha Mart",
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  url: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
   author: {
     "@type": "Person",
     name: DEVELOPER.name,
