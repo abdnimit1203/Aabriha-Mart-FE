@@ -14,6 +14,11 @@ const ACCOUNT_LINKS = [
   { href: "/orders", label: "My Orders" },
 ];
 
+const LEGAL_LINKS = [
+  { href: "/privacy-policy", label: "Privacy Policy" },
+  { href: "/terms", label: "Terms of Service" },
+];
+
 export function Footer() {
   const email = process.env.NEXT_PUBLIC_CONTACT_EMAIL;
   const address = process.env.NEXT_PUBLIC_CONTACT_ADDRESS;
@@ -28,7 +33,7 @@ export function Footer() {
 
   return (
     <footer className="bg-primary-strong text-white">
-      <div className={`mx-auto grid max-w-350 gap-8 px-4 py-10 sm:px-6 ${hasContact ? "sm:grid-cols-4" : "sm:grid-cols-3"}`}>
+      <div className={`mx-auto grid max-w-350 gap-8 px-4 py-10 sm:px-6 ${hasContact ? "sm:grid-cols-5" : "sm:grid-cols-4"}`}>
         <div>
           <div className="flex h-16 w-16 items-center justify-center rounded-2xl border-2 border-white bg-white">
             <Image src="/logo.png" alt="" width={48} height={48} className="h-12 w-12 object-contain" />
@@ -70,6 +75,19 @@ export function Footer() {
           <p className="text-sm font-semibold">Account</p>
           <ul className="mt-3 space-y-2">
             {ACCOUNT_LINKS.map((link) => (
+              <li key={link.href}>
+                <Link href={link.href} className="text-sm text-white/80 hover:text-white">
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div>
+          <p className="text-sm font-semibold">Legal</p>
+          <ul className="mt-3 space-y-2">
+            {LEGAL_LINKS.map((link) => (
               <li key={link.href}>
                 <Link href={link.href} className="text-sm text-white/80 hover:text-white">
                   {link.label}
@@ -139,6 +157,16 @@ export function Footer() {
 
       <div className="border-t border-white/20 px-4 py-4 text-center text-xs text-white/70 sm:px-6">
         © {new Date().getFullYear()} Aabriha Mart. All rights reserved.
+        <span className="mx-1.5">·</span>
+        Built by{" "}
+        <a
+          href="https://abdullah-ibne-ali.netlify.app"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-medium text-white/80 underline-offset-2 hover:text-white hover:underline"
+        >
+          Abdullah Ibne Ali
+        </a>
       </div>
     </footer>
   );
