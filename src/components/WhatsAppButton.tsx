@@ -32,13 +32,17 @@ export function WhatsAppButton() {
               key="call"
               href={callHref}
               aria-label="Call us"
-              initial={{ opacity: 0, y: 12, scale: 0.7 }}
+              initial={{ opacity: 0, y: 18, scale: 0.4 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 12, scale: 0.7 }}
-              transition={{ duration: 0.18, delay: 0.05 }}
-              className="flex h-11 w-11 items-center justify-center rounded-full bg-primary-strong text-white shadow-lg transition-transform hover:scale-105"
+              exit={{ opacity: 0, y: 18, scale: 0.4, transition: { duration: 0.1, ease: "easeIn" } }}
+              transition={{ type: "spring", stiffness: 500, damping: 24, delay: 0.04 }}
+              className="relative flex h-11 w-11 items-center justify-center rounded-full border border-sky-400/80 bg-black shadow-[0_0_10px_rgba(56,189,248,0.7)] transition-transform hover:scale-105"
             >
-              <FaPhoneVolume className="h-4.5 w-4.5" />
+              <span
+                className="absolute inset-0 animate-pulse rounded-full bg-sky-400/40 blur-md"
+                aria-hidden="true"
+              />
+              <FaPhoneVolume className="relative h-4.5 w-4.5 text-sky-300 drop-shadow-[0_0_6px_rgba(56,189,248,0.95)]" />
             </motion.a>
             <motion.a
               key="whatsapp"
@@ -46,13 +50,17 @@ export function WhatsAppButton() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Chat with us on WhatsApp"
-              initial={{ opacity: 0, y: 12, scale: 0.7 }}
+              initial={{ opacity: 0, y: 18, scale: 0.4 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 12, scale: 0.7 }}
-              transition={{ duration: 0.18 }}
-              className="flex h-11 w-11 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition-transform hover:scale-105"
+              exit={{ opacity: 0, y: 18, scale: 0.4, transition: { duration: 0.1, ease: "easeIn" } }}
+              transition={{ type: "spring", stiffness: 500, damping: 24 }}
+              className="relative flex h-11 w-11 items-center justify-center rounded-full border border-emerald-400/80 bg-[#25D366] shadow-[0_0_10px_rgba(37,211,102,0.7)] transition-transform hover:scale-105"
             >
-              <FaWhatsapp className="h-5 w-5" />
+              <span
+                className="absolute inset-0 animate-pulse rounded-full bg-emerald-300/40 blur-md"
+                aria-hidden="true"
+              />
+              <FaWhatsapp className="relative h-5 w-5 text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.9)]" />
             </motion.a>
           </>
         )}
