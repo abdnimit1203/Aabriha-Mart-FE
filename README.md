@@ -1,8 +1,22 @@
 # Aabriha Mart — Frontend
 
+**Live:** [aabrihamart.vercel.app](https://aabrihamart.vercel.app) · **API:** [aabriha-mart-be.vercel.app](https://aabriha-mart-be.vercel.app)
+
+![Aabriha Mart](public/aabriha-mart-showcase.png)
+
 Next.js (App Router) storefront and admin dashboard for Aabriha Mart. React 19 + TypeScript + Tailwind CSS v4. Talks to the [backend](../Aabriha-Mart-BE) exclusively over HTTP via `src/lib/api.ts` — no direct database access.
 
 See [`../docs/architecture.md`](../docs/architecture.md) for the full architectural record.
+
+## Tech stack
+
+- **Framework:** Next.js 16 (App Router, Turbopack) · React 19 · TypeScript
+- **Styling:** Tailwind CSS v4, Framer Motion (page/element transitions)
+- **Auth:** Firebase Authentication (email/password + Google) — verified server-side by the backend, never trusted client-side alone
+- **Payments:** Stripe (`@stripe/react-stripe-js`), plus manual bKash/Nagad "Send Money" instructions at checkout
+- **Media:** ImageKit (product/category image hosting), `browser-image-compression` for client-side pre-compression
+- **UI/UX:** SweetAlert2 (welcome popup), react-hot-toast (notifications), Swiper (hero slider), Recharts (admin analytics)
+- **Deployment:** Vercel (zero-config Next.js)
 
 ## Install
 
@@ -53,10 +67,10 @@ npx tsc --noEmit  # standalone type-check, no separate npm script defined
 npm run start     # serve the production build
 ```
 
-## Local URLs
+## URLs
 
-- Frontend (this app): `http://localhost:3000`
-- Backend API: `http://localhost:5000` (default; configurable via `NEXT_PUBLIC_API_URL`)
+- **Production:** [aabrihamart.vercel.app](https://aabrihamart.vercel.app) · API: `https://aabriha-mart-be.vercel.app`
+- **Local dev:** `http://localhost:3000` · API: `http://localhost:5000` (default; configurable via `NEXT_PUBLIC_API_URL`)
 
 ## Project structure
 
