@@ -31,7 +31,7 @@ export default function AdminProductsPage() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
-  const limit = 20;
+  const limit = 15;
 
   const load = useCallback(() => {
     listProductsAdmin({ search: search || undefined, page, limit })

@@ -105,12 +105,14 @@ function VariantRow({
   }
 
   return (
-    <div className="flex items-center justify-between gap-3 border-t border-border py-2 pl-12 pr-3">
+    <div className="flex flex-wrap items-center gap-3 border-t border-border py-2 pl-8 pr-3 sm:flex-nowrap sm:justify-between sm:pl-12">
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm">{label}</p>
         <StockBadge level={levelForStock(variant.stock)} />
       </div>
-      <StockAdjuster label={label} stock={variant.stock} onAdjust={handleAdjust} />
+      <div className="w-full sm:w-auto">
+        <StockAdjuster label={label} stock={variant.stock} onAdjust={handleAdjust} />
+      </div>
     </div>
   );
 }
@@ -134,7 +136,7 @@ function ProductRow({ product, onChanged }: { product: Product; onChanged: (upda
 
   return (
     <div className="border-b border-border last:border-0">
-      <div className="flex items-center gap-3 px-3 py-3">
+      <div className="flex flex-wrap items-center gap-3 px-3 py-3 sm:flex-nowrap">
         {hasVariants ? (
           <button
             type="button"
@@ -169,11 +171,19 @@ function ProductRow({ product, onChanged }: { product: Product; onChanged: (upda
           </div>
         </div>
 
-        {hasVariants ? (
-          <span className="w-24 shrink-0 text-right text-sm tabular-nums text-muted-foreground">{totalStock(product)} total</span>
-        ) : (
-          <StockAdjuster label={product.name} stock={product.stock ?? 0} onAdjust={handleAdjust} />
-        )}
+        {/* flex-wrap on the row lets this drop to its own full-width line
+            on mobile instead of squeezing next to the name — a 5-control
+            stock adjuster (number, -, +, input, Apply) never fits on the
+            same line as the thumbnail+name at any real phone width. */}
+        <div className="w-full pl-9 sm:w-auto sm:pl-0">
+          {hasVariants ? (
+            <span className="text-sm tabular-nums text-muted-foreground sm:w-24 sm:text-right sm:block">
+              {totalStock(product)} total
+            </span>
+          ) : (
+            <StockAdjuster label={product.name} stock={product.stock ?? 0} onAdjust={handleAdjust} />
+          )}
+        </div>
       </div>
 
       {hasVariants && expanded && (
