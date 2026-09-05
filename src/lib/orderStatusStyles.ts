@@ -71,20 +71,20 @@ export function formatStatusLabel(value: string): string {
   return value.replace(/_/g, " ");
 }
 
-// A distinct light color per pipeline step, for the order timeline
-// specifically — STATUS_CLASS above is deliberately flat (most mid-pipeline
-// statuses share one color) since only one status pill shows at a time
-// anywhere it's used. A timeline shows several steps at once, so each needs
-// its own identity to actually read as a sequence rather than a wall of
-// identical dates.
-export const STATUS_TIMELINE_CLASS: Record<OrderStatus, { dot: string; card: string }> = {
-  pending: { dot: "bg-gray-400", card: "border-gray-200 bg-gray-50" },
-  confirmed: { dot: "bg-blue-500", card: "border-blue-200 bg-blue-50" },
-  processing: { dot: "bg-indigo-500", card: "border-indigo-200 bg-indigo-50" },
-  packed: { dot: "bg-amber-500", card: "border-amber-200 bg-amber-50" },
-  shipped: { dot: "bg-sky-500", card: "border-sky-200 bg-sky-50" },
-  out_for_delivery: { dot: "bg-violet-500", card: "border-violet-200 bg-violet-50" },
-  delivered: { dot: "bg-green-600", card: "border-green-200 bg-green-50" },
-  cancelled: { dot: "bg-danger", card: "border-red-200 bg-red-50" },
-  returned: { dot: "bg-danger", card: "border-rose-200 bg-rose-50" },
+// The happy-path sequence shown in the order timeline — cancelled/returned
+// are exceptions that can branch off at any point, not steps in this list.
+export const MAIN_PIPELINE_STATUSES: OrderStatus[] = [
+  "pending",
+  "confirmed",
+  "processing",
+  "packed",
+  "shipped",
+  "out_for_delivery",
+  "delivered",
+];
+
+// Overrides formatStatusLabel's default for a couple of steps that read
+// better with customer-facing wording in the timeline specifically.
+export const TIMELINE_STEP_LABEL: Partial<Record<OrderStatus, string>> = {
+  pending: "Order Placed",
 };

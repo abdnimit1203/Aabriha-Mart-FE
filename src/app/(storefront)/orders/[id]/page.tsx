@@ -122,6 +122,7 @@ export default function OrderConfirmationPage() {
         <div className="mt-4">
           <OrderTimeline
             statusHistory={order.statusHistory}
+            currentStatus={order.status}
             courierName={order.courierName}
             trackingNumber={order.trackingNumber}
           />
