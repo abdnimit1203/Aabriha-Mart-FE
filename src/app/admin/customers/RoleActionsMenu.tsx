@@ -86,7 +86,7 @@ export function RoleActionsMenu({
         aria-expanded={open}
         aria-label="Change role"
         onClick={() => (open ? setOpen(false) : openMenu())}
-        className="rounded-lg px-2 py-1 text-muted-foreground hover:bg-black/3 hover:text-foreground"
+        className="rounded px-2 py-1 text-muted-foreground hover:bg-black/3 hover:text-foreground"
       >
         ⋯
       </button>
@@ -98,7 +98,7 @@ export function RoleActionsMenu({
             ref={menuRef}
             role="menu"
             style={{ position: "fixed", top: position.top, left: position.left, width: MENU_WIDTH }}
-            className="admin-shell z-50 rounded-xl border border-border bg-surface p-1.5 shadow-lg"
+            className="admin-shell z-50 rounded-md border border-border bg-surface p-1.5 shadow-lg"
           >
             {otherRoles.map((role) => (
               <button
@@ -109,7 +109,7 @@ export function RoleActionsMenu({
                   setOpen(false);
                   onChangeRole(userId, role);
                 }}
-                className="block w-full rounded-lg px-3 py-1.5 text-left text-sm hover:bg-black/3"
+                className="block w-full rounded px-3 py-1.5 text-left text-sm hover:bg-black/3"
               >
                 Make {ROLE_LABEL[role]}
               </button>

@@ -42,7 +42,7 @@ export default function AdminHeroBannersPage() {
         title="Hero Banners"
         description="Slides shown in the homepage hero carousel."
         actions={
-          <Link href="/admin/storefront/hero-banners/new" className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-strong">
+          <Link href="/admin/storefront/hero-banners/new" className="rounded bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-strong">
             New Hero Banner
           </Link>
         }
@@ -68,16 +68,16 @@ export default function AdminHeroBannersPage() {
                 <td className="py-2.5 pr-3">
                   <div className="flex items-center gap-3">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={banner.desktopImage} alt="" className="h-10 w-16 rounded-lg border border-border object-cover" />
+                    <img src={banner.desktopImage} alt="" className="h-10 w-16 rounded border border-border object-cover" />
                     <span className="text-sm font-medium">{banner.titleEn}</span>
                   </div>
                 </td>
                 <td className="py-2.5 pr-3 text-sm text-muted-foreground">{banner.sortOrder}</td>
                 <td className="py-2.5 pr-3">
                   {banner.isActive ? (
-                    <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">Active</span>
+                    <span className="rounded bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">Active</span>
                   ) : (
-                    <span className="rounded-full bg-black/5 px-2 py-0.5 text-xs font-medium text-muted-foreground">Hidden</span>
+                    <span className="rounded bg-black/5 px-2 py-0.5 text-xs font-medium text-muted-foreground">Hidden</span>
                   )}
                 </td>
                 <td className="py-2.5 text-right">

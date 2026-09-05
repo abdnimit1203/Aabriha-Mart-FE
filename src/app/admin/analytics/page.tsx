@@ -46,7 +46,7 @@ function TrendTooltip({ active, payload }: TooltipContentProps<ValueType, NameTy
   if (!active || !payload?.length) return null;
   const day = payload[0].payload as { date: string; revenue: number; orders: number };
   return (
-    <div className="rounded-lg border border-border bg-surface px-3 py-2 text-xs shadow-lg">
+    <div className="rounded border border-border bg-surface px-3 py-2 text-xs shadow-lg">
       <p className="font-semibold text-foreground">৳{day.revenue.toLocaleString()}</p>
       <p className="text-muted-foreground">
         {day.orders} order{day.orders !== 1 ? "s" : ""}
@@ -62,21 +62,21 @@ function TrendTooltip({ active, payload }: TooltipContentProps<ValueType, NameTy
 
 function TrendCardSkeleton() {
   return (
-    <div className="rounded-xl border border-border bg-surface p-5">
+    <div className="rounded-md border border-border bg-surface p-5">
       <div className="mb-1 h-4 w-28 animate-pulse rounded bg-background" />
       <div className="mb-5 h-3 w-56 animate-pulse rounded bg-background" />
-      <div className="h-64 animate-pulse rounded-lg bg-background" />
+      <div className="h-64 animate-pulse rounded bg-background" />
     </div>
   );
 }
 
 function TopProductsSkeleton() {
   return (
-    <div className="rounded-xl border border-border bg-surface p-5">
+    <div className="rounded-md border border-border bg-surface p-5">
       <div className="mb-4 h-4 w-24 animate-pulse rounded bg-background" />
       <div className="space-y-3">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="h-12 animate-pulse rounded-lg bg-background" />
+          <div key={i} className="h-12 animate-pulse rounded bg-background" />
         ))}
       </div>
     </div>
@@ -85,12 +85,12 @@ function TopProductsSkeleton() {
 
 function OrderStatusSkeleton() {
   return (
-    <div className="rounded-xl border border-border bg-surface p-5">
+    <div className="rounded-md border border-border bg-surface p-5">
       <div className="mb-4 h-4 w-24 animate-pulse rounded bg-background" />
-      <div className="h-2 animate-pulse rounded-full bg-background" />
+      <div className="h-2 animate-pulse rounded bg-background" />
       <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2">
         {Array.from({ length: 7 }).map((_, i) => (
-          <div key={i} className="h-5 animate-pulse rounded-full bg-background" />
+          <div key={i} className="h-5 animate-pulse rounded bg-background" />
         ))}
       </div>
     </div>
@@ -99,10 +99,10 @@ function OrderStatusSkeleton() {
 
 function NewVsReturningSkeleton() {
   return (
-    <div className="rounded-xl border border-border bg-surface p-5">
+    <div className="rounded-md border border-border bg-surface p-5">
       <div className="mb-1 h-4 w-48 animate-pulse rounded bg-background" />
       <div className="mb-4 h-3 w-64 animate-pulse rounded bg-background" />
-      <div className="h-3 animate-pulse rounded-full bg-background" />
+      <div className="h-3 animate-pulse rounded bg-background" />
       <div className="mt-3 flex gap-6">
         <div className="h-4 w-20 animate-pulse rounded bg-background" />
         <div className="h-4 w-24 animate-pulse rounded bg-background" />
@@ -192,7 +192,7 @@ export default function AdminAnalyticsPage() {
         }
         actions={
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex gap-1 rounded-full border border-border bg-surface p-1">
+            <div className="flex gap-1 rounded border border-border bg-surface p-1">
               {DAY_OPTIONS.map((option) => (
                 <button
                   key={option}
@@ -202,7 +202,7 @@ export default function AdminAnalyticsPage() {
                     setRangeMode("days");
                     setDays(option);
                   }}
-                  className={`rounded-full px-3 py-1 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+                  className={`rounded px-3 py-1 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
                     rangeMode === "days" && days === option ? "bg-primary text-white" : "text-muted-foreground hover:bg-background"
                   }`}
                 >
@@ -213,7 +213,7 @@ export default function AdminAnalyticsPage() {
                 type="button"
                 disabled={fetching}
                 onClick={() => setRangeMode("month")}
-                className={`rounded-full px-3 py-1 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+                className={`rounded px-3 py-1 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
                   rangeMode === "month" ? "bg-primary text-white" : "text-muted-foreground hover:bg-background"
                 }`}
               >
@@ -227,7 +227,7 @@ export default function AdminAnalyticsPage() {
                 disabled={fetching}
                 onChange={(e) => setMonthValue(e.target.value)}
                 max={currentMonthValue()}
-                className="rounded-lg border border-border bg-surface px-3 py-1.5 text-xs outline-none focus-visible:outline-2 focus-visible:outline-primary-strong disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded border border-border bg-surface px-3 py-1.5 text-xs outline-none focus-visible:outline-2 focus-visible:outline-primary-strong disabled:cursor-not-allowed disabled:opacity-50"
               />
             )}
           </div>
@@ -235,10 +235,10 @@ export default function AdminAnalyticsPage() {
       />
 
       {isInitialError ? (
-        <div className="flex flex-col items-center gap-3 rounded-xl border border-danger/30 bg-danger/5 px-6 py-16 text-center">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-danger/10 text-danger">!</div>
+        <div className="flex flex-col items-center gap-3 rounded-md border border-danger/30 bg-danger/5 px-6 py-16 text-center">
+          <div className="flex h-10 w-10 items-center justify-center rounded bg-danger/10 text-danger">!</div>
           <p className="text-sm font-medium text-foreground">Couldn&apos;t load analytics</p>
-          <button type="button" onClick={load} className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-strong">
+          <button type="button" onClick={load} className="rounded bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-strong">
             Retry
           </button>
         </div>
@@ -274,7 +274,7 @@ export default function AdminAnalyticsPage() {
             </div>
 
             <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
-              <div className="rounded-xl border border-border bg-surface p-5">
+              <div className="rounded-md border border-border bg-surface p-5">
                 <h2 className="mb-1 text-sm font-semibold text-foreground">Revenue Trend</h2>
                 <p className="mb-5 text-xs text-muted-foreground">Daily order revenue, in ৳, over {rangeDescription}.</p>
                 <div className="h-64">
@@ -304,7 +304,7 @@ export default function AdminAnalyticsPage() {
                 </div>
               </div>
 
-              <div className="rounded-xl border border-border bg-surface p-5">
+              <div className="rounded-md border border-border bg-surface p-5">
                 <h2 className="mb-4 text-sm font-semibold text-foreground">Top Products</h2>
                 {data.topProducts.length === 0 ? (
                   <div className="flex flex-col items-center gap-1 py-8 text-center">
@@ -314,12 +314,12 @@ export default function AdminAnalyticsPage() {
                 ) : (
                   <div className="space-y-1">
                     {data.topProducts.map((p) => (
-                      <Link key={p._id} href={`/admin/products/${p._id}/edit`} className="flex items-center gap-3 rounded-lg p-2 hover:bg-background">
+                      <Link key={p._id} href={`/admin/products/${p._id}/edit`} className="flex items-center gap-3 rounded p-2 hover:bg-background">
                         {p.image ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={p.image} alt="" className="h-9 w-9 shrink-0 rounded-lg border border-border object-cover" />
+                          <img src={p.image} alt="" className="h-9 w-9 shrink-0 rounded border border-border object-cover" />
                         ) : (
-                          <div className="h-9 w-9 shrink-0 rounded-lg border border-dashed border-border" />
+                          <div className="h-9 w-9 shrink-0 rounded border border-dashed border-border" />
                         )}
                         <div className="min-w-0 flex-1">
                           <p className="truncate text-sm font-medium">{p.name}</p>
@@ -334,9 +334,9 @@ export default function AdminAnalyticsPage() {
             </div>
 
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-              <div className="rounded-xl border border-border bg-surface p-5">
+              <div className="rounded-md border border-border bg-surface p-5">
                 <h2 className="mb-4 text-sm font-semibold text-foreground">Order Status</h2>
-                <div className="flex h-2 overflow-hidden rounded-full bg-background">
+                <div className="flex h-2 overflow-hidden rounded bg-background">
                   {PIPELINE_STATUSES.map((status, i) => {
                     const count = data.statusCounts[status];
                     if (count === 0) return null;
@@ -346,7 +346,7 @@ export default function AdminAnalyticsPage() {
                         key={status}
                         title={`${formatStatusLabel(status)}: ${count}`}
                         style={{ width: `${(count / pipelineTotal) * 100}%` }}
-                        className={`h-full ${OPACITY[i]} first:rounded-l-full last:rounded-r-full`}
+                        className={`h-full ${OPACITY[i]} first:rounded-l last:rounded-r`}
                       />
                     );
                   })}
@@ -354,7 +354,7 @@ export default function AdminAnalyticsPage() {
                 <ul className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2">
                   {PIPELINE_STATUSES.map((status) => (
                     <li key={status} className="flex items-center justify-between gap-2 text-sm">
-                      <span className={`rounded-full px-2 py-0.5 text-xs font-medium capitalize ${STATUS_CLASS[status]}`}>
+                      <span className={`rounded px-2 py-0.5 text-xs font-medium capitalize ${STATUS_CLASS[status]}`}>
                         {formatStatusLabel(status)}
                       </span>
                       <span className="tabular-nums text-muted-foreground">{data.statusCounts[status]}</span>
@@ -369,7 +369,7 @@ export default function AdminAnalyticsPage() {
                 )}
               </div>
 
-              <div className="rounded-xl border border-border bg-surface p-5">
+              <div className="rounded-md border border-border bg-surface p-5">
                 <h2 className="mb-1 text-sm font-semibold text-foreground">New vs. Returning Customers</h2>
                 <p className="mb-4 text-xs text-muted-foreground">
                   Based on whether each customer&apos;s first-ever order fell inside {rangeDescription}.
@@ -378,14 +378,14 @@ export default function AdminAnalyticsPage() {
                   <p className="text-sm text-muted-foreground">No orders in this period yet.</p>
                 ) : (
                   <>
-                    <div className="flex h-3 overflow-hidden rounded-full bg-background">
+                    <div className="flex h-3 overflow-hidden rounded bg-background">
                       <div
                         style={{ width: `${(data.newCustomers / totalCustomersInRange) * 100}%` }}
-                        className="h-full rounded-l-full bg-success"
+                        className="h-full rounded-l bg-success"
                       />
                       <div
                         style={{ width: `${(data.returningCustomers / totalCustomersInRange) * 100}%` }}
-                        className="h-full rounded-r-full bg-primary-strong"
+                        className="h-full rounded-r bg-primary-strong"
                       />
                     </div>
                     <div className="mt-3 flex gap-6 text-sm">

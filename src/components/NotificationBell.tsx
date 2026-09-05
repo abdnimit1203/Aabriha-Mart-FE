@@ -62,7 +62,7 @@ function NotificationRow({
           type="button"
           onClick={() => onMarkRead(notification)}
           title="Mark as read"
-          className="shrink-0 rounded-full border border-border px-2 py-0.5 text-[10px] font-medium text-muted-foreground opacity-0 transition-opacity hover:bg-background group-hover:opacity-100"
+          className="shrink-0 rounded border border-border px-2 py-0.5 text-[10px] font-medium text-muted-foreground opacity-0 transition-opacity hover:bg-background group-hover:opacity-100"
         >
           Mark read
         </button>
@@ -158,11 +158,11 @@ export function NotificationBell() {
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-label={unreadCount > 0 ? `Notifications (${unreadCount} unread)` : "Notifications"}
-        className="relative rounded-lg p-2 text-muted-foreground hover:bg-background hover:text-foreground"
+        className="relative rounded p-2 text-muted-foreground hover:bg-background hover:text-foreground"
       >
         <BellIcon className="h-5 w-5" />
         {unreadCount > 0 && (
-          <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-danger px-1 text-[10px] font-semibold leading-none text-white">
+          <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded bg-danger px-1 text-[10px] font-semibold leading-none text-white">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
@@ -176,7 +176,7 @@ export function NotificationBell() {
         // left to clip off the left edge of the screen. sm+ keeps the
         // original behavior, where the desktop top bar has nothing but the
         // bell in it, so "right-0" there is already correctly flush right.
-        <div className="fixed inset-x-4 top-16 z-30 overflow-hidden rounded-xl border border-border bg-surface shadow-lg sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 sm:w-80 sm:max-w-[90vw]">
+        <div className="fixed inset-x-4 top-16 z-30 overflow-hidden rounded-md border border-border bg-surface shadow-lg sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 sm:w-80 sm:max-w-[90vw]">
           <div className="flex items-center justify-between border-b border-border px-3.5 py-2.5">
             <p className="text-sm font-semibold text-foreground">Notifications</p>
             {unreadCount > 0 && (

@@ -11,13 +11,13 @@ import { slugify } from "@/lib/slugify";
 import { TrashIcon } from "@/components/icons";
 
 const inputClass =
-  "w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong";
+  "w-full rounded border border-border bg-surface px-3 py-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong";
 // Variant fields sit inside an already-bordered card on a light admin
 // background — the default border was too faint to read as a distinct box,
 // and placeholder-only labels disappeared once a value was typed. Darker
 // border + a persistent label above each field fixes both.
 const variantInputClass =
-  "w-full rounded-lg border border-gray-300 bg-surface px-3 py-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong";
+  "w-full rounded border border-gray-300 bg-surface px-3 py-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong";
 const MAX_IMAGES = 6;
 
 function VariantField({ label, children }: { label: string; children: React.ReactNode }) {
@@ -274,19 +274,19 @@ export function ProductForm({ product, categories }: { product?: Product; catego
           {images.map((img, i) => (
             <div key={img.url} className="relative h-20 w-20">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={img.url} alt="" className="h-20 w-20 rounded-lg border border-border object-cover" />
+              <img src={img.url} alt="" className="h-20 w-20 rounded border border-border object-cover" />
               <button
                 type="button"
                 onClick={() => removeImage(i)}
                 aria-label="Remove image"
-                className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-danger text-white"
+                className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded bg-danger text-white"
               >
                 <TrashIcon className="h-3 w-3" />
               </button>
             </div>
           ))}
           {images.length < MAX_IMAGES && (
-            <label className="flex h-20 w-20 cursor-pointer items-center justify-center rounded-lg border border-dashed border-border text-xs text-muted-foreground hover:border-primary-strong">
+            <label className="flex h-20 w-20 cursor-pointer items-center justify-center rounded border border-dashed border-border text-xs text-muted-foreground hover:border-primary-strong">
               {uploading ? "…" : "+ Add"}
               <input
                 ref={fileInputRef}
@@ -317,7 +317,7 @@ export function ProductForm({ product, categories }: { product?: Product; catego
             <button
               type="button"
               onClick={addImageByUrl}
-              className="whitespace-nowrap rounded-lg border border-border px-3 py-2 text-sm hover:bg-background"
+              className="whitespace-nowrap rounded border border-border px-3 py-2 text-sm hover:bg-background"
             >
               Add
             </button>
@@ -369,7 +369,7 @@ export function ProductForm({ product, categories }: { product?: Product; catego
             <span className="mb-1 block text-sm font-medium">Variant attributes</span>
             <div className="mb-2 flex flex-wrap gap-2">
               {attributeNames.map((attr) => (
-                <span key={attr} className="flex items-center gap-1.5 rounded-full bg-background px-3 py-1 text-xs">
+                <span key={attr} className="flex items-center gap-1.5 rounded bg-background px-3 py-1 text-xs">
                   {attr}
                   <button type="button" onClick={() => removeAttribute(attr)} aria-label={`Remove ${attr}`}>
                     <TrashIcon className="h-3 w-3" />
@@ -393,7 +393,7 @@ export function ProductForm({ product, categories }: { product?: Product; catego
               <button
                 type="button"
                 onClick={addAttribute}
-                className="whitespace-nowrap rounded-lg border border-border px-3 py-2 text-sm hover:bg-background"
+                className="whitespace-nowrap rounded border border-border px-3 py-2 text-sm hover:bg-background"
               >
                 Add attribute
               </button>
@@ -402,7 +402,7 @@ export function ProductForm({ product, categories }: { product?: Product; catego
 
           <div className="space-y-3">
             {variants.map((variant, i) => (
-              <div key={i} className="rounded-xl border border-primary/30 bg-primary/5 p-3.5 backdrop-blur-sm">
+              <div key={i} className="rounded-md border border-primary/30 bg-primary/5 p-3.5 backdrop-blur-sm">
                 <div className="mb-2 flex items-center justify-between">
                   <span className="text-sm font-medium">Variant {i + 1}</span>
                   <button
@@ -486,7 +486,7 @@ export function ProductForm({ product, categories }: { product?: Product; catego
           <button
             type="button"
             onClick={addVariant}
-            className="rounded-lg border border-border px-3 py-2 text-sm hover:bg-background"
+            className="rounded border border-border px-3 py-2 text-sm hover:bg-background"
           >
             + Add variant
           </button>
@@ -541,7 +541,7 @@ export function ProductForm({ product, categories }: { product?: Product; catego
         <button
           type="submit"
           disabled={saving || uploading}
-          className="rounded-full bg-primary px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-strong disabled:cursor-not-allowed disabled:opacity-50"
+          className="rounded bg-primary px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-strong disabled:cursor-not-allowed disabled:opacity-50"
         >
           {saving ? "Saving…" : isEdit ? "Save changes" : "Create product"}
         </button>
@@ -549,7 +549,7 @@ export function ProductForm({ product, categories }: { product?: Product; catego
           type="button"
           onClick={() => router.push("/admin/products")}
           disabled={saving}
-          className="rounded-full border border-border px-5 py-2 text-sm font-medium hover:bg-background disabled:cursor-not-allowed disabled:opacity-50"
+          className="rounded border border-border px-5 py-2 text-sm font-medium hover:bg-background disabled:cursor-not-allowed disabled:opacity-50"
         >
           Cancel
         </button>

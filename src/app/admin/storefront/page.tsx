@@ -18,7 +18,7 @@ export default function AdminStorefrontHomePage() {
           <Link
             key={section.href}
             href={section.href}
-            className="flex items-start gap-3 rounded-xl border border-border bg-surface p-4 transition-colors hover:border-primary"
+            className="flex items-start gap-3 rounded-md border border-border bg-surface p-4 transition-colors hover:border-primary"
           >
             <section.icon className="mt-0.5 h-5 w-5 shrink-0 text-primary-strong" />
             <div>

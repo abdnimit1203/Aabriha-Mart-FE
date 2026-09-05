@@ -10,7 +10,7 @@ import { uploadCatalogImage } from "@/lib/upload";
 import { ImageUploadField } from "@/components/ImageUploadField";
 
 const inputClass =
-  "w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong";
+  "w-full rounded border border-border bg-surface px-3 py-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong";
 
 function toDateInputValue(iso?: string): string {
   if (!iso) return "";
@@ -189,7 +189,7 @@ export function PromotionForm({ promotion }: { promotion?: Promotion }) {
         <button
           type="submit"
           disabled={saving || uploading}
-          className="rounded-full bg-primary px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-strong disabled:cursor-not-allowed disabled:opacity-50"
+          className="rounded bg-primary px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-strong disabled:cursor-not-allowed disabled:opacity-50"
         >
           {saving ? "Saving…" : isEdit ? "Save changes" : "Create promotion"}
         </button>
@@ -197,7 +197,7 @@ export function PromotionForm({ promotion }: { promotion?: Promotion }) {
           type="button"
           onClick={() => router.push("/admin/storefront/promotions")}
           disabled={saving}
-          className="rounded-full border border-border px-5 py-2 text-sm font-medium hover:bg-background disabled:cursor-not-allowed disabled:opacity-50"
+          className="rounded border border-border px-5 py-2 text-sm font-medium hover:bg-background disabled:cursor-not-allowed disabled:opacity-50"
         >
           Cancel
         </button>

@@ -21,12 +21,12 @@ import {
 } from "./orderStatusStyles";
 
 const inputClass =
-  "rounded-lg border border-border bg-surface px-3 py-1.5 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong";
+  "rounded border border-border bg-surface px-3 py-1.5 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong";
 const LIMIT = 20;
 
 function StatusPill({ order }: { order: AdminOrder }) {
   return (
-    <span className={`rounded-full px-2 py-0.5 text-xs font-medium capitalize ${STATUS_CLASS[order.status]}`}>
+    <span className={`rounded px-2 py-0.5 text-xs font-medium capitalize ${STATUS_CLASS[order.status]}`}>
       {formatStatusLabel(order.status)}
     </span>
   );
@@ -36,7 +36,7 @@ function PaymentCell({ order }: { order: AdminOrder }) {
   return (
     <div>
       <p className="text-xs text-muted-foreground">{PAYMENT_METHOD_LABEL[order.paymentMethod]}</p>
-      <span className={`rounded-full px-2 py-0.5 text-xs font-medium capitalize ${PAYMENT_STATUS_CLASS[order.paymentStatus]}`}>
+      <span className={`rounded px-2 py-0.5 text-xs font-medium capitalize ${PAYMENT_STATUS_CLASS[order.paymentStatus]}`}>
         {formatStatusLabel(order.paymentStatus)}
       </span>
     </div>
@@ -57,7 +57,7 @@ function SkeletonRows() {
       {Array.from({ length: 6 }).map((_, i) => (
         <tr key={i} className="border-b border-border last:border-0">
           <td colSpan={10} className="py-3">
-            <div className="h-8 animate-pulse rounded-lg bg-background" />
+            <div className="h-8 animate-pulse rounded bg-background" />
           </td>
         </tr>
       ))}
@@ -229,13 +229,13 @@ export default function AdminOrdersPage() {
       </div>
 
       {selected.size > 0 && (
-        <div className="mb-3 flex items-center gap-3 rounded-lg border border-primary/30 bg-primary/5 px-4 py-2 text-sm">
+        <div className="mb-3 flex items-center gap-3 rounded border border-primary/30 bg-primary/5 px-4 py-2 text-sm">
           <span className="font-medium">Selected: {selected.size}</span>
           <button
             type="button"
             onClick={handleBulkConfirm}
             disabled={!canBulkConfirm || bulkSaving}
-            className="rounded-full bg-primary px-3 py-1 text-xs font-medium text-white hover:bg-primary-strong disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded bg-primary px-3 py-1 text-xs font-medium text-white hover:bg-primary-strong disabled:cursor-not-allowed disabled:opacity-50"
           >
             {bulkSaving ? "Confirming…" : "Confirm selected"}
           </button>
@@ -244,14 +244,14 @@ export default function AdminOrdersPage() {
       )}
 
       {error ? (
-        <div className="flex flex-col items-center gap-3 rounded-xl border border-border bg-surface px-6 py-16 text-center">
+        <div className="flex flex-col items-center gap-3 rounded-md border border-border bg-surface px-6 py-16 text-center">
           <p className="text-sm font-medium text-foreground">Couldn&apos;t load orders</p>
-          <button type="button" onClick={load} className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-strong">
+          <button type="button" onClick={load} className="rounded bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-strong">
             Retry
           </button>
         </div>
       ) : orders !== null && orders.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border bg-surface px-6 py-16 text-center">
+        <div className="flex flex-col items-center gap-3 rounded-md border border-dashed border-border bg-surface px-6 py-16 text-center">
           <ReceiptIcon className="h-8 w-8 text-muted-foreground" />
           <p className="text-sm font-medium text-foreground">{hasActiveFilters ? "No orders match your filters" : "No orders yet"}</p>
           {hasActiveFilters && (
@@ -263,7 +263,7 @@ export default function AdminOrdersPage() {
       ) : (
         <>
           {/* Desktop table — horizontal scroll lives on this wrapper, never the page */}
-          <div className="hidden overflow-x-auto rounded-xl border border-border bg-surface sm:block">
+          <div className="hidden overflow-x-auto rounded-md border border-border bg-surface sm:block">
             <table className="w-full min-w-225 border-collapse">
               <thead>
                 <tr className="border-b border-border bg-background text-left text-xs uppercase tracking-wide text-muted-foreground">
@@ -339,12 +339,12 @@ export default function AdminOrdersPage() {
           {/* Mobile card list */}
           <div className="space-y-3 sm:hidden">
             {orders === null
-              ? Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-24 animate-pulse rounded-xl bg-surface" />)
+              ? Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-24 animate-pulse rounded-md bg-surface" />)
               : orders.map((order) => (
                   <Link
                     key={order._id}
                     href={`/admin/orders/${order._id}`}
-                    className="block rounded-xl border border-border bg-surface p-4"
+                    className="block rounded-md border border-border bg-surface p-4"
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium text-primary-strong">#{order._id.slice(-8).toUpperCase()}</span>
@@ -367,7 +367,7 @@ export default function AdminOrdersPage() {
                 type="button"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="rounded-full border border-border px-3 py-1.5 disabled:opacity-40"
+                className="rounded border border-border px-3 py-1.5 disabled:opacity-40"
               >
                 Previous
               </button>
@@ -378,7 +378,7 @@ export default function AdminOrdersPage() {
                 type="button"
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="rounded-full border border-border px-3 py-1.5 disabled:opacity-40"
+                className="rounded border border-border px-3 py-1.5 disabled:opacity-40"
               >
                 Next
               </button>

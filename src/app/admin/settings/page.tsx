@@ -8,7 +8,7 @@ import { NotificationSettings } from "@/types/notification";
 import { AdminPageHeader } from "@/components/AdminPageHeader";
 
 const inputClass =
-  "w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong";
+  "w-full rounded border border-border bg-surface px-3 py-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong";
 
 function formatWhen(iso: string | null): string {
   if (!iso) return "never";
@@ -86,7 +86,7 @@ export default function AdminSettingsPage() {
     <div>
       <AdminPageHeader title="Settings" description="Admin notification delivery." />
 
-      <div className="max-w-xl rounded-2xl border border-border bg-surface p-5 sm:p-6">
+      <div className="max-w-xl rounded-md border border-border bg-surface p-5 sm:p-6">
         <h2 className="text-sm font-semibold text-foreground">Telegram admin alerts</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Get a Telegram message the moment a new order comes in — no need to keep the dashboard open. This is separate from
@@ -121,7 +121,7 @@ export default function AdminSettingsPage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3 rounded-lg border border-border bg-background px-3.5 py-2.5 text-xs">
+          <div className="flex items-center gap-3 rounded border border-border bg-background px-3.5 py-2.5 text-xs">
             <span className={`h-2 w-2 shrink-0 rounded-full ${settings.telegramLastError ? "bg-danger" : settings.telegramLastNotifiedAt ? "bg-success" : "bg-muted-foreground/40"}`} />
             <span className="text-muted-foreground">
               {settings.telegramLastError ? (
@@ -141,7 +141,7 @@ export default function AdminSettingsPage() {
             <button
               type="submit"
               disabled={saving}
-              className="rounded-full bg-primary px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-strong disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded bg-primary px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-strong disabled:cursor-not-allowed disabled:opacity-50"
             >
               {saving ? "Saving…" : "Save changes"}
             </button>
@@ -149,14 +149,14 @@ export default function AdminSettingsPage() {
               type="button"
               onClick={handleTest}
               disabled={testing || !chatId.trim()}
-              className="rounded-full border border-border px-5 py-2 text-sm font-medium hover:bg-background disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded border border-border px-5 py-2 text-sm font-medium hover:bg-background disabled:cursor-not-allowed disabled:opacity-50"
             >
               {testing ? "Sending…" : "Send Test Notification"}
             </button>
           </div>
         </form>
 
-        <details className="mt-6 rounded-lg border border-border bg-background p-3.5 text-sm">
+        <details className="mt-6 rounded border border-border bg-background p-3.5 text-sm">
           <summary className="cursor-pointer font-medium text-foreground">How to set this up</summary>
           <ol className="mt-3 list-decimal space-y-2 pl-4 text-xs text-muted-foreground">
             <li>

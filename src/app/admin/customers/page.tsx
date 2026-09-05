@@ -25,7 +25,7 @@ const ROLE_BADGE_CLASS: Record<Role, string> = {
 };
 
 const inputClass =
-  "rounded-lg border border-border bg-surface px-3 py-1.5 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong disabled:cursor-not-allowed disabled:opacity-50";
+  "rounded border border-border bg-surface px-3 py-1.5 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong disabled:cursor-not-allowed disabled:opacity-50";
 const LIMIT = 20;
 
 function formatDate(value: string): string {
@@ -35,7 +35,7 @@ function formatDate(value: string): string {
 function CustomersTableSkeleton() {
   return (
     <>
-      <div className="hidden overflow-x-auto rounded-xl border border-border bg-surface sm:block">
+      <div className="hidden overflow-x-auto rounded-md border border-border bg-surface sm:block">
         <table className="w-full min-w-175 border-collapse">
           <thead>
             <tr className="border-b border-border bg-background text-left text-xs uppercase tracking-wide text-muted-foreground">
@@ -52,7 +52,7 @@ function CustomersTableSkeleton() {
             {Array.from({ length: 6 }).map((_, i) => (
               <tr key={i} className="border-b border-border last:border-0">
                 <td colSpan={7} className="py-3 pl-4 pr-4">
-                  <div className="h-8 animate-pulse rounded-lg bg-background" />
+                  <div className="h-8 animate-pulse rounded bg-background" />
                 </td>
               </tr>
             ))}
@@ -61,7 +61,7 @@ function CustomersTableSkeleton() {
       </div>
       <div className="space-y-2 sm:hidden">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="h-20 animate-pulse rounded-xl bg-surface" />
+          <div key={i} className="h-20 animate-pulse rounded-md bg-surface" />
         ))}
       </div>
     </>
@@ -70,7 +70,7 @@ function CustomersTableSkeleton() {
 
 function ModeratorsTableSkeleton() {
   return (
-    <div className="overflow-x-auto rounded-xl border border-border bg-surface">
+    <div className="overflow-x-auto rounded-md border border-border bg-surface">
       <table className="w-full min-w-150 border-collapse">
         <thead>
           <tr className="border-b border-border bg-background text-left text-xs uppercase tracking-wide text-muted-foreground">
@@ -84,7 +84,7 @@ function ModeratorsTableSkeleton() {
           {Array.from({ length: 4 }).map((_, i) => (
             <tr key={i} className="border-b border-border last:border-0">
               <td colSpan={4} className="py-3 pl-4 pr-4">
-                <div className="h-8 animate-pulse rounded-lg bg-background" />
+                <div className="h-8 animate-pulse rounded bg-background" />
               </td>
             </tr>
           ))}
@@ -239,13 +239,13 @@ export default function AdminCustomersPage() {
           </div>
 
           {customersInitialError ? (
-            <div className="flex flex-col items-center gap-3 rounded-xl border border-danger/30 bg-danger/5 px-6 py-16 text-center">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-danger/10 text-danger">!</div>
+            <div className="flex flex-col items-center gap-3 rounded-md border border-danger/30 bg-danger/5 px-6 py-16 text-center">
+              <div className="flex h-10 w-10 items-center justify-center rounded bg-danger/10 text-danger">!</div>
               <p className="text-sm font-medium text-foreground">Couldn&apos;t load customers</p>
               <button
                 type="button"
                 onClick={loadCustomers}
-                className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-strong"
+                className="rounded bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-strong"
               >
                 Retry
               </button>
@@ -253,14 +253,14 @@ export default function AdminCustomersPage() {
           ) : customersInitialLoad ? (
             <CustomersTableSkeleton />
           ) : customers !== null && customers.length === 0 ? (
-            <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border bg-surface px-6 py-16 text-center">
+            <div className="flex flex-col items-center gap-3 rounded-md border border-dashed border-border bg-surface px-6 py-16 text-center">
               <UsersIcon className="h-8 w-8 text-muted-foreground" />
               <p className="text-sm font-medium text-foreground">{search ? "No customers match your search" : "No customers yet"}</p>
             </div>
           ) : (
             customers && (
               <div className={customersFetching ? "opacity-60 transition-opacity" : "transition-opacity"}>
-                <div className="hidden overflow-x-auto rounded-xl border border-border bg-surface sm:block">
+                <div className="hidden overflow-x-auto rounded-md border border-border bg-surface sm:block">
                   <table className="w-full min-w-175 border-collapse">
                     <thead>
                       <tr className="border-b border-border bg-background text-left text-xs uppercase tracking-wide text-muted-foreground">
@@ -303,7 +303,7 @@ export default function AdminCustomersPage() {
 
                 <div className="space-y-2 sm:hidden">
                   {customers.map((c) => (
-                    <div key={c._id} className="rounded-xl border border-border bg-surface p-3">
+                    <div key={c._id} className="rounded-md border border-border bg-surface p-3">
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="text-sm font-medium">{c.username}</p>
@@ -332,7 +332,7 @@ export default function AdminCustomersPage() {
                       type="button"
                       onClick={() => setPage((p) => Math.max(1, p - 1))}
                       disabled={page === 1 || customersFetching}
-                      className="rounded-full border border-border px-3 py-1.5 disabled:opacity-40"
+                      className="rounded border border-border px-3 py-1.5 disabled:opacity-40"
                     >
                       Previous
                     </button>
@@ -343,7 +343,7 @@ export default function AdminCustomersPage() {
                       type="button"
                       onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                       disabled={page === totalPages || customersFetching}
-                      className="rounded-full border border-border px-3 py-1.5 disabled:opacity-40"
+                      className="rounded border border-border px-3 py-1.5 disabled:opacity-40"
                     >
                       Next
                     </button>
@@ -354,13 +354,13 @@ export default function AdminCustomersPage() {
           )}
         </>
       ) : moderatorsInitialError ? (
-        <div className="flex flex-col items-center gap-3 rounded-xl border border-danger/30 bg-danger/5 px-6 py-16 text-center">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-danger/10 text-danger">!</div>
+        <div className="flex flex-col items-center gap-3 rounded-md border border-danger/30 bg-danger/5 px-6 py-16 text-center">
+          <div className="flex h-10 w-10 items-center justify-center rounded bg-danger/10 text-danger">!</div>
           <p className="text-sm font-medium text-foreground">Couldn&apos;t load moderators</p>
           <button
             type="button"
             onClick={loadModerators}
-            className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-strong"
+            className="rounded bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-strong"
           >
             Retry
           </button>
@@ -368,14 +368,14 @@ export default function AdminCustomersPage() {
       ) : moderatorsInitialLoad ? (
         <ModeratorsTableSkeleton />
       ) : moderators !== null && moderators.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border bg-surface px-6 py-16 text-center">
+        <div className="flex flex-col items-center gap-3 rounded-md border border-dashed border-border bg-surface px-6 py-16 text-center">
           <UsersIcon className="h-8 w-8 text-muted-foreground" />
           <p className="text-sm font-medium text-foreground">No moderators yet</p>
         </div>
       ) : (
         moderators && (
           <div className={moderatorsFetching ? "opacity-60 transition-opacity" : "transition-opacity"}>
-            <div className="overflow-x-auto rounded-xl border border-border bg-surface">
+            <div className="overflow-x-auto rounded-md border border-border bg-surface">
               <table className="w-full min-w-150 border-collapse">
                 <thead>
                   <tr className="border-b border-border bg-background text-left text-xs uppercase tracking-wide text-muted-foreground">
@@ -393,7 +393,7 @@ export default function AdminCustomersPage() {
                         <p className="text-xs text-muted-foreground">{m.email}</p>
                       </td>
                       <td className="py-3.5 pr-3">
-                        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${ROLE_BADGE_CLASS[m.role]}`}>
+                        <span className={`rounded px-2 py-0.5 text-xs font-medium ${ROLE_BADGE_CLASS[m.role]}`}>
                           {ROLE_LABEL[m.role]}
                         </span>
                       </td>

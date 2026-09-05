@@ -18,7 +18,7 @@ import {
 } from "../orderStatusStyles";
 
 const inputClass =
-  "rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong";
+  "rounded border border-border bg-surface px-3 py-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong";
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{children}</h2>;
@@ -114,20 +114,20 @@ export default function AdminOrderDetailPage() {
             {formatStatusLabel(order.source)}
           </p>
         </div>
-        <span className={`rounded-full px-3 py-1 text-xs font-medium capitalize ${STATUS_CLASS[order.status]}`}>
+        <span className={`rounded px-3 py-1 text-xs font-medium capitalize ${STATUS_CLASS[order.status]}`}>
           {formatStatusLabel(order.status)}
         </span>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="rounded-xl border border-border bg-surface p-4">
+        <div className="rounded-md border border-border bg-surface p-4">
           <SectionLabel>Customer</SectionLabel>
           <p className="text-sm font-medium">{order.customer?.username ?? "Deleted user"}</p>
           <p className="text-sm text-muted-foreground">{order.customer?.email}</p>
           <p className="text-sm text-muted-foreground">{order.phone}</p>
         </div>
 
-        <div className="rounded-xl border border-border bg-surface p-4">
+        <div className="rounded-md border border-border bg-surface p-4">
           <SectionLabel>Delivery address</SectionLabel>
           <p className="text-sm">{order.deliveryAddress.detailedAddress}</p>
           <p className="text-sm text-muted-foreground">
@@ -137,7 +137,7 @@ export default function AdminOrderDetailPage() {
         </div>
       </div>
 
-      <div className="mt-4 rounded-xl border border-border bg-surface p-4">
+      <div className="mt-4 rounded-md border border-border bg-surface p-4">
         <SectionLabel>Items</SectionLabel>
         <table className="w-full border-collapse">
           <tbody>
@@ -182,7 +182,7 @@ export default function AdminOrderDetailPage() {
       </div>
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
-        <div className="rounded-xl border border-border bg-surface p-4">
+        <div className="rounded-md border border-border bg-surface p-4">
           <SectionLabel>Order status</SectionLabel>
           <div className="flex items-center gap-2">
             <select
@@ -201,7 +201,7 @@ export default function AdminOrderDetailPage() {
               type="button"
               onClick={handleSaveStatus}
               disabled={savingStatus || statusDraft === order.status}
-              className="rounded-lg bg-primary px-3 py-2 text-sm font-medium text-white hover:bg-primary-strong disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded bg-primary px-3 py-2 text-sm font-medium text-white hover:bg-primary-strong disabled:cursor-not-allowed disabled:opacity-50"
             >
               Save
             </button>
@@ -212,7 +212,7 @@ export default function AdminOrderDetailPage() {
           )}
         </div>
 
-        <div className="rounded-xl border border-border bg-surface p-4">
+        <div className="rounded-md border border-border bg-surface p-4">
           <SectionLabel>Payment</SectionLabel>
           <p className="mb-2 text-xs text-muted-foreground">
             {PAYMENT_METHOD_LABEL[order.paymentMethod]}
@@ -230,7 +230,7 @@ export default function AdminOrderDetailPage() {
                 </option>
               ))}
             </select>
-            <span className={`rounded-full px-2 py-0.5 text-xs font-medium capitalize ${PAYMENT_STATUS_CLASS[order.paymentStatus]}`}>
+            <span className={`rounded px-2 py-0.5 text-xs font-medium capitalize ${PAYMENT_STATUS_CLASS[order.paymentStatus]}`}>
               {formatStatusLabel(order.paymentStatus)}
             </span>
           </div>
@@ -258,7 +258,7 @@ export default function AdminOrderDetailPage() {
             type="button"
             onClick={handleSavePayment}
             disabled={savingPayment || paymentStatusDraft === order.paymentStatus}
-            className="mt-3 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-white hover:bg-primary-strong disabled:cursor-not-allowed disabled:opacity-50"
+            className="mt-3 rounded bg-primary px-3 py-2 text-sm font-medium text-white hover:bg-primary-strong disabled:cursor-not-allowed disabled:opacity-50"
           >
             Save payment status
           </button>

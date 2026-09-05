@@ -70,11 +70,11 @@ export default function AdminProductsPage() {
             setPage(1);
           }}
           placeholder="Search products…"
-          className="w-full max-w-xs rounded-full border border-border bg-surface px-4 py-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong"
+          className="w-full max-w-xs rounded border border-border bg-surface px-4 py-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong"
         />
         <Link
           href="/admin/products/new"
-          className="whitespace-nowrap rounded-full bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-strong"
+          className="whitespace-nowrap rounded bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-strong"
         >
           New Product
         </Link>
@@ -111,9 +111,9 @@ export default function AdminProductsPage() {
                       <div className="flex items-center gap-3">
                         {product.images[0] ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={product.images[0].url} alt="" className="h-10 w-10 rounded-lg border border-border object-cover" />
+                          <img src={product.images[0].url} alt="" className="h-10 w-10 rounded border border-border object-cover" />
                         ) : (
-                          <div className="h-10 w-10 rounded-lg border border-dashed border-border" />
+                          <div className="h-10 w-10 rounded border border-dashed border-border" />
                         )}
                         <span className="text-sm font-medium">{product.name}</span>
                       </div>
@@ -122,9 +122,9 @@ export default function AdminProductsPage() {
                     <td className="py-2.5 pr-3 text-sm">{stockSummary(product)}</td>
                     <td className="py-2.5 pr-3">
                       {product.status === "active" ? (
-                        <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">Active</span>
+                        <span className="rounded bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">Active</span>
                       ) : (
-                        <span className="rounded-full bg-border px-2 py-0.5 text-xs font-medium text-muted-foreground">Inactive</span>
+                        <span className="rounded bg-border px-2 py-0.5 text-xs font-medium text-muted-foreground">Inactive</span>
                       )}
                     </td>
                     <td className="py-2.5 text-right">
@@ -149,22 +149,22 @@ export default function AdminProductsPage() {
           {/* Card list below sm: */}
           <div className="space-y-3 sm:hidden">
             {products.map((product) => (
-              <div key={product._id} className="rounded-xl border border-border p-3">
+              <div key={product._id} className="rounded-md border border-border p-3">
                 <div className="flex items-center gap-3">
                   {product.images[0] ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={product.images[0].url} alt="" className="h-11 w-11 shrink-0 rounded-lg border border-border object-cover" />
+                    <img src={product.images[0].url} alt="" className="h-11 w-11 shrink-0 rounded border border-border object-cover" />
                   ) : (
-                    <div className="h-11 w-11 shrink-0 rounded-lg border border-dashed border-border" />
+                    <div className="h-11 w-11 shrink-0 rounded border border-dashed border-border" />
                   )}
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">{product.name}</p>
                     <p className="text-xs text-muted-foreground">{priceSummary(product)}</p>
                   </div>
                   {product.status === "active" ? (
-                    <span className="shrink-0 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">Active</span>
+                    <span className="shrink-0 rounded bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">Active</span>
                   ) : (
-                    <span className="shrink-0 rounded-full bg-border px-2 py-0.5 text-xs font-medium text-muted-foreground">Inactive</span>
+                    <span className="shrink-0 rounded bg-border px-2 py-0.5 text-xs font-medium text-muted-foreground">Inactive</span>
                   )}
                 </div>
                 <div className="mt-2.5 flex items-center justify-between border-t border-border pt-2.5 text-sm">
@@ -193,7 +193,7 @@ export default function AdminProductsPage() {
                 type="button"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="rounded-full border border-border px-3 py-1.5 disabled:opacity-40"
+                className="rounded border border-border px-3 py-1.5 disabled:opacity-40"
               >
                 Previous
               </button>
@@ -204,7 +204,7 @@ export default function AdminProductsPage() {
                 type="button"
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="rounded-full border border-border px-3 py-1.5 disabled:opacity-40"
+                className="rounded border border-border px-3 py-1.5 disabled:opacity-40"
               >
                 Next
               </button>

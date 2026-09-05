@@ -84,7 +84,7 @@ export function OrderActionsMenu({
         aria-expanded={open}
         aria-label="Order actions"
         onClick={() => (open ? setOpen(false) : openMenu())}
-        className="rounded-lg px-2 py-1 text-muted-foreground hover:bg-black/3 hover:text-foreground"
+        className="rounded px-2 py-1 text-muted-foreground hover:bg-black/3 hover:text-foreground"
       >
         ⋯
       </button>
@@ -99,13 +99,13 @@ export function OrderActionsMenu({
             // admin-shell: this menu is portaled outside the admin layout's DOM
             // subtree (straight onto <body>), so it needs its own copy of the
             // scoped token override to render with the admin palette.
-            className="admin-shell z-50 rounded-xl border border-border bg-surface p-1.5 shadow-lg"
+            className="admin-shell z-50 rounded-md border border-border bg-surface p-1.5 shadow-lg"
           >
             <Link
               href={`/admin/orders/${order._id}`}
               role="menuitem"
               onClick={() => setOpen(false)}
-              className="block rounded-lg px-3 py-1.5 text-sm hover:bg-black/3"
+              className="block rounded px-3 py-1.5 text-sm hover:bg-black/3"
             >
               View order
             </Link>
@@ -119,7 +119,7 @@ export function OrderActionsMenu({
                   setOpen(false);
                   onStatusChange(order._id, status);
                 }}
-                className={`block w-full rounded-lg px-3 py-1.5 text-left text-sm hover:bg-black/3 ${
+                className={`block w-full rounded px-3 py-1.5 text-left text-sm hover:bg-black/3 ${
                   status === "cancelled" || status === "returned" ? "text-danger" : ""
                 }`}
               >

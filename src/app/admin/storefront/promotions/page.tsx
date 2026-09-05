@@ -42,7 +42,7 @@ export default function AdminPromotionsPage() {
         title="Promotions"
         description="The campaign banner shown on the homepage."
         actions={
-          <Link href="/admin/storefront/promotions/new" className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-strong">
+          <Link href="/admin/storefront/promotions/new" className="rounded bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-strong">
             New Promotion
           </Link>
         }
@@ -68,16 +68,16 @@ export default function AdminPromotionsPage() {
                 <td className="py-2.5 pr-3">
                   <div className="flex items-center gap-3">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={promotion.image} alt="" className="h-12 w-10 rounded-lg border border-border object-cover" />
+                    <img src={promotion.image} alt="" className="h-12 w-10 rounded border border-border object-cover" />
                     <span className="text-sm font-medium">{promotion.titleEn || "(image only)"}</span>
                   </div>
                 </td>
                 <td className="py-2.5 pr-3 text-sm text-muted-foreground">{promotion.sortOrder}</td>
                 <td className="py-2.5 pr-3">
                   {promotion.isActive ? (
-                    <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">Active</span>
+                    <span className="rounded bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">Active</span>
                   ) : (
-                    <span className="rounded-full bg-black/5 px-2 py-0.5 text-xs font-medium text-muted-foreground">Hidden</span>
+                    <span className="rounded bg-black/5 px-2 py-0.5 text-xs font-medium text-muted-foreground">Hidden</span>
                   )}
                 </td>
                 <td className="py-2.5 text-right">

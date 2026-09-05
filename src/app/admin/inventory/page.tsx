@@ -42,7 +42,7 @@ function StockAdjuster({
         onClick={() => apply(-1)}
         disabled={saving || stock <= 0}
         aria-label={`Decrease ${label} stock by 1`}
-        className="h-6 w-6 rounded-full border border-border text-sm leading-none hover:bg-background disabled:cursor-not-allowed disabled:opacity-40"
+        className="h-6 w-6 rounded border border-border text-sm leading-none hover:bg-background disabled:cursor-not-allowed disabled:opacity-40"
       >
         −
       </button>
@@ -51,7 +51,7 @@ function StockAdjuster({
         onClick={() => apply(1)}
         disabled={saving}
         aria-label={`Increase ${label} stock by 1`}
-        className="h-6 w-6 rounded-full border border-border text-sm leading-none hover:bg-background disabled:cursor-not-allowed disabled:opacity-40"
+        className="h-6 w-6 rounded border border-border text-sm leading-none hover:bg-background disabled:cursor-not-allowed disabled:opacity-40"
       >
         +
       </button>
@@ -66,13 +66,13 @@ function StockAdjuster({
         }}
         placeholder="±qty"
         disabled={saving}
-        className="w-16 rounded-lg border border-border bg-surface px-2 py-1 text-xs outline-none focus-visible:outline-2 focus-visible:outline-primary-strong disabled:opacity-50"
+        className="w-16 rounded border border-border bg-surface px-2 py-1 text-xs outline-none focus-visible:outline-2 focus-visible:outline-primary-strong disabled:opacity-50"
       />
       <button
         type="button"
         onClick={() => apply(Number(value))}
         disabled={saving || !value.trim() || Number.isNaN(Number(value))}
-        className="rounded-full border border-border px-2.5 py-1 text-xs font-medium hover:bg-background disabled:cursor-not-allowed disabled:opacity-40"
+        className="rounded border border-border px-2.5 py-1 text-xs font-medium hover:bg-background disabled:cursor-not-allowed disabled:opacity-40"
       >
         {saving ? "…" : "Apply"}
       </button>
@@ -142,7 +142,7 @@ function ProductRow({ product, onChanged }: { product: Product; onChanged: (upda
             type="button"
             onClick={() => setExpanded((v) => !v)}
             aria-label={expanded ? "Collapse variants" : "Expand variants"}
-            className="rounded-lg p-1 text-muted-foreground hover:bg-background"
+            className="rounded p-1 text-muted-foreground hover:bg-background"
           >
             <ChevronIcon className={`h-4 w-4 transition-transform ${expanded ? "rotate-90" : ""}`} />
           </button>
@@ -152,9 +152,9 @@ function ProductRow({ product, onChanged }: { product: Product; onChanged: (upda
 
         {product.images[0] ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={product.images[0].url} alt="" className="h-10 w-10 shrink-0 rounded-lg border border-border object-cover" />
+          <img src={product.images[0].url} alt="" className="h-10 w-10 shrink-0 rounded border border-border object-cover" />
         ) : (
-          <div className="h-10 w-10 shrink-0 rounded-lg border border-dashed border-border" />
+          <div className="h-10 w-10 shrink-0 rounded border border-dashed border-border" />
         )}
 
         <div className="min-w-0 flex-1">
@@ -251,11 +251,11 @@ export default function AdminInventoryPage() {
       <AdminPageHeader title="Inventory" description="Stock levels across your catalog — adjust counts directly here." />
 
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div className="inline-flex rounded-full border border-border p-0.5">
+        <div className="inline-flex rounded border border-border p-0.5">
           <button
             type="button"
             onClick={() => switchView("needs_attention")}
-            className={`rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
+            className={`rounded px-3.5 py-1.5 text-sm font-medium transition-colors ${
               view === "needs_attention" ? "bg-primary text-white" : "text-muted-foreground hover:bg-background"
             }`}
           >
@@ -264,7 +264,7 @@ export default function AdminInventoryPage() {
           <button
             type="button"
             onClick={() => switchView("all")}
-            className={`rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
+            className={`rounded px-3.5 py-1.5 text-sm font-medium transition-colors ${
               view === "all" ? "bg-primary text-white" : "text-muted-foreground hover:bg-background"
             }`}
           >
@@ -278,14 +278,14 @@ export default function AdminInventoryPage() {
             setPage(1);
           }}
           placeholder="Search products…"
-          className="w-full max-w-xs rounded-full border border-border bg-surface px-4 py-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong"
+          className="w-full max-w-xs rounded border border-border bg-surface px-4 py-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong"
         />
       </div>
 
       {!products ? (
         <p className="text-sm text-muted-foreground">Loading…</p>
       ) : products.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border bg-surface px-6 py-16 text-center">
+        <div className="flex flex-col items-center gap-3 rounded-md border border-dashed border-border bg-surface px-6 py-16 text-center">
           <BoxesIcon className="h-8 w-8 text-muted-foreground" />
           <p className="text-sm font-medium text-foreground">
             {view === "needs_attention" ? "Nothing needs attention right now" : "No products found"}
@@ -296,7 +296,7 @@ export default function AdminInventoryPage() {
         </div>
       ) : (
         <>
-          <div className="overflow-hidden rounded-xl border border-border bg-surface">
+          <div className="overflow-hidden rounded-md border border-border bg-surface">
             {products.map((product) => (
               <ProductRow key={product._id} product={product} onChanged={handleProductUpdated} />
             ))}
@@ -308,7 +308,7 @@ export default function AdminInventoryPage() {
                 type="button"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="rounded-full border border-border px-3 py-1.5 disabled:opacity-40"
+                className="rounded border border-border px-3 py-1.5 disabled:opacity-40"
               >
                 Previous
               </button>
@@ -319,7 +319,7 @@ export default function AdminInventoryPage() {
                 type="button"
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="rounded-full border border-border px-3 py-1.5 disabled:opacity-40"
+                className="rounded border border-border px-3 py-1.5 disabled:opacity-40"
               >
                 Next
               </button>

@@ -9,7 +9,7 @@ import { Announcement } from "@/types/storefront";
 import { AdminPageHeader } from "@/components/AdminPageHeader";
 
 const inputClass =
-  "w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong";
+  "w-full rounded border border-border bg-surface px-3 py-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong";
 
 export default function AdminAnnouncementPage() {
   const { getIdToken } = useAuth();
@@ -117,7 +117,7 @@ export default function AdminAnnouncementPage() {
         <button
           type="submit"
           disabled={saving}
-          className="rounded-full bg-primary px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-strong disabled:cursor-not-allowed disabled:opacity-50"
+          className="rounded bg-primary px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-strong disabled:cursor-not-allowed disabled:opacity-50"
         >
           {saving ? "Saving…" : "Save changes"}
         </button>

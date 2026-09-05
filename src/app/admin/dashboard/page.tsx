@@ -63,7 +63,7 @@ function DashboardHeader({
   const cta = role === "super_admin" ? { href: "/admin/products/new", label: "Add Product" } : { href: "/admin/orders", label: "View Orders" };
 
   return (
-    <div className="relative mb-6 overflow-hidden rounded-2xl bg-gradient-to-br from-[#0b0d16] to-[#111a2e] p-6">
+    <div className="relative mb-6 overflow-hidden rounded-md bg-gradient-to-br from-[#0b0d16] to-[#111a2e] p-6">
       <div aria-hidden className="pointer-events-none absolute -right-16 -top-24 h-64 w-64 rounded-full bg-primary/25 blur-3xl" />
       <div className="relative flex flex-wrap items-center justify-between gap-5">
         <div className="min-w-0">
@@ -75,7 +75,7 @@ function DashboardHeader({
           </div>
 
           {now && (
-            <span className="mt-2.5 inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs text-white/80">
+            <span className="mt-2.5 inline-flex items-center gap-1.5 rounded bg-white/10 px-3 py-1 text-xs text-white/80">
               <ClockIcon className="h-3 w-3" />
               {now.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })} ·{" "}
               {now.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" })}
@@ -93,7 +93,7 @@ function DashboardHeader({
 
         <Link
           href={cta.href}
-          className="flex shrink-0 items-center gap-1.5 rounded-full bg-gradient-to-r from-primary to-primary-strong px-5 py-2.5 text-sm font-medium text-white shadow-lg shadow-primary-strong/30 transition-transform hover:scale-[1.02]"
+          className="flex shrink-0 items-center gap-1.5 rounded bg-gradient-to-r from-primary to-primary-strong px-5 py-2.5 text-sm font-medium text-white shadow-lg shadow-primary-strong/30 transition-transform hover:scale-[1.02]"
         >
           <span className="text-base leading-none">+</span> {cta.label}
         </Link>
@@ -125,7 +125,7 @@ function QuickActions({ role }: { role: "super_admin" | "order_manager" }) {
           <Link
             key={action.href}
             href={action.href}
-            className="flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2 text-sm font-medium hover:bg-background"
+            className="flex items-center gap-2 rounded border border-border bg-surface px-4 py-2 text-sm font-medium hover:bg-background"
           >
             <Icon className="h-4 w-4" />
             {action.label}
@@ -168,7 +168,7 @@ function RecentOrdersCard() {
   useEffect(load, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className="rounded-xl border border-border bg-surface">
+    <div className="rounded-md border border-border bg-surface">
       <div className="flex items-center justify-between border-b border-border px-5 py-4">
         <h2 className="text-sm font-semibold text-foreground">Recent Orders</h2>
         <Link href="/admin/orders" className="text-xs font-medium text-primary-strong hover:underline">
@@ -186,7 +186,7 @@ function RecentOrdersCard() {
       ) : orders === null ? (
         <div className="space-y-3 p-5">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-10 animate-pulse rounded-lg bg-background" />
+            <div key={i} className="h-10 animate-pulse rounded bg-background" />
           ))}
         </div>
       ) : orders.length === 0 ? (
@@ -218,7 +218,7 @@ function RecentOrdersCard() {
                     <td className="py-2.5 pr-3 font-medium">৳{order.total.toLocaleString()}</td>
                     <td className="py-2.5 pr-3 text-muted-foreground">{PAYMENT_METHOD_LABEL[order.paymentMethod]}</td>
                     <td className="py-2.5 pr-3">
-                      <span className={`rounded-full px-2 py-0.5 text-xs font-medium capitalize ${STATUS_CLASS[order.status]}`}>
+                      <span className={`rounded px-2 py-0.5 text-xs font-medium capitalize ${STATUS_CLASS[order.status]}`}>
                         {formatStatusLabel(order.status)}
                       </span>
                     </td>
@@ -234,10 +234,10 @@ function RecentOrdersCard() {
           {/* Mobile cards */}
           <div className="space-y-2 p-3 sm:hidden">
             {orders.map((order) => (
-              <Link key={order._id} href={`/admin/orders/${order._id}`} className="block rounded-lg border border-border p-3">
+              <Link key={order._id} href={`/admin/orders/${order._id}`} className="block rounded border border-border p-3">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-primary-strong">#{order._id.slice(-8).toUpperCase()}</span>
-                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium capitalize ${STATUS_CLASS[order.status]}`}>
+                  <span className={`rounded px-2 py-0.5 text-xs font-medium capitalize ${STATUS_CLASS[order.status]}`}>
                     {formatStatusLabel(order.status)}
                   </span>
                 </div>
@@ -282,7 +282,7 @@ function NeedsAttentionCard() {
   useEffect(load, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className="rounded-xl border border-border bg-surface">
+    <div className="rounded-md border border-border bg-surface">
       <div className="flex items-center justify-between border-b border-border px-5 py-4">
         <h2 className="text-sm font-semibold text-foreground">Needs Attention</h2>
         <Link href="/admin/inventory" className="text-xs font-medium text-primary-strong hover:underline">
@@ -300,7 +300,7 @@ function NeedsAttentionCard() {
       ) : products === null ? (
         <div className="space-y-3 p-4">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="h-12 animate-pulse rounded-lg bg-background" />
+            <div key={i} className="h-12 animate-pulse rounded bg-background" />
           ))}
         </div>
       ) : products.length === 0 ? (
@@ -318,13 +318,13 @@ function NeedsAttentionCard() {
               <Link
                 key={product._id}
                 href={`/admin/products/${product._id}/edit`}
-                className="flex items-center gap-3 rounded-lg p-2.5 hover:bg-background"
+                className="flex items-center gap-3 rounded p-2.5 hover:bg-background"
               >
                 {product.images[0] ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={product.images[0].url} alt="" className="h-9 w-9 shrink-0 rounded-lg border border-border object-cover" />
+                  <img src={product.images[0].url} alt="" className="h-9 w-9 shrink-0 rounded border border-border object-cover" />
                 ) : (
-                  <div className="h-9 w-9 shrink-0 rounded-lg border border-dashed border-border" />
+                  <div className="h-9 w-9 shrink-0 rounded border border-dashed border-border" />
                 )}
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">{product.name}</p>
@@ -356,10 +356,10 @@ function OrderStatusPipeline({ statusCounts }: { statusCounts: Record<OrderStatu
   const pipelineTotal = PIPELINE_STATUSES.reduce((sum, s) => sum + statusCounts[s], 0) || 1;
 
   return (
-    <div className="rounded-xl border border-border bg-surface p-5">
+    <div className="rounded-md border border-border bg-surface p-5">
       <h2 className="mb-4 text-sm font-semibold text-foreground">Order Pipeline</h2>
 
-      <div className="flex h-2 overflow-hidden rounded-full bg-background">
+      <div className="flex h-2 overflow-hidden rounded bg-background">
         {PIPELINE_STATUSES.map((status, i) => {
           const count = statusCounts[status];
           if (count === 0) return null;
@@ -368,7 +368,7 @@ function OrderStatusPipeline({ statusCounts }: { statusCounts: Record<OrderStatu
               key={status}
               title={`${formatStatusLabel(status)}: ${count}`}
               style={{ width: `${(count / pipelineTotal) * 100}%` }}
-              className={`h-full ${PIPELINE_OPACITY_CLASS[i]} first:rounded-l-full last:rounded-r-full`}
+              className={`h-full ${PIPELINE_OPACITY_CLASS[i]} first:rounded-l last:rounded-r`}
             />
           );
         })}
@@ -377,7 +377,7 @@ function OrderStatusPipeline({ statusCounts }: { statusCounts: Record<OrderStatu
       <ul className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-1">
         {PIPELINE_STATUSES.map((status) => (
           <li key={status} className="flex items-center justify-between gap-2 text-sm">
-            <span className={`rounded-full px-2 py-0.5 text-xs font-medium capitalize ${STATUS_CLASS[status]}`}>
+            <span className={`rounded px-2 py-0.5 text-xs font-medium capitalize ${STATUS_CLASS[status]}`}>
               {formatStatusLabel(status)}
             </span>
             <span className="tabular-nums text-muted-foreground">{statusCounts[status]}</span>
@@ -416,7 +416,7 @@ function TrendTooltip({ active, payload }: TooltipContentProps<ValueType, NameTy
   if (!active || !payload?.length) return null;
   const day = payload[0].payload as DashboardTrendDay & { isPeak: boolean };
   return (
-    <div className="rounded-lg border border-border bg-surface px-3 py-2 text-xs shadow-lg">
+    <div className="rounded border border-border bg-surface px-3 py-2 text-xs shadow-lg">
       <p className="font-semibold text-foreground">৳{day.revenue.toLocaleString()}</p>
       <p className="text-muted-foreground">
         {day.orders} order{day.orders !== 1 ? "s" : ""}
@@ -438,7 +438,7 @@ function WeeklyTrendChart({ days }: { days: DashboardTrendDay[] }) {
   }));
 
   return (
-    <div className="rounded-xl border border-border bg-surface p-5">
+    <div className="rounded-md border border-border bg-surface p-5">
       <div className="mb-1 flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 className="text-sm font-semibold text-foreground">Revenue — Last 7 Days</h2>
@@ -513,9 +513,9 @@ export default function AdminDashboardPage() {
       <DashboardHeader username={profile?.username ?? "Admin"} role={role} pendingOrders={summary?.pendingOrders ?? null} />
 
       {error ? (
-        <div className="flex flex-col items-center gap-3 rounded-xl border border-border bg-surface px-6 py-16 text-center">
+        <div className="flex flex-col items-center gap-3 rounded-md border border-border bg-surface px-6 py-16 text-center">
           <p className="text-sm font-medium text-foreground">Couldn&apos;t load dashboard metrics</p>
-          <button type="button" onClick={load} className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-strong">
+          <button type="button" onClick={load} className="rounded bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-strong">
             Retry
           </button>
         </div>

@@ -66,9 +66,9 @@ function Row({ node, depth }: { node: AdminCategoryNode; depth: number }) {
         <td className="py-2.5 pr-3 text-sm text-muted-foreground">{node.sortOrder}</td>
         <td className="py-2.5 pr-3">
           {node.isActive ? (
-            <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">Active</span>
+            <span className="rounded bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">Active</span>
           ) : (
-            <span className="rounded-full bg-border px-2 py-0.5 text-xs font-medium text-muted-foreground">Hidden</span>
+            <span className="rounded bg-border px-2 py-0.5 text-xs font-medium text-muted-foreground">Hidden</span>
           )}
         </td>
         <td className="py-2.5 text-right">
@@ -114,16 +114,16 @@ function MobileRow({ node, depth }: { node: AdminCategoryNode; depth: number }) 
 
   return (
     <>
-      <div className="rounded-xl border border-border p-3" style={{ marginLeft: depth * 16 }}>
+      <div className="rounded-md border border-border p-3" style={{ marginLeft: depth * 16 }}>
         <div className="flex items-center justify-between gap-2">
           <div className="min-w-0">
             <p className="truncate text-sm font-medium">{node.name}</p>
             <p className="truncate text-xs text-muted-foreground">/{node.slug}</p>
           </div>
           {node.isActive ? (
-            <span className="shrink-0 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">Active</span>
+            <span className="shrink-0 rounded bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">Active</span>
           ) : (
-            <span className="shrink-0 rounded-full bg-border px-2 py-0.5 text-xs font-medium text-muted-foreground">Hidden</span>
+            <span className="shrink-0 rounded bg-border px-2 py-0.5 text-xs font-medium text-muted-foreground">Hidden</span>
           )}
         </div>
         <div className="mt-2.5 flex items-center justify-between border-t border-border pt-2.5 text-sm">
@@ -174,7 +174,7 @@ export default function AdminCategoriesPage() {
         actions={
           <Link
             href="/admin/categories/new"
-            className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-strong"
+            className="rounded bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-strong"
           >
             New Category
           </Link>

@@ -116,13 +116,13 @@ function NavLink({
     return (
       <div
         title={collapsed ? `${item.label} (coming soon)` : undefined}
-        className="flex cursor-not-allowed items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-muted-foreground/50"
+        className="flex cursor-not-allowed items-center gap-2.5 rounded px-2.5 py-1.5 text-sm font-medium text-muted-foreground/50"
       >
         <Icon className="h-4 w-4 shrink-0" />
         {!collapsed && (
           <span className="flex flex-1 items-center justify-between">
             {item.label}
-            <span className="rounded-full bg-white/8 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+            <span className="rounded bg-white/8 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
               Soon
             </span>
           </span>
@@ -136,7 +136,7 @@ function NavLink({
       href={item.href}
       onClick={onNavigate}
       title={collapsed ? item.label : undefined}
-      className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-sm font-medium transition-colors ${active ? "bg-primary text-white" : "text-muted-foreground hover:bg-white/8 hover:text-foreground"
+      className={`flex items-center gap-2.5 rounded px-2.5 py-1.5 text-sm font-medium transition-colors ${active ? "bg-primary text-white" : "text-muted-foreground hover:bg-white/8 hover:text-foreground"
         }`}
     >
       <Icon className="h-4 w-4 shrink-0" />
@@ -208,7 +208,7 @@ function SidebarContent({
         <Link
           href="/"
           title={collapsed ? "Back to store" : undefined}
-          className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-sm text-muted-foreground hover:bg-white/8 hover:text-foreground"
+          className="flex items-center gap-2.5 rounded px-2.5 py-1.5 text-sm text-muted-foreground hover:bg-white/8 hover:text-foreground"
         >
           <HomeIcon className="h-4 w-4 shrink-0" />
           {!collapsed && "Back to store"}
@@ -230,7 +230,7 @@ function SignOutRow({ collapsed }: { collapsed: boolean }) {
       type="button"
       onClick={handleSignOut}
       title={collapsed ? "Sign out" : undefined}
-      className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-sm text-danger hover:bg-white/8"
+      className="flex w-full items-center gap-2.5 rounded px-2.5 py-1.5 text-left text-sm text-danger hover:bg-white/8"
     >
       <LogoutIcon className="h-4 w-4 shrink-0" />
       {!collapsed && "Sign out"}
@@ -315,7 +315,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             type="button"
             onClick={() => setCollapsed((v) => !v)}
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-            className="rounded-lg p-1.5 text-muted-foreground hover:bg-white/8 hover:text-foreground"
+            className="rounded p-1.5 text-muted-foreground hover:bg-white/8 hover:text-foreground"
           >
             <ChevronIcon className={`h-4 w-4 transition-transform ${collapsed ? "" : "rotate-180"}`} />
           </button>
@@ -329,7 +329,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           type="button"
           onClick={() => setMobileOpen(true)}
           aria-label="Open navigation"
-          className="rounded-lg p-1.5 text-muted-foreground hover:bg-black/3"
+          className="rounded p-1.5 text-muted-foreground hover:bg-black/3"
         >
           <MenuIcon className="h-6 w-6" />
         </button>
@@ -365,7 +365,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               type="button"
               onClick={() => setMobileOpen(false)}
               aria-label="Close navigation"
-              className="rounded-lg p-1.5 text-muted-foreground hover:bg-white/8"
+              className="rounded p-1.5 text-muted-foreground hover:bg-white/8"
             >
               <CloseIcon className="h-4 w-4" />
             </button>
