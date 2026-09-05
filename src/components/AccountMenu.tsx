@@ -1,29 +1,17 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { signOutUser } from "@/lib/auth";
 import { useDismissableOverlay } from "@/hooks/useDismissableOverlay";
 
-const CLOSE_DELAY_MS = 150;
-
 export function AccountMenu() {
   const router = useRouter();
   const { user, profile, loading, openLoginModal } = useAuth();
   const [open, setOpen] = useState(false);
   const rootRef = useDismissableOverlay<HTMLDivElement>({ open, onDismiss: () => setOpen(false) });
-  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  function openNow() {
-    if (closeTimer.current) clearTimeout(closeTimer.current);
-    setOpen(true);
-  }
-
-  function closeSoon() {
-    closeTimer.current = setTimeout(() => setOpen(false), CLOSE_DELAY_MS);
-  }
 
   async function handleSignOut() {
     setOpen(false);
@@ -48,7 +36,7 @@ export function AccountMenu() {
   }
 
   return (
-    <div ref={rootRef} className="relative" onMouseEnter={openNow} onMouseLeave={closeSoon}>
+    <div ref={rootRef} className="relative">
       <button
         type="button"
         aria-expanded={open}
