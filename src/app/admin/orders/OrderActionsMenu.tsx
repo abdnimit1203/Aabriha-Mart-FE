@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { AdminOrder, OrderStatus } from "@/types/order";
-import { NEXT_STATUSES, formatStatusLabel } from "./orderStatusStyles";
+import { NEXT_STATUSES, formatStatusLabel } from "@/lib/orderStatusStyles";
 
 const MENU_WIDTH = 192; // matches w-48
 

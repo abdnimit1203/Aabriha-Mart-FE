@@ -19,7 +19,7 @@ import {
   DELIVERY_ZONE_OPTIONS,
   DELIVERY_ZONE_LABEL,
   formatStatusLabel,
-} from "./orderStatusStyles";
+} from "@/lib/orderStatusStyles";
 
 const inputClass =
   "rounded border border-border bg-surface px-3 py-1.5 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong";

@@ -15,7 +15,8 @@ import {
   DELIVERY_ZONE_LABEL,
   NEXT_STATUSES,
   formatStatusLabel,
-} from "../orderStatusStyles";
+} from "@/lib/orderStatusStyles";
+import { OrderTimeline } from "@/components/OrderTimeline";
 
 const inputClass =
   "rounded border border-border bg-surface px-3 py-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong";
@@ -37,6 +38,10 @@ export default function AdminOrderDetailPage() {
   const [refundReference, setRefundReference] = useState("");
   const [savingPayment, setSavingPayment] = useState(false);
 
+  const [courierNameDraft, setCourierNameDraft] = useState("");
+  const [trackingNumberDraft, setTrackingNumberDraft] = useState("");
+  const [savingCourier, setSavingCourier] = useState(false);
+
   const load = useCallback(() => {
     getIdToken()
       .then((idToken) => {
@@ -47,6 +52,8 @@ export default function AdminOrderDetailPage() {
           setPaymentStatusDraft(result.paymentStatus);
           setRefundAmount(result.refundAmount);
           setRefundReference(result.refundReference ?? "");
+          setCourierNameDraft(result.courierName ?? "");
+          setTrackingNumberDraft(result.trackingNumber ?? "");
         });
       })
       .catch(() => setOrder(null));
@@ -67,6 +74,25 @@ export default function AdminOrderDetailPage() {
       toast.error(err instanceof Error ? err.message : "Couldn't update the status.");
     } finally {
       setSavingStatus(false);
+    }
+  }
+
+  async function handleSaveCourier() {
+    if (!order) return;
+    const idToken = await getIdToken();
+    if (!idToken) return;
+    setSavingCourier(true);
+    try {
+      const updated = await updateOrderStatus(idToken, id, order.status, {
+        courierName: courierNameDraft.trim() || undefined,
+        trackingNumber: trackingNumberDraft.trim() || undefined,
+      });
+      setOrder(updated);
+      toast.success("Courier details updated.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't update courier details.");
+    } finally {
+      setSavingCourier(false);
     }
   }
 
@@ -177,6 +203,46 @@ export default function AdminOrderDetailPage() {
           <div className="flex justify-between font-semibold">
             <span>Total</span>
             <span>৳{order.total.toLocaleString()}</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-4 grid gap-4 sm:grid-cols-2">
+        <div className="rounded-md border border-border bg-surface p-4">
+          <SectionLabel>Tracking timeline</SectionLabel>
+          <OrderTimeline
+            statusHistory={order.statusHistory}
+            courierName={order.courierName}
+            trackingNumber={order.trackingNumber}
+          />
+        </div>
+
+        <div className="rounded-md border border-border bg-surface p-4">
+          <SectionLabel>Courier &amp; tracking</SectionLabel>
+          <div className="space-y-2">
+            <input
+              value={courierNameDraft}
+              onChange={(e) => setCourierNameDraft(e.target.value)}
+              placeholder="Courier name (e.g. Pathao, Sundarban)"
+              className={`${inputClass} w-full`}
+            />
+            <input
+              value={trackingNumberDraft}
+              onChange={(e) => setTrackingNumberDraft(e.target.value)}
+              placeholder="Tracking number"
+              className={`${inputClass} w-full`}
+            />
+            <button
+              type="button"
+              onClick={handleSaveCourier}
+              disabled={
+                savingCourier ||
+                (courierNameDraft === (order.courierName ?? "") && trackingNumberDraft === (order.trackingNumber ?? ""))
+              }
+              className="rounded bg-primary px-3 py-2 text-sm font-medium text-white hover:bg-primary-strong disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Save courier details
+            </button>
           </div>
         </div>
       </div>

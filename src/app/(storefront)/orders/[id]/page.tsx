@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { getOrder } from "@/lib/orders";
 import { Order, PaymentStatus } from "@/types/order";
+import { OrderTimeline } from "@/components/OrderTimeline";
 
 const PAYMENT_STATUS_LABEL: Record<PaymentStatus, string> = {
   unpaid: "Unpaid (pay on delivery)",
@@ -114,14 +115,16 @@ export default function OrderConfirmationPage() {
       </section>
 
       <section className="mt-6 rounded-2xl border border-border bg-surface p-4 sm:p-6">
-        <h2 className="text-sm font-semibold sm:text-base">Status</h2>
-        <div className="mt-2 space-y-1 text-sm">
-          <p>
-            Order status: <span className="font-medium capitalize">{order.status.replace(/_/g, " ")}</span>
-          </p>
-          <p>
-            Payment: <span className="font-medium">{PAYMENT_STATUS_LABEL[order.paymentStatus]}</span>
-          </p>
+        <h2 className="text-sm font-semibold sm:text-base">Order tracking</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Payment: <span className="font-medium text-foreground">{PAYMENT_STATUS_LABEL[order.paymentStatus]}</span>
+        </p>
+        <div className="mt-4">
+          <OrderTimeline
+            statusHistory={order.statusHistory}
+            courierName={order.courierName}
+            trackingNumber={order.trackingNumber}
+          />
         </div>
       </section>
     </main>

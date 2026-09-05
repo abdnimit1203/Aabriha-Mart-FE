@@ -36,10 +36,15 @@ export async function getOrderAdmin(idToken: string, id: string) {
   return apiFetch<AdminOrder>(`/api/orders/admin/${id}`, {}, idToken);
 }
 
-export async function updateOrderStatus(idToken: string, id: string, status: OrderStatus) {
+export async function updateOrderStatus(
+  idToken: string,
+  id: string,
+  status: OrderStatus,
+  courierInfo?: { courierName?: string; trackingNumber?: string }
+) {
   return apiFetch<AdminOrder>(
     `/api/orders/admin/${id}/status`,
-    { method: "PATCH", body: JSON.stringify({ status }) },
+    { method: "PATCH", body: JSON.stringify({ status, ...courierInfo }) },
     idToken
   );
 }

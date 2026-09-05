@@ -14,7 +14,7 @@ import { Product } from "@/types/catalog";
 import { StockBadge } from "@/components/StockBadge";
 import { StatCard, StatCardSkeleton } from "@/components/StatCard";
 import { productLevel, totalStock } from "@/lib/stockLevel";
-import { STATUS_CLASS, PAYMENT_METHOD_LABEL, formatStatusLabel } from "@/app/admin/orders/orderStatusStyles";
+import { STATUS_CLASS, PAYMENT_METHOD_LABEL, formatStatusLabel } from "@/lib/orderStatusStyles";
 import { ReceiptIcon, BellIcon, BoxesIcon, GridIcon, TagIcon, ClockIcon } from "@/components/icons";
 
 // ---------------------------------------------------------------------------

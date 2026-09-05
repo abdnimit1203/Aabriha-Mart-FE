@@ -15,6 +15,11 @@ export type OrderStatus =
   | "cancelled"
   | "returned";
 
+export interface OrderStatusEvent {
+  status: OrderStatus;
+  at: string;
+}
+
 export interface OrderItem {
   product: string;
   variantId?: string;
@@ -50,6 +55,9 @@ export interface Order extends CheckoutSummary {
   deliveryAddress: Address;
   discount: number;
   status: OrderStatus;
+  statusHistory: OrderStatusEvent[];
+  courierName?: string;
+  trackingNumber?: string;
   source: OrderSource;
   paymentMethod: PaymentMethod;
   paymentStatus: PaymentStatus;

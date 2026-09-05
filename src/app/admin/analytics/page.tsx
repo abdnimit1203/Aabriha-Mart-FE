@@ -12,7 +12,7 @@ import { Analytics } from "@/types/analytics";
 import { AdminPageHeader } from "@/components/AdminPageHeader";
 import { StatCard, StatCardSkeleton } from "@/components/StatCard";
 import { ReceiptIcon, ChartIcon, UsersIcon, BoxesIcon, SpinnerIcon } from "@/components/icons";
-import { STATUS_CLASS, formatStatusLabel } from "@/app/admin/orders/orderStatusStyles";
+import { STATUS_CLASS, formatStatusLabel } from "@/lib/orderStatusStyles";
 import { OrderStatus } from "@/types/order";
 
 const DAY_OPTIONS = [7, 30, 90] as const;
