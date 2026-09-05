@@ -262,6 +262,12 @@ export default function AdminOrdersPage() {
         </div>
       ) : (
         <>
+          {orders !== null && (
+            <p className="mb-3 text-sm text-muted-foreground">
+              Showing {orders.length} of {total} order{total !== 1 ? "s" : ""}
+            </p>
+          )}
+
           {/* Desktop table — horizontal scroll lives on this wrapper, never the page */}
           <div className="hidden overflow-x-auto rounded-md border border-border bg-surface sm:block">
             <table className="w-full min-w-225 border-collapse">
