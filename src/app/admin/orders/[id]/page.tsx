@@ -213,6 +213,7 @@ export default function AdminOrderDetailPage() {
           <OrderTimeline
             statusHistory={order.statusHistory}
             currentStatus={order.status}
+            createdAt={order.createdAt}
             courierName={order.courierName}
             trackingNumber={order.trackingNumber}
           />

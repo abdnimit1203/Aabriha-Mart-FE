@@ -78,6 +78,8 @@ export default function AdminOrdersPage() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
+  const [openCount, setOpenCount] = useState(0);
+  const [closedCount, setClosedCount] = useState(0);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkSaving, setBulkSaving] = useState(false);
 
@@ -100,6 +102,8 @@ export default function AdminOrdersPage() {
         }).then((res) => {
           setOrders(res.orders);
           setTotal(res.total);
+          setOpenCount(res.openCount);
+          setClosedCount(res.closedCount);
           setSelected(new Set());
         });
       })
@@ -177,6 +181,17 @@ export default function AdminOrdersPage() {
   return (
     <div>
       <AdminPageHeader title="Orders" description="Manage and process customer orders." />
+
+      {(openCount > 0 || closedCount > 0) && (
+        <div className="mb-4 flex flex-wrap gap-2 text-sm">
+          <span className="rounded border border-amber-200 bg-amber-50 px-3 py-1.5 font-medium text-amber-800">
+            {openCount} open
+          </span>
+          <span className="rounded border border-green-200 bg-green-50 px-3 py-1.5 font-medium text-green-800">
+            {closedCount} closed
+          </span>
+        </div>
+      )}
 
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <input
@@ -299,7 +314,12 @@ export default function AdminOrdersPage() {
                   <SkeletonRows />
                 ) : (
                   orders.map((order) => (
-                    <tr key={order._id} className="border-b border-border last:border-0 hover:bg-black/1.5">
+                    <tr
+                      key={order._id}
+                      className={`border-b border-border last:border-0 ${
+                        order.status === "delivered" ? "bg-green-50 hover:bg-green-100" : "hover:bg-black/1.5"
+                      }`}
+                    >
                       <td className="py-3.5 pl-4">
                         <input
                           type="checkbox"
@@ -310,7 +330,12 @@ export default function AdminOrdersPage() {
                         />
                       </td>
                       <td className="py-3.5 pr-3">
-                        <Link href={`/admin/orders/${order._id}`} className="text-sm font-medium text-primary-strong hover:underline">
+                        <Link
+                          href={`/admin/orders/${order._id}`}
+                          className={`text-sm font-medium hover:underline ${
+                            order.status === "delivered" ? "text-green-700" : "text-primary-strong"
+                          }`}
+                        >
                           #{order._id.slice(-8).toUpperCase()}
                         </Link>
                       </td>
@@ -351,10 +376,14 @@ export default function AdminOrdersPage() {
                 <Link
                   key={order._id}
                   href={`/admin/orders/${order._id}`}
-                  className="block rounded-md border border-border bg-surface p-4"
+                  className={`block rounded-md border p-4 ${
+                    order.status === "delivered" ? "border-green-200 bg-green-50" : "border-border bg-surface"
+                  }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-primary-strong">#{order._id.slice(-8).toUpperCase()}</span>
+                    <span className={`text-sm font-medium ${order.status === "delivered" ? "text-green-700" : "text-primary-strong"}`}>
+                      #{order._id.slice(-8).toUpperCase()}
+                    </span>
                     <StatusPill order={order} />
                   </div>
                   <p className="mt-1 text-sm">{order.customer?.username ?? order.phone}</p>

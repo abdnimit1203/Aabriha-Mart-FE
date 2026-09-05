@@ -30,15 +30,23 @@ interface Step {
 export function OrderTimeline({
   statusHistory,
   currentStatus,
+  createdAt,
   courierName,
   trackingNumber,
 }: {
   statusHistory: OrderStatusEvent[];
   currentStatus: OrderStatus;
+  createdAt: string;
   courierName?: string;
   trackingNumber?: string;
 }) {
   const eventAt = new Map(statusHistory.map((e) => [e.status, e.at]));
+  // Every order starts life at "pending" the instant it's created — true
+  // regardless of statusHistory, which only started being recorded once this
+  // feature shipped. An order placed before that has an empty statusHistory
+  // up to whatever status it was already at, so without this its first step
+  // renders as "still pending" even after later steps have real dates.
+  eventAt.set("pending", createdAt);
   const isTerminal = TERMINAL_STATUSES.includes(currentStatus);
 
   // A cancelled/returned order stops the happy path partway through — only

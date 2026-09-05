@@ -123,6 +123,7 @@ export default function OrderConfirmationPage() {
           <OrderTimeline
             statusHistory={order.statusHistory}
             currentStatus={order.status}
+            createdAt={order.createdAt}
             courierName={order.courierName}
             trackingNumber={order.trackingNumber}
           />

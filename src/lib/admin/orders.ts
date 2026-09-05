@@ -25,11 +25,14 @@ export async function listOrdersAdmin(idToken: string, filters: AdminOrderFilter
   query.set("page", String(filters.page ?? 1));
   query.set("limit", String(filters.limit ?? 20));
 
-  return apiFetch<{ orders: AdminOrder[]; total: number; page: number; limit: number }>(
-    `/api/orders/admin?${query.toString()}`,
-    {},
-    idToken
-  );
+  return apiFetch<{
+    orders: AdminOrder[];
+    total: number;
+    page: number;
+    limit: number;
+    openCount: number;
+    closedCount: number;
+  }>(`/api/orders/admin?${query.toString()}`, {}, idToken);
 }
 
 export async function getOrderAdmin(idToken: string, id: string) {
