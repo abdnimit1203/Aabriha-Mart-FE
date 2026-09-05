@@ -4,12 +4,16 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { useAuth } from "@/context/AuthContext";
-import { Product } from "@/types/catalog";
+import { Product, Category } from "@/types/catalog";
+import { getAllCategories } from "@/lib/catalog";
 import { listProductsAdmin, deleteProduct } from "@/lib/admin/products";
 import { TrashIcon } from "@/components/icons";
 import { AdminPageHeader } from "@/components/AdminPageHeader";
 import { Pagination } from "@/components/Pagination";
 import { confirmToast } from "@/lib/confirmToast";
+
+const inputClass =
+  "rounded border border-border bg-surface px-3 py-1.5 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong";
 
 function priceSummary(product: Product): string {
   if (product.variants.length > 0) {
@@ -26,24 +30,64 @@ function stockSummary(product: Product): number {
   return product.stock ?? 0;
 }
 
+// product.category comes back populated ({ name, slug }) from the admin
+// listing endpoint, but the shared Product type also allows a bare id
+// string (the shape it has right after a create/update response) — guard
+// against both rather than assuming the populated shape always holds.
+function categoryName(product: Product): string {
+  return typeof product.category === "string" ? "—" : (product.category?.name ?? "—");
+}
+
 export default function AdminProductsPage() {
   const { getIdToken } = useAuth();
   const [products, setProducts] = useState<Product[] | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("");
+  const [status, setStatus] = useState<"" | "active" | "inactive">("");
+  const [stockStatus, setStockStatus] = useState<"" | "in_stock" | "low" | "out">("");
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const limit = 15;
 
+  const hasActiveFilters = Boolean(search || category || status || stockStatus);
+
+  useEffect(() => {
+    getAllCategories().then(setCategories).catch(() => setCategories([]));
+  }, []);
+
   const load = useCallback(() => {
-    listProductsAdmin({ search: search || undefined, page, limit })
+    listProductsAdmin({
+      search: search || undefined,
+      category: category || undefined,
+      status: status || undefined,
+      stockStatus: stockStatus || undefined,
+      page,
+      limit,
+    })
       .then((res) => {
         setProducts(res.products);
         setTotal(res.total);
       })
       .catch(() => setProducts([]));
-  }, [search, page]);
+  }, [search, category, status, stockStatus, page]);
 
   useEffect(load, [load]);
+
+  function withFilterChange<T>(setter: (v: T) => void) {
+    return (v: T) => {
+      setter(v);
+      setPage(1);
+    };
+  }
+
+  function resetFilters() {
+    setSearch("");
+    setCategory("");
+    setStatus("");
+    setStockStatus("");
+    setPage(1);
+  }
 
   async function handleDelete(product: Product) {
     if (!(await confirmToast(`Delete "${product.name}"? This cannot be undone.`))) return;
@@ -62,29 +106,77 @@ export default function AdminProductsPage() {
 
   return (
     <div>
-      <AdminPageHeader title="Products" description="Manage your catalog, variants, and stock." />
-      <div className="mb-4 flex items-center justify-between gap-3">
+      <AdminPageHeader
+        title="Products"
+        description="Manage your catalog, variants, and stock."
+        actions={
+          <Link
+            href="/admin/products/new"
+            className="whitespace-nowrap rounded bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-strong"
+          >
+            New Product
+          </Link>
+        }
+      />
+
+      <div className="mb-4 flex flex-wrap items-center gap-2">
         <input
           value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setPage(1);
-          }}
+          onChange={(e) => withFilterChange(setSearch)(e.target.value)}
           placeholder="Search products…"
-          className="w-full max-w-xs rounded border border-border bg-surface px-4 py-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong"
+          className={`${inputClass} w-full max-w-xs`}
         />
-        <Link
-          href="/admin/products/new"
-          className="whitespace-nowrap rounded bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-strong"
+        <select
+          value={category}
+          onChange={(e) => withFilterChange(setCategory)(e.target.value)}
+          className={inputClass}
         >
-          New Product
-        </Link>
+          <option value="">All categories</option>
+          {categories.map((c) => (
+            <option key={c._id} value={c._id}>
+              {c.name}
+            </option>
+          ))}
+        </select>
+        <select
+          value={status}
+          onChange={(e) => withFilterChange(setStatus)(e.target.value as "" | "active" | "inactive")}
+          className={inputClass}
+        >
+          <option value="">All statuses</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+        <select
+          value={stockStatus}
+          onChange={(e) => withFilterChange(setStockStatus)(e.target.value as "" | "in_stock" | "low" | "out")}
+          className={inputClass}
+        >
+          <option value="">All stock levels</option>
+          <option value="in_stock">In Stock</option>
+          <option value="low">Low Stock</option>
+          <option value="out">Out of Stock</option>
+        </select>
+        {hasActiveFilters && (
+          <button type="button" onClick={resetFilters} className="text-sm text-primary-strong hover:underline">
+            Reset filters
+          </button>
+        )}
       </div>
 
       {!products ? (
         <p className="text-sm text-muted-foreground">Loading…</p>
       ) : products.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No products found.</p>
+        <div className="flex flex-col items-center gap-2 rounded-md border border-dashed border-border bg-surface px-6 py-16 text-center">
+          <p className="text-sm font-medium text-foreground">
+            {hasActiveFilters ? "No products match your filters" : "No products found"}
+          </p>
+          {hasActiveFilters && (
+            <button type="button" onClick={resetFilters} className="text-sm text-primary-strong hover:underline">
+              Reset filters
+            </button>
+          )}
+        </div>
       ) : (
         <>
           <p className="mb-3 text-sm text-muted-foreground">
@@ -103,6 +195,7 @@ export default function AdminProductsPage() {
               <thead>
                 <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
                   <th className="pb-2 font-medium">Product</th>
+                  <th className="pb-2 font-medium">Category</th>
                   <th className="pb-2 font-medium">Price</th>
                   <th className="pb-2 font-medium">Stock</th>
                   <th className="pb-2 font-medium">Status</th>
@@ -123,6 +216,7 @@ export default function AdminProductsPage() {
                         <span className="text-sm font-medium">{product.name}</span>
                       </div>
                     </td>
+                    <td className="py-2.5 pr-3 text-sm text-muted-foreground">{categoryName(product)}</td>
                     <td className="py-2.5 pr-3 text-sm">{priceSummary(product)}</td>
                     <td className="py-2.5 pr-3 text-sm">{stockSummary(product)}</td>
                     <td className="py-2.5 pr-3">
@@ -164,7 +258,9 @@ export default function AdminProductsPage() {
                   )}
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">{product.name}</p>
-                    <p className="text-xs text-muted-foreground">{priceSummary(product)}</p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {categoryName(product)} · {priceSummary(product)}
+                    </p>
                   </div>
                   {product.status === "active" ? (
                     <span className="shrink-0 rounded bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">Active</span>

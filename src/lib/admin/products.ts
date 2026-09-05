@@ -29,10 +29,19 @@ export interface ProductInput {
 }
 
 export async function listProductsAdmin(
-  params: { search?: string; stockStatus?: "needs_attention" | "out"; page?: number; limit?: number } = {}
+  params: {
+    search?: string;
+    category?: string;
+    status?: "active" | "inactive";
+    stockStatus?: "in_stock" | "low" | "out" | "needs_attention";
+    page?: number;
+    limit?: number;
+  } = {}
 ) {
   const query = new URLSearchParams();
   if (params.search) query.set("search", params.search);
+  if (params.category) query.set("category", params.category);
+  if (params.status) query.set("status", params.status);
   if (params.stockStatus) query.set("stockStatus", params.stockStatus);
   query.set("page", String(params.page ?? 1));
   query.set("limit", String(params.limit ?? 20));
