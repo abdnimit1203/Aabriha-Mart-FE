@@ -17,6 +17,7 @@ import {
   formatStatusLabel,
 } from "@/lib/orderStatusStyles";
 import { OrderTimeline } from "@/components/OrderTimeline";
+import { confirmToast } from "@/lib/confirmToast";
 
 const inputClass =
   "rounded border border-border bg-surface px-3 py-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong";
@@ -25,13 +26,31 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   return <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{children}</h2>;
 }
 
+// Wording for the primary "next step" action button — cosmetic only. The
+// actual set of statuses this can ever be offered for still comes entirely
+// from NEXT_STATUSES (orderStatusStyles.ts, mirroring the backend's own
+// copy in Order.ts), never invented here.
+const PRIMARY_ACTION_LABEL: Partial<Record<OrderStatus, string>> = {
+  confirmed: "Confirm Order",
+  processing: "Mark as Processing",
+  packed: "Mark as Packed",
+  shipped: "Mark as Shipped",
+  out_for_delivery: "Mark as Out for Delivery",
+  delivered: "Mark as Delivered",
+};
+
 export default function AdminOrderDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { getIdToken } = useAuth();
   const [order, setOrder] = useState<AdminOrder | null | undefined>(undefined);
 
-  const [statusDraft, setStatusDraft] = useState<OrderStatus>("pending");
-  const [savingStatus, setSavingStatus] = useState(false);
+  // Non-null exactly while one status mutation is in flight, naming its
+  // target — doubles as the double-submit guard (every status-changing
+  // control below disables while this is set, not just the one clicked) and
+  // as the per-button "which one shows a loading label" flag.
+  const [savingStatusTo, setSavingStatusTo] = useState<OrderStatus | null>(null);
+  const [manualStatusOpen, setManualStatusOpen] = useState(false);
+  const [manualStatusDraft, setManualStatusDraft] = useState<OrderStatus | "">("");
 
   const [paymentStatusDraft, setPaymentStatusDraft] = useState<PaymentStatus>("unpaid");
   const [refundAmount, setRefundAmount] = useState<number | undefined>(undefined);
@@ -48,7 +67,6 @@ export default function AdminOrderDetailPage() {
         if (!idToken) return;
         return getOrderAdmin(idToken, id).then((result) => {
           setOrder(result);
-          setStatusDraft(result.status);
           setPaymentStatusDraft(result.paymentStatus);
           setRefundAmount(result.refundAmount);
           setRefundReference(result.refundReference ?? "");
@@ -62,19 +80,59 @@ export default function AdminOrderDetailPage() {
 
   useEffect(load, [load]);
 
-  async function handleSaveStatus() {
+  // The single path every status-changing control below goes through —
+  // primary next-step button, the manual-correction dropdown, Cancel, and
+  // Return alike — so there's exactly one place that calls the backend, one
+  // place that guards against double submission, and one place that decides
+  // what happens on success/failure.
+  async function changeOrderStatus(target: OrderStatus, successMessage: string) {
+    if (savingStatusTo) return; // already mid-mutation — ignore a second click from any control
     const idToken = await getIdToken();
     if (!idToken) return;
-    setSavingStatus(true);
+    setSavingStatusTo(target);
     try {
-      const updated = await updateOrderStatus(idToken, id, statusDraft);
+      const updated = await updateOrderStatus(idToken, id, target);
       setOrder(updated);
-      toast.success("Order status updated.");
+      toast.success(successMessage);
+      setManualStatusOpen(false);
+      setManualStatusDraft("");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Couldn't update the status.");
+      // Failure leaves `order` untouched — no optimistic update to roll back.
+      toast.error(err instanceof Error ? err.message : "Couldn't update the order status.");
     } finally {
-      setSavingStatus(false);
+      setSavingStatusTo(null);
     }
+  }
+
+  async function handleCancelOrder() {
+    if (!order) return;
+    const shortId = order._id.slice(-8).toUpperCase();
+    const confirmed = await confirmToast(
+      <>
+        <p className="font-medium text-foreground">Cancel Order #{shortId}?</p>
+        <p>The order will be marked cancelled and removed from the active fulfillment pipeline.</p>
+        <p>Stock will be restored for every item in this order.</p>
+        <p className="font-medium text-danger">This action cannot be undone.</p>
+      </>,
+      { confirmLabel: "Cancel Order", cancelLabel: "Keep Order", tone: "danger" }
+    );
+    if (!confirmed) return;
+    await changeOrderStatus("cancelled", "Order cancelled.");
+  }
+
+  async function handleReturnOrder() {
+    if (!order) return;
+    const shortId = order._id.slice(-8).toUpperCase();
+    const confirmed = await confirmToast(
+      <>
+        <p className="font-medium text-foreground">Mark Order #{shortId} as Returned?</p>
+        <p>Stock will be restored for every item in this order.</p>
+        <p className="font-medium text-danger">This action cannot be undone.</p>
+      </>,
+      { confirmLabel: "Confirm Return", cancelLabel: "Go Back", tone: "danger" }
+    );
+    if (!confirmed) return;
+    await changeOrderStatus("returned", "Order marked as returned.");
   }
 
   async function handleSaveCourier() {
@@ -118,7 +176,17 @@ export default function AdminOrderDetailPage() {
   if (order === undefined) return <p className="text-sm text-muted-foreground">Loading…</p>;
   if (!order) return <p className="text-sm text-danger">Order not found.</p>;
 
-  const statusOptions = [order.status, ...NEXT_STATUSES[order.status]];
+  // Everything below derives from this one shared list — the same
+  // NEXT_STATUSES the backend enforces on every write (orderStatusStyles.ts
+  // mirrors Order.ts) — so the primary action, the manual-correction
+  // dropdown, and the Cancel/Return buttons can never offer a transition the
+  // backend would reject.
+  const nextStatuses = NEXT_STATUSES[order.status];
+  const normalNextStatus = nextStatuses.find((s) => s !== "cancelled" && s !== "returned") ?? null;
+  const canCancel = nextStatuses.includes("cancelled");
+  const canReturn = nextStatuses.includes("returned");
+  const isFinal = nextStatuses.length === 0;
+  const busy = savingStatusTo !== null;
 
   return (
     <div className="max-w-4xl">
@@ -217,6 +285,86 @@ export default function AdminOrderDetailPage() {
             courierName={order.courierName}
             trackingNumber={order.trackingNumber}
           />
+
+          {/* Normal progression: one prominent action for the next step in
+              the pipeline — cancel/return are deliberately never offered
+              here, so this area never reads as a place to do something
+              destructive. */}
+          {normalNextStatus && (
+            <button
+              type="button"
+              onClick={() =>
+                changeOrderStatus(normalNextStatus, `Order marked as ${formatStatusLabel(normalNextStatus)}.`)
+              }
+              disabled={busy}
+              className="mt-4 inline-flex w-full items-center justify-center gap-1.5 rounded bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary-strong disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+            >
+              {savingStatusTo === normalNextStatus
+                ? "Updating…"
+                : `${PRIMARY_ACTION_LABEL[normalNextStatus] ?? `Mark as ${formatStatusLabel(normalNextStatus)}`} →`}
+            </button>
+          )}
+          {!normalNextStatus && !isFinal && (
+            <p className="mt-4 text-sm font-medium text-green-700">✓ Order delivered</p>
+          )}
+          {isFinal && <p className="mt-4 text-xs text-muted-foreground">This order is in a final state.</p>}
+
+          {/* Secondary, de-emphasized escape hatch for a legitimate manual
+              correction — same NEXT_STATUSES-derived options as the primary
+              action above, just a plainer control rather than a second
+              prominent button. */}
+          {normalNextStatus && (
+            <div className="mt-3">
+              {!manualStatusOpen ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setManualStatusOpen(true);
+                    setManualStatusDraft(normalNextStatus);
+                  }}
+                  className="text-xs text-muted-foreground hover:text-foreground hover:underline"
+                >
+                  Change status manually
+                </button>
+              ) : (
+                <div className="flex flex-wrap items-center gap-2">
+                  <select
+                    value={manualStatusDraft}
+                    onChange={(e) => setManualStatusDraft(e.target.value as OrderStatus)}
+                    disabled={busy}
+                    className="rounded border border-border bg-surface px-2 py-1.5 text-xs outline-none focus-visible:outline-2 focus-visible:outline-primary-strong disabled:opacity-50"
+                  >
+                    {nextStatuses
+                      .filter((s) => s !== "cancelled" && s !== "returned")
+                      .map((s) => (
+                        <option key={s} value={s}>
+                          {formatStatusLabel(s)}
+                        </option>
+                      ))}
+                  </select>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      manualStatusDraft &&
+                      changeOrderStatus(manualStatusDraft, `Order marked as ${formatStatusLabel(manualStatusDraft)}.`)
+                    }
+                    disabled={busy || !manualStatusDraft}
+                    className="rounded border border-border px-2.5 py-1.5 text-xs font-medium hover:bg-background disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {savingStatusTo === manualStatusDraft ? "Applying…" : "Apply"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setManualStatusOpen(false)}
+                    disabled={busy}
+                    className="text-xs text-muted-foreground hover:underline disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="rounded-md border border-border bg-surface p-4">
@@ -250,33 +398,33 @@ export default function AdminOrderDetailPage() {
       </div>
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
-        <div className="rounded-md border border-border bg-surface p-4">
-          <SectionLabel>Order status</SectionLabel>
-          <div className="flex items-center gap-2">
-            <select
-              value={statusDraft}
-              onChange={(e) => setStatusDraft(e.target.value as OrderStatus)}
-              disabled={statusOptions.length <= 1}
-              className={`${inputClass} flex-1 disabled:opacity-50`}
-            >
-              {statusOptions.map((s) => (
-                <option key={s} value={s}>
-                  {formatStatusLabel(s)}
-                </option>
-              ))}
-            </select>
-            <button
-              type="button"
-              onClick={handleSaveStatus}
-              disabled={savingStatus || statusDraft === order.status}
-              className="rounded bg-primary px-3 py-2 text-sm font-medium text-white hover:bg-primary-strong disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              Save
-            </button>
-          </div>
-          {statusOptions.length <= 1 && <p className="mt-2 text-xs text-muted-foreground">This order is in a final state.</p>}
-          {(statusDraft === "cancelled" || statusDraft === "returned") && statusDraft !== order.status && (
-            <p className="mt-2 text-xs text-muted-foreground">Saving this will restore stock for every item in the order.</p>
+        <div className="rounded-md border border-danger/30 bg-surface p-4">
+          <SectionLabel>Order actions</SectionLabel>
+          {canCancel || canReturn ? (
+            <div className="flex flex-wrap gap-2">
+              {canCancel && (
+                <button
+                  type="button"
+                  onClick={handleCancelOrder}
+                  disabled={busy}
+                  className="rounded border border-danger/40 px-3 py-2 text-sm font-medium text-danger hover:bg-danger/5 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {savingStatusTo === "cancelled" ? "Cancelling…" : "Cancel Order"}
+                </button>
+              )}
+              {canReturn && (
+                <button
+                  type="button"
+                  onClick={handleReturnOrder}
+                  disabled={busy}
+                  className="rounded border border-danger/40 px-3 py-2 text-sm font-medium text-danger hover:bg-danger/5 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {savingStatusTo === "returned" ? "Marking returned…" : "Mark as Returned"}
+                </button>
+              )}
+            </div>
+          ) : (
+            <p className="text-xs text-muted-foreground">No cancellation or return is available for this order.</p>
           )}
         </div>
 
