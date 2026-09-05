@@ -5,7 +5,8 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import { useAuth } from "@/context/AuthContext";
 import { listProductsAdmin, adjustProductStock } from "@/lib/admin/products";
-import { Product, Variant } from "@/types/catalog";
+import { getAllCategories } from "@/lib/catalog";
+import { Product, Variant, Category } from "@/types/catalog";
 import { AdminPageHeader } from "@/components/AdminPageHeader";
 import { Pagination } from "@/components/Pagination";
 import { StockBadge } from "@/components/StockBadge";
@@ -203,13 +204,20 @@ const LIMIT = 20;
 export default function AdminInventoryPage() {
   const [view, setView] = useState<"needs_attention" | "all">("needs_attention");
   const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("");
   const [page, setPage] = useState(1);
   const [products, setProducts] = useState<Product[] | null>(null);
   const [total, setTotal] = useState(0);
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    getAllCategories().then(setCategories).catch(() => setCategories([]));
+  }, []);
 
   const load = useCallback(() => {
     listProductsAdmin({
       search: search || undefined,
+      category: category || undefined,
       stockStatus: view === "needs_attention" ? "needs_attention" : undefined,
       page,
       limit: LIMIT,
@@ -219,7 +227,7 @@ export default function AdminInventoryPage() {
         setTotal(res.total);
       })
       .catch(() => setProducts([]));
-  }, [view, search, page]);
+  }, [view, search, category, page]);
 
   useEffect(load, [load]);
 
@@ -272,15 +280,32 @@ export default function AdminInventoryPage() {
             All products
           </button>
         </div>
-        <input
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setPage(1);
-          }}
-          placeholder="Search products…"
-          className="w-full max-w-xs rounded border border-border bg-surface px-4 py-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong"
-        />
+        <div className="flex flex-1 flex-wrap items-center justify-end gap-2">
+          <select
+            value={category}
+            onChange={(e) => {
+              setCategory(e.target.value);
+              setPage(1);
+            }}
+            className="rounded border border-border bg-surface px-3 py-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong"
+          >
+            <option value="">All categories</option>
+            {categories.map((c) => (
+              <option key={c._id} value={c._id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+          <input
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+            placeholder="Search products…"
+            className="w-full max-w-xs rounded border border-border bg-surface px-4 py-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong"
+          />
+        </div>
       </div>
 
       {!products ? (
