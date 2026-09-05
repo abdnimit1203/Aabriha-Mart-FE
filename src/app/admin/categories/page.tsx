@@ -151,8 +151,13 @@ function MobileRow({ node, depth }: { node: AdminCategoryNode; depth: number }) 
   );
 }
 
+const inputClass =
+  "rounded border border-border bg-surface px-3 py-1.5 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong";
+
 export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState<Category[] | null>(null);
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState<"" | "active" | "hidden">("");
 
   const load = useCallback(() => {
     getAllCategories().then(setCategories).catch(() => setCategories([]));
@@ -164,7 +169,23 @@ export default function AdminCategoriesPage() {
     return <p className="text-sm text-muted-foreground">Loading…</p>;
   }
 
-  const tree = buildFullTree(categories);
+  const hasActiveFilters = Boolean(search || status);
+
+  // Filtered on the flat list before building the tree — small, bounded
+  // dataset fetched in full already, so no backend query params needed for
+  // this. A child whose parent gets filtered out just renders as its own
+  // root instead of nested; acceptable for a filter view on a page this size.
+  const filtered = categories.filter((c) => {
+    const matchesSearch = !search || c.name.toLowerCase().includes(search.toLowerCase()) || c.slug.toLowerCase().includes(search.toLowerCase());
+    const matchesStatus = !status || (status === "active" ? c.isActive : !c.isActive);
+    return matchesSearch && matchesStatus;
+  });
+  const tree = buildFullTree(filtered);
+
+  function resetFilters() {
+    setSearch("");
+    setStatus("");
+  }
 
   return (
     <div>
@@ -181,14 +202,42 @@ export default function AdminCategoriesPage() {
         }
       />
 
-      {tree.length > 0 && (
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search categories…"
+          className={`${inputClass} w-full max-w-xs`}
+        />
+        <select value={status} onChange={(e) => setStatus(e.target.value as "" | "active" | "hidden")} className={inputClass}>
+          <option value="">All statuses</option>
+          <option value="active">Active</option>
+          <option value="hidden">Hidden</option>
+        </select>
+        {hasActiveFilters && (
+          <button type="button" onClick={resetFilters} className="text-sm text-primary-strong hover:underline">
+            Reset filters
+          </button>
+        )}
+      </div>
+
+      {categories.length > 0 && (
         <p className="mb-3 text-sm text-muted-foreground">
-          {categories.length} categor{categories.length !== 1 ? "ies" : "y"} total
+          {hasActiveFilters
+            ? `Showing ${filtered.length} of ${categories.length} categories`
+            : `${categories.length} categor${categories.length !== 1 ? "ies" : "y"} total`}
         </p>
       )}
 
-      {tree.length === 0 ? (
+      {categories.length === 0 ? (
         <p className="text-sm text-muted-foreground">No categories yet.</p>
+      ) : tree.length === 0 ? (
+        <div className="flex flex-col items-center gap-2 rounded-md border border-dashed border-border bg-surface px-6 py-16 text-center">
+          <p className="text-sm font-medium text-foreground">No categories match your filters</p>
+          <button type="button" onClick={resetFilters} className="text-sm text-primary-strong hover:underline">
+            Reset filters
+          </button>
+        </div>
       ) : (
         <>
           {/* See the products page for why this is a card list below sm:
