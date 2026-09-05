@@ -296,6 +296,10 @@ export default function AdminInventoryPage() {
         </div>
       ) : (
         <>
+          <p className="mb-3 text-sm text-muted-foreground">
+            Showing {products.length} of {total} product{total !== 1 ? "s" : ""}
+          </p>
+
           <div className="overflow-hidden rounded-md border border-border bg-surface">
             {products.map((product) => (
               <ProductRow key={product._id} product={product} onChanged={handleProductUpdated} />

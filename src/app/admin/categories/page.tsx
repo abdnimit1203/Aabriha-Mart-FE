@@ -181,6 +181,12 @@ export default function AdminCategoriesPage() {
         }
       />
 
+      {tree.length > 0 && (
+        <p className="mb-3 text-sm text-muted-foreground">
+          {categories.length} categor{categories.length !== 1 ? "ies" : "y"} total
+        </p>
+      )}
+
       {tree.length === 0 ? (
         <p className="text-sm text-muted-foreground">No categories yet.</p>
       ) : (

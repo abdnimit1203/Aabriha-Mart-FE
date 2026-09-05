@@ -86,6 +86,10 @@ export default function AdminProductsPage() {
         <p className="text-sm text-muted-foreground">No products found.</p>
       ) : (
         <>
+          <p className="mb-3 text-sm text-muted-foreground">
+            Showing {products.length} of {total} product{total !== 1 ? "s" : ""}
+          </p>
+
           {/* Table below sm: has to squeeze 5 columns (image+name, price,
               stock, status, actions) into less width than a real narrow
               phone actually renders text at — some Android browsers/OS
