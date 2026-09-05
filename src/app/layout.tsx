@@ -75,7 +75,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${logoFont.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-background text-foreground">
+      {/* suppressHydrationWarning here only ignores attribute mismatches on
+          this one element — browser extensions (Grammarly, etc.) inject
+          data-gr-* attributes into <body> before React hydrates, which is
+          a known false-positive source for this warning, not a real bug. */}
+      <body className="min-h-full flex flex-col bg-background text-foreground" suppressHydrationWarning>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
