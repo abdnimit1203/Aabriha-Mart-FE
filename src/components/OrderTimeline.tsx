@@ -12,6 +12,17 @@ function formatEventDate(at: string): string {
   });
 }
 
+// Drops the year — the mobile strip is tight on width, and the order's own
+// full date already shows at the top of the page it lives on.
+function formatCompactEventDate(at: string): string {
+  return new Date(at).toLocaleString("en-GB", {
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 function stepLabel(status: OrderStatus): string {
   return TIMELINE_STEP_LABEL[status] ?? formatStatusLabel(status);
 }
@@ -49,15 +60,28 @@ export function OrderTimeline({
   eventAt.set("pending", createdAt);
   const isTerminal = TERMINAL_STATUSES.includes(currentStatus);
 
+  // How far the order has actually progressed through the main pipeline.
+  // NEXT_STATUSES only allows moving one step at a time, so reaching any
+  // status proves every earlier pipeline step already happened too — even
+  // one a legacy order never individually logged (statusHistory only started
+  // being recorded once this feature shipped, so an order that was already
+  // past some step when it launched has a gap there). Deriving "done" from
+  // pipeline position rather than "does this step have its own timestamp"
+  // means that gap can't make an earlier step look like it never happened
+  // just because a later one did.
+  const currentIndex = MAIN_PIPELINE_STATUSES.indexOf(currentStatus);
+  const highestRecordedIndex = MAIN_PIPELINE_STATUSES.reduce((max, s, i) => (eventAt.has(s) ? i : max), -1);
+  const reachedIndex = isTerminal ? highestRecordedIndex : currentIndex;
+
   // A cancelled/returned order stops the happy path partway through — only
   // the pipeline steps it actually reached are shown, followed by the
   // terminal marker. Otherwise every pipeline step is shown, with steps
-  // beyond the current one rendered as upcoming (no timestamp yet).
-  const steps: Step[] = MAIN_PIPELINE_STATUSES.filter((status) => !isTerminal || eventAt.has(status)).map((status) => {
+  // beyond the current one rendered as upcoming.
+  const steps: Step[] = MAIN_PIPELINE_STATUSES.map((status, i) => {
     const at = eventAt.get(status);
-    const state: StepState = !isTerminal && status === currentStatus ? "current" : at ? "done" : "upcoming";
+    const state: StepState = !isTerminal && i === currentIndex ? "current" : i <= reachedIndex ? "done" : "upcoming";
     return { status, label: stepLabel(status), at, state };
-  });
+  }).filter((step, i) => !isTerminal || i <= reachedIndex);
 
   if (isTerminal) {
     steps.push({ status: currentStatus, label: stepLabel(currentStatus), at: eventAt.get(currentStatus), state: "terminal" });
@@ -65,9 +89,19 @@ export function OrderTimeline({
 
   const hasCourierInfo = Boolean(courierName || trackingNumber);
 
+  // A step can be "done" (per pipeline position above) without its own
+  // timestamp — the legacy gap described above. "Pending" would be
+  // misleading there since it did happen; "—" says a real date just isn't on
+  // record for it.
+  function dateLabel(step: Step, format: (at: string) => string): string {
+    if (step.at) return format(step.at);
+    return step.state === "upcoming" ? "Pending" : "—";
+  }
+
   return (
     <div>
-      <ol>
+      {/* Desktop/tablet — connected vertical list */}
+      <ol className="hidden sm:block">
         {steps.map((step, i) => {
           const isLastRow = i === steps.length - 1;
           const reached = step.state === "done" || step.state === "current" || step.state === "terminal";
@@ -105,12 +139,59 @@ export function OrderTimeline({
                 )}
               </div>
               <p className={`text-xs ${reached ? "text-muted-foreground" : "italic text-muted-foreground/70"}`}>
-                {step.at ? formatEventDate(step.at) : "Pending"}
+                {dateLabel(step, formatEventDate)}
               </p>
             </li>
           );
         })}
       </ol>
+
+      {/* Mobile — compact horizontal strip, scrollable */}
+      <div className="-mx-1 overflow-x-auto px-1 pb-1 sm:hidden">
+        <ol className="flex w-max gap-1.5">
+          {steps.map((step, i) => {
+            const isFirst = i === 0;
+            const isLastRow = i === steps.length - 1;
+            const reached = step.state === "done" || step.state === "current" || step.state === "terminal";
+            const isTerminalStep = step.state === "terminal";
+            const lineDoneColor = step.state === "done" ? "bg-green-500" : "bg-border";
+
+            return (
+              <li key={step.status} className="flex w-24 shrink-0 flex-col items-center text-center">
+                <div className="flex w-full items-center">
+                  <span className={`h-0.5 flex-1 ${isFirst ? "bg-transparent" : lineDoneColor}`} />
+                  <span
+                    className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 ${
+                      isTerminalStep
+                        ? "border-danger bg-danger text-white"
+                        : reached
+                          ? `border-green-500 bg-green-500 text-white ${step.state === "current" ? "ring-2 ring-green-100" : ""}`
+                          : "border-border bg-surface text-transparent"
+                    }`}
+                  >
+                    {isTerminalStep ? (
+                      <CloseIcon className="h-3 w-3" />
+                    ) : reached ? (
+                      <CheckIcon className="h-3 w-3" />
+                    ) : null}
+                  </span>
+                  <span className={`h-0.5 flex-1 ${isLastRow ? "bg-transparent" : lineDoneColor}`} />
+                </div>
+                <p
+                  className={`mt-1 text-[10px] font-semibold capitalize leading-tight ${
+                    reached ? "text-foreground" : "text-muted-foreground"
+                  }`}
+                >
+                  {step.label}
+                </p>
+                <p className={`text-[9px] leading-tight ${reached ? "text-muted-foreground" : "italic text-muted-foreground/70"}`}>
+                  {dateLabel(step, formatCompactEventDate)}
+                </p>
+              </li>
+            );
+          })}
+        </ol>
+      </div>
 
       {hasCourierInfo && (
         <div className="mt-4 rounded border border-border bg-black/2 px-3 py-2 text-sm">
