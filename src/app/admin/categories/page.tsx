@@ -93,6 +93,64 @@ function Row({ node, depth }: { node: AdminCategoryNode; depth: number }) {
   );
 }
 
+function MobileRow({ node, depth }: { node: AdminCategoryNode; depth: number }) {
+  const { getIdToken } = useAuth();
+  const [deleting, setDeleting] = useState(false);
+
+  async function handleDelete() {
+    if (!(await confirmToast(`Delete "${node.name}"? This cannot be undone.`))) return;
+    const idToken = await getIdToken();
+    if (!idToken) return;
+    setDeleting(true);
+    try {
+      await deleteCategory(idToken, node._id);
+      toast.success("Category deleted.");
+      window.location.reload();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't delete this category.");
+      setDeleting(false);
+    }
+  }
+
+  return (
+    <>
+      <div className="rounded-xl border border-border p-3" style={{ marginLeft: depth * 16 }}>
+        <div className="flex items-center justify-between gap-2">
+          <div className="min-w-0">
+            <p className="truncate text-sm font-medium">{node.name}</p>
+            <p className="truncate text-xs text-muted-foreground">/{node.slug}</p>
+          </div>
+          {node.isActive ? (
+            <span className="shrink-0 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">Active</span>
+          ) : (
+            <span className="shrink-0 rounded-full bg-border px-2 py-0.5 text-xs font-medium text-muted-foreground">Hidden</span>
+          )}
+        </div>
+        <div className="mt-2.5 flex items-center justify-between border-t border-border pt-2.5 text-sm">
+          <span className="text-muted-foreground">Sort: {node.sortOrder}</span>
+          <div className="flex items-center gap-4">
+            <Link href={`/admin/categories/${node._id}/edit`} className="text-primary-strong hover:underline">
+              Edit
+            </Link>
+            <button
+              type="button"
+              onClick={handleDelete}
+              disabled={deleting}
+              aria-label={`Delete ${node.name}`}
+              className="text-danger hover:opacity-70 disabled:opacity-40"
+            >
+              <TrashIcon className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+      {node.children.map((child) => (
+        <MobileRow key={child._id} node={child} depth={depth + 1} />
+      ))}
+    </>
+  );
+}
+
 export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState<Category[] | null>(null);
 
@@ -126,21 +184,32 @@ export default function AdminCategoriesPage() {
       {tree.length === 0 ? (
         <p className="text-sm text-muted-foreground">No categories yet.</p>
       ) : (
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
-              <th className="pb-2 font-medium">Name</th>
-              <th className="pb-2 font-medium">Sort</th>
-              <th className="pb-2 font-medium">Status</th>
-              <th className="pb-2" />
-            </tr>
-          </thead>
-          <tbody>
+        <>
+          {/* See the products page for why this is a card list below sm:
+              rather than a squeezed table — same reasoning applies here. */}
+          <div className="hidden overflow-x-auto sm:block">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
+                  <th className="pb-2 font-medium">Name</th>
+                  <th className="pb-2 font-medium">Sort</th>
+                  <th className="pb-2 font-medium">Status</th>
+                  <th className="pb-2" />
+                </tr>
+              </thead>
+              <tbody>
+                {tree.map((node) => (
+                  <Row key={node._id} node={node} depth={0} />
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="space-y-3 sm:hidden">
             {tree.map((node) => (
-              <Row key={node._id} node={node} depth={0} />
+              <MobileRow key={node._id} node={node} depth={0} />
             ))}
-          </tbody>
-        </table>
+          </div>
+        </>
       )}
     </div>
   );

@@ -86,41 +86,91 @@ export default function AdminProductsPage() {
         <p className="text-sm text-muted-foreground">No products found.</p>
       ) : (
         <>
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
-                <th className="pb-2 font-medium">Product</th>
-                <th className="pb-2 font-medium">Price</th>
-                <th className="pb-2 font-medium">Stock</th>
-                <th className="pb-2 font-medium">Status</th>
-                <th className="pb-2" />
-              </tr>
-            </thead>
-            <tbody>
-              {products.map((product) => (
-                <tr key={product._id} className="border-b border-border last:border-0">
-                  <td className="py-2.5 pr-3">
-                    <div className="flex items-center gap-3">
-                      {product.images[0] ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={product.images[0].url} alt="" className="h-10 w-10 rounded-lg border border-border object-cover" />
+          {/* Table below sm: has to squeeze 5 columns (image+name, price,
+              stock, status, actions) into less width than a real narrow
+              phone actually renders text at — some Android browsers/OS
+              accessibility settings boost body text beyond what desktop
+              devtools device emulation shows, which no amount of column
+              tightening reliably survives. A stacked card per row sidesteps
+              the problem entirely instead of chasing an exact px budget. */}
+          <div className="hidden overflow-x-auto sm:block">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
+                  <th className="pb-2 font-medium">Product</th>
+                  <th className="pb-2 font-medium">Price</th>
+                  <th className="pb-2 font-medium">Stock</th>
+                  <th className="pb-2 font-medium">Status</th>
+                  <th className="pb-2" />
+                </tr>
+              </thead>
+              <tbody>
+                {products.map((product) => (
+                  <tr key={product._id} className="border-b border-border last:border-0">
+                    <td className="py-2.5 pr-3">
+                      <div className="flex items-center gap-3">
+                        {product.images[0] ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={product.images[0].url} alt="" className="h-10 w-10 rounded-lg border border-border object-cover" />
+                        ) : (
+                          <div className="h-10 w-10 rounded-lg border border-dashed border-border" />
+                        )}
+                        <span className="text-sm font-medium">{product.name}</span>
+                      </div>
+                    </td>
+                    <td className="py-2.5 pr-3 text-sm">{priceSummary(product)}</td>
+                    <td className="py-2.5 pr-3 text-sm">{stockSummary(product)}</td>
+                    <td className="py-2.5 pr-3">
+                      {product.status === "active" ? (
+                        <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">Active</span>
                       ) : (
-                        <div className="h-10 w-10 rounded-lg border border-dashed border-border" />
+                        <span className="rounded-full bg-border px-2 py-0.5 text-xs font-medium text-muted-foreground">Inactive</span>
                       )}
-                      <span className="text-sm font-medium">{product.name}</span>
-                    </div>
-                  </td>
-                  <td className="py-2.5 pr-3 text-sm">{priceSummary(product)}</td>
-                  <td className="py-2.5 pr-3 text-sm">{stockSummary(product)}</td>
-                  <td className="py-2.5 pr-3">
-                    {product.status === "active" ? (
-                      <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">Active</span>
-                    ) : (
-                      <span className="rounded-full bg-border px-2 py-0.5 text-xs font-medium text-muted-foreground">Inactive</span>
-                    )}
-                  </td>
-                  <td className="py-2.5 text-right">
-                    <Link href={`/admin/products/${product._id}/edit`} className="mr-3 text-sm text-primary-strong hover:underline">
+                    </td>
+                    <td className="py-2.5 text-right">
+                      <Link href={`/admin/products/${product._id}/edit`} className="mr-3 text-sm text-primary-strong hover:underline">
+                        Edit
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(product)}
+                        aria-label={`Delete ${product.name}`}
+                        className="text-danger hover:opacity-70"
+                      >
+                        <TrashIcon className="h-4 w-4" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Card list below sm: */}
+          <div className="space-y-3 sm:hidden">
+            {products.map((product) => (
+              <div key={product._id} className="rounded-xl border border-border p-3">
+                <div className="flex items-center gap-3">
+                  {product.images[0] ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={product.images[0].url} alt="" className="h-11 w-11 shrink-0 rounded-lg border border-border object-cover" />
+                  ) : (
+                    <div className="h-11 w-11 shrink-0 rounded-lg border border-dashed border-border" />
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">{product.name}</p>
+                    <p className="text-xs text-muted-foreground">{priceSummary(product)}</p>
+                  </div>
+                  {product.status === "active" ? (
+                    <span className="shrink-0 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">Active</span>
+                  ) : (
+                    <span className="shrink-0 rounded-full bg-border px-2 py-0.5 text-xs font-medium text-muted-foreground">Inactive</span>
+                  )}
+                </div>
+                <div className="mt-2.5 flex items-center justify-between border-t border-border pt-2.5 text-sm">
+                  <span className="text-muted-foreground">Stock: {stockSummary(product)}</span>
+                  <div className="flex items-center gap-4">
+                    <Link href={`/admin/products/${product._id}/edit`} className="text-primary-strong hover:underline">
                       Edit
                     </Link>
                     <button
@@ -131,11 +181,11 @@ export default function AdminProductsPage() {
                     >
                       <TrashIcon className="h-4 w-4" />
                     </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
 
           {totalPages > 1 && (
             <div className="mt-4 flex items-center justify-center gap-3 text-sm">
