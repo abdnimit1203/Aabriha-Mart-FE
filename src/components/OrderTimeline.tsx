@@ -99,7 +99,11 @@ export function OrderTimeline({
   }
 
   return (
-    <div>
+    // min-w-0 so a flex/grid ancestor doesn't size itself to fit the mobile
+    // strip's unclipped content width (a grid item defaults to min-width:
+    // auto, which otherwise pushes the whole page wider than the viewport
+    // instead of letting the strip below scroll internally).
+    <div className="min-w-0">
       {/* Desktop/tablet — connected vertical list */}
       <ol className="hidden sm:block">
         {steps.map((step, i) => {
@@ -148,7 +152,7 @@ export function OrderTimeline({
 
       {/* Mobile — compact horizontal strip, scrollable */}
       <div className="-mx-1 overflow-x-auto px-1 pb-1 sm:hidden">
-        <ol className="flex w-max gap-1.5">
+        <ol className="flex w-max">
           {steps.map((step, i) => {
             const isFirst = i === 0;
             const isLastRow = i === steps.length - 1;
@@ -157,7 +161,7 @@ export function OrderTimeline({
             const lineDoneColor = step.state === "done" ? "bg-green-500" : "bg-border";
 
             return (
-              <li key={step.status} className="flex w-24 shrink-0 flex-col items-center text-center">
+              <li key={step.status} className="flex w-15 shrink-0 flex-col items-center text-center">
                 <div className="flex w-full items-center">
                   <span className={`h-0.5 flex-1 ${isFirst ? "bg-transparent" : lineDoneColor}`} />
                   <span

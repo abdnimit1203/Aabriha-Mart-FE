@@ -208,7 +208,7 @@ export default function AdminOrderDetailPage() {
       </div>
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
-        <div className="rounded-md border border-border bg-surface p-4">
+        <div className="min-w-0 rounded-md border border-border bg-surface p-4">
           <SectionLabel>Tracking timeline</SectionLabel>
           <OrderTimeline
             statusHistory={order.statusHistory}
