@@ -169,7 +169,14 @@ export function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-30 mt-2 w-80 max-w-[90vw] overflow-hidden rounded-xl border border-border bg-surface shadow-lg">
+        // Fixed + viewport-anchored below sm: the mobile top bar has a
+        // store-link icon to the bell's right, so this dropdown isn't the
+        // rightmost element in its row — "absolute right-0" (anchored to
+        // the bell's own narrow wrapper) pushed a 320px-wide box far enough
+        // left to clip off the left edge of the screen. sm+ keeps the
+        // original behavior, where the desktop top bar has nothing but the
+        // bell in it, so "right-0" there is already correctly flush right.
+        <div className="fixed inset-x-4 top-16 z-30 overflow-hidden rounded-xl border border-border bg-surface shadow-lg sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 sm:w-80 sm:max-w-[90vw]">
           <div className="flex items-center justify-between border-b border-border px-3.5 py-2.5">
             <p className="text-sm font-semibold text-foreground">Notifications</p>
             {unreadCount > 0 && (
