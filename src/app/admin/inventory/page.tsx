@@ -7,6 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { listProductsAdmin, adjustProductStock } from "@/lib/admin/products";
 import { Product, Variant } from "@/types/catalog";
 import { AdminPageHeader } from "@/components/AdminPageHeader";
+import { Pagination } from "@/components/Pagination";
 import { StockBadge } from "@/components/StockBadge";
 import { levelForStock, productLevel, totalStock } from "@/lib/stockLevel";
 import { ChevronIcon, BoxesIcon } from "@/components/icons";
@@ -306,29 +307,7 @@ export default function AdminInventoryPage() {
             ))}
           </div>
 
-          {totalPages > 1 && (
-            <div className="mt-4 flex items-center justify-center gap-3 text-sm">
-              <button
-                type="button"
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className="rounded border border-border px-3 py-1.5 disabled:opacity-40"
-              >
-                Previous
-              </button>
-              <span className="text-muted-foreground">
-                Page {page} of {totalPages}
-              </span>
-              <button
-                type="button"
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-                className="rounded border border-border px-3 py-1.5 disabled:opacity-40"
-              >
-                Next
-              </button>
-            </div>
-          )}
+          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
         </>
       )}
     </div>

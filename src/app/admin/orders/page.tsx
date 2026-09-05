@@ -7,6 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { listOrdersAdmin, updateOrderStatus as updateOrderStatusApi } from "@/lib/admin/orders";
 import { AdminOrder, DeliveryZone, OrderStatus, PaymentStatus } from "@/types/order";
 import { AdminPageHeader } from "@/components/AdminPageHeader";
+import { Pagination } from "@/components/Pagination";
 import { ReceiptIcon } from "@/components/icons";
 import { OrderActionsMenu } from "./OrderActionsMenu";
 import {
@@ -22,7 +23,7 @@ import {
 
 const inputClass =
   "rounded border border-border bg-surface px-3 py-1.5 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong";
-const LIMIT = 20;
+const LIMIT = 15;
 
 function StatusPill({ order }: { order: AdminOrder }) {
   return (
@@ -347,49 +348,27 @@ export default function AdminOrdersPage() {
             {orders === null
               ? Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-24 animate-pulse rounded-md bg-surface" />)
               : orders.map((order) => (
-                  <Link
-                    key={order._id}
-                    href={`/admin/orders/${order._id}`}
-                    className="block rounded-md border border-border bg-surface p-4"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-primary-strong">#{order._id.slice(-8).toUpperCase()}</span>
-                      <StatusPill order={order} />
-                    </div>
-                    <p className="mt-1 text-sm">{order.customer?.username ?? order.phone}</p>
-                    <div className="mt-2 flex items-center justify-between text-sm">
-                      <span className="font-medium">৳{order.total.toLocaleString()}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {formatDate(order.createdAt)} · {formatTime(order.createdAt)}
-                      </span>
-                    </div>
-                  </Link>
-                ))}
+                <Link
+                  key={order._id}
+                  href={`/admin/orders/${order._id}`}
+                  className="block rounded-md border border-border bg-surface p-4"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-primary-strong">#{order._id.slice(-8).toUpperCase()}</span>
+                    <StatusPill order={order} />
+                  </div>
+                  <p className="mt-1 text-sm">{order.customer?.username ?? order.phone}</p>
+                  <div className="mt-2 flex items-center justify-between text-sm">
+                    <span className="font-medium">৳{order.total.toLocaleString()}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {formatDate(order.createdAt)} · {formatTime(order.createdAt)}
+                    </span>
+                  </div>
+                </Link>
+              ))}
           </div>
 
-          {totalPages > 1 && (
-            <div className="mt-4 flex items-center justify-center gap-3 text-sm">
-              <button
-                type="button"
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className="rounded border border-border px-3 py-1.5 disabled:opacity-40"
-              >
-                Previous
-              </button>
-              <span className="text-muted-foreground">
-                Page {page} of {totalPages}
-              </span>
-              <button
-                type="button"
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-                className="rounded border border-border px-3 py-1.5 disabled:opacity-40"
-              >
-                Next
-              </button>
-            </div>
-          )}
+          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
         </>
       )}
     </div>

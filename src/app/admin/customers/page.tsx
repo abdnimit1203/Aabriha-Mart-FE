@@ -6,6 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { listCustomersAdmin, listModeratorsAdmin, updateUserRoleAdmin } from "@/lib/admin/users";
 import { AdminCustomer, Moderator } from "@/types/user";
 import { AdminPageHeader } from "@/components/AdminPageHeader";
+import { Pagination } from "@/components/Pagination";
 import { UsersIcon, SpinnerIcon } from "@/components/icons";
 import { confirmToast } from "@/lib/confirmToast";
 import { RoleActionsMenu } from "./RoleActionsMenu";
@@ -326,29 +327,7 @@ export default function AdminCustomersPage() {
                   ))}
                 </div>
 
-                {totalPages > 1 && (
-                  <div className="mt-4 flex items-center justify-center gap-3 text-sm">
-                    <button
-                      type="button"
-                      onClick={() => setPage((p) => Math.max(1, p - 1))}
-                      disabled={page === 1 || customersFetching}
-                      className="rounded border border-border px-3 py-1.5 disabled:opacity-40"
-                    >
-                      Previous
-                    </button>
-                    <span className="text-muted-foreground">
-                      Page {page} of {totalPages}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                      disabled={page === totalPages || customersFetching}
-                      className="rounded border border-border px-3 py-1.5 disabled:opacity-40"
-                    >
-                      Next
-                    </button>
-                  </div>
-                )}
+                <Pagination page={page} totalPages={totalPages} onPageChange={setPage} disabled={customersFetching} />
               </div>
             )
           )}
