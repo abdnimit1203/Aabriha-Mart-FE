@@ -8,6 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import { signOutUser } from "@/lib/auth";
 import { useDismissableOverlay } from "@/hooks/useDismissableOverlay";
 import { NotificationBell } from "@/components/NotificationBell";
+import { AdminSearch, AdminSearchItem } from "@/components/AdminSearch";
 
 
 import {
@@ -25,6 +26,7 @@ import {
   MenuIcon,
   ImageIcon,
   BellIcon,
+  SearchIcon,
 } from "@/components/icons";
 import { FaStore } from "react-icons/fa";
 
@@ -312,6 +314,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     setOpenGroups((prev) => ({ ...prev, [label]: !currentlyOpen }));
   }
 
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  // Ctrl+K/Cmd+K opens the page search from anywhere in the admin area, not
+  // just when a particular input is focused — a global listener rather than
+  // a per-page one.
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        setSearchOpen(true);
+      }
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   useEffect(() => {
     if (loading) return;
     if (!user) {
@@ -332,6 +350,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const currentLabel =
     [...PRIMARY_NAV, ...STOREFRONT_NAV, ...SECONDARY_NAV, ...SETTINGS_NAV].find((item) => isNavItemActive(item, pathname))
       ?.label ?? "Admin";
+
+  // Page-name-only search — deliberately not products/orders/customers
+  // content, per the admin-redesign grilling round that scoped this out.
+  const searchGroups: [string | undefined, NavItem[]][] = [
+    [undefined, PRIMARY_NAV],
+    ["Storefront", STOREFRONT_NAV],
+    [undefined, SECONDARY_NAV],
+    [undefined, SETTINGS_NAV],
+  ];
+  const searchItems: AdminSearchItem[] = searchGroups.flatMap(([group, navItems]) =>
+    navItems
+      .filter((item) => item.roles.includes(role) && !item.soon)
+      .map((item) => ({ href: item.href, label: item.label, group }))
+  );
 
   return (
     <div className="admin-shell flex min-h-dvh flex-col bg-background sm:flex-row">
@@ -379,6 +411,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </button>
         <p className="text-sm font-semibold text-foreground">{currentLabel}</p>
         <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => setSearchOpen(true)}
+            aria-label="Search pages"
+            className="rounded p-1.5 text-muted-foreground hover:bg-black/3"
+          >
+            <SearchIcon className="h-5 w-5" />
+          </button>
           <NotificationBell />
           <Link href="/" className="px-1 text-xs text-muted-foreground hover:underline">
             <FaStore className="h-5 w-5 text-danger" />
@@ -429,11 +469,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Desktop top bar — the sidebar/mobile bar have no room for a
            persistent bell, so this exists purely to host it on sm+. */}
-        <div className="sticky top-0 z-20 hidden items-center justify-end border-b border-border bg-surface px-8 py-2.5 sm:flex">
+        <div className="sticky top-0 z-20 hidden items-center justify-between border-b border-border bg-surface px-8 py-2.5 sm:flex">
+          <button
+            type="button"
+            onClick={() => setSearchOpen(true)}
+            className="flex items-center gap-2 rounded border border-border px-3 py-1.5 text-sm text-muted-foreground hover:bg-background"
+          >
+            <SearchIcon className="h-4 w-4" />
+            Search pages…
+            <kbd className="ml-2 rounded border border-border px-1.5 py-0.5 text-[10px]">Ctrl K</kbd>
+          </button>
           <NotificationBell />
         </div>
         <main className="min-w-0 flex-1 px-4 py-6 sm:px-8 sm:py-8">{children}</main>
       </div>
+
+      <AdminSearch items={searchItems} open={searchOpen} onClose={() => setSearchOpen(false)} />
     </div>
   );
 }
