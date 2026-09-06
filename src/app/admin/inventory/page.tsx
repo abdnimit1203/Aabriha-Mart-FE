@@ -10,6 +10,7 @@ import { Product, Variant, Category } from "@/types/catalog";
 import { AdminPageHeader } from "@/components/AdminPageHeader";
 import { Pagination } from "@/components/Pagination";
 import { StockBadge } from "@/components/StockBadge";
+import { StockIntakeModal } from "@/components/StockIntakeModal";
 import { levelForStock, productLevel, totalStock } from "@/lib/stockLevel";
 import { ChevronIcon, BoxesIcon } from "@/components/icons";
 
@@ -92,6 +93,7 @@ function VariantRow({
   onChanged: (updated: Product) => void;
 }) {
   const { getIdToken } = useAuth();
+  const [intakeOpen, setIntakeOpen] = useState(false);
   const label = Object.values(variant.attributes ?? {}).filter(Boolean).join(" • ") || variant.sku;
 
   async function handleAdjust(delta: number) {
@@ -112,9 +114,25 @@ function VariantRow({
         <p className="truncate text-sm">{label}</p>
         <StockBadge level={levelForStock(variant.stock)} />
       </div>
-      <div className="w-full sm:w-auto">
+      <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:flex-nowrap">
         <StockAdjuster label={label} stock={variant.stock} onAdjust={handleAdjust} />
+        <button
+          type="button"
+          onClick={() => setIntakeOpen(true)}
+          className="rounded border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground hover:bg-background hover:text-foreground"
+        >
+          Log intake
+        </button>
       </div>
+      {intakeOpen && (
+        <StockIntakeModal
+          product={product}
+          variantId={variant._id}
+          variantLabel={label}
+          onClose={() => setIntakeOpen(false)}
+          onSaved={onChanged}
+        />
+      )}
     </div>
   );
 }
@@ -122,6 +140,7 @@ function VariantRow({
 function ProductRow({ product, onChanged }: { product: Product; onChanged: (updated: Product) => void }) {
   const { getIdToken } = useAuth();
   const [expanded, setExpanded] = useState(false);
+  const [intakeOpen, setIntakeOpen] = useState(false);
   const hasVariants = product.variants.length > 0;
 
   async function handleAdjust(delta: number) {
@@ -177,16 +196,29 @@ function ProductRow({ product, onChanged }: { product: Product; onChanged: (upda
             on mobile instead of squeezing next to the name — a 5-control
             stock adjuster (number, -, +, input, Apply) never fits on the
             same line as the thumbnail+name at any real phone width. */}
-        <div className="w-full pl-9 sm:w-auto sm:pl-0">
+        <div className="flex w-full flex-wrap items-center gap-2 pl-9 sm:w-auto sm:flex-nowrap sm:pl-0">
           {hasVariants ? (
             <span className="text-sm tabular-nums text-muted-foreground sm:w-24 sm:text-right sm:block">
               {totalStock(product)} total
             </span>
           ) : (
-            <StockAdjuster label={product.name} stock={product.stock ?? 0} onAdjust={handleAdjust} />
+            <>
+              <StockAdjuster label={product.name} stock={product.stock ?? 0} onAdjust={handleAdjust} />
+              <button
+                type="button"
+                onClick={() => setIntakeOpen(true)}
+                className="rounded border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground hover:bg-background hover:text-foreground"
+              >
+                Log intake
+              </button>
+            </>
           )}
         </div>
       </div>
+
+      {intakeOpen && (
+        <StockIntakeModal product={product} onClose={() => setIntakeOpen(false)} onSaved={onChanged} />
+      )}
 
       {hasVariants && expanded && (
         <div className="pb-1">

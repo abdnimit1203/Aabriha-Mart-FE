@@ -42,3 +42,18 @@ export interface Product {
   ratingAverage: number;
   ratingCount: number;
 }
+
+export interface StockIntake {
+  _id: string;
+  product: string;
+  variantId?: string;
+  productNameSnapshot: string;
+  variantLabelSnapshot?: string;
+  supplier: string;
+  quantity: number;
+  unitCost: number;
+  note?: string;
+  intakeDate: string;
+  recordedBy: { _id: string; username: string } | string;
+  createdAt: string;
+}
