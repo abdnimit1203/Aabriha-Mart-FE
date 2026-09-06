@@ -64,7 +64,7 @@ export function AccountMenu() {
           role="menu"
           className="absolute right-0 top-full z-20 mt-2 w-52 rounded-2xl border border-border bg-surface p-2 shadow-lg"
         >
-          <p className="truncate px-3 pb-2 pt-1 text-sm font-medium">{profile?.username ?? "My Account"}</p>
+          <p className="truncate px-3 pb-2 pt-1 text-sm font-medium">{profile?.name ?? "My Account"}</p>
           <div className="border-t border-border pt-1">
             <Link
               href="/account"

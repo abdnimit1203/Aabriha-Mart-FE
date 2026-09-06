@@ -278,7 +278,7 @@ export default function AdminCustomersPage() {
                       {customers.map((c) => (
                         <tr key={c._id} className="border-b border-border last:border-0 hover:bg-black/1.5">
                           <td className="py-3.5 pl-4 pr-3">
-                            <p className="text-sm font-medium">{c.username}</p>
+                            <p className="text-sm font-medium">{c.name}</p>
                             <p className="text-xs text-muted-foreground">{c.email}</p>
                           </td>
                           <td className="py-3.5 pr-3 text-sm text-muted-foreground">{c.phone || "—"}</td>
@@ -293,7 +293,7 @@ export default function AdminCustomersPage() {
                               userId={c._id}
                               currentRole="customer"
                               isSelf={c._id === profile?._id}
-                              onChangeRole={(id, role) => handleChangeRole(id, role, c.username)}
+                              onChangeRole={(id, role) => handleChangeRole(id, role, c.name)}
                             />
                           </td>
                         </tr>
@@ -307,14 +307,14 @@ export default function AdminCustomersPage() {
                     <div key={c._id} className="rounded-md border border-border bg-surface p-3">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm font-medium">{c.username}</p>
+                          <p className="text-sm font-medium">{c.name}</p>
                           <p className="text-xs text-muted-foreground">{c.email}</p>
                         </div>
                         <RoleActionsMenu
                           userId={c._id}
                           currentRole="customer"
                           isSelf={c._id === profile?._id}
-                          onChangeRole={(id, role) => handleChangeRole(id, role, c.username)}
+                          onChangeRole={(id, role) => handleChangeRole(id, role, c.name)}
                         />
                       </div>
                       <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
@@ -368,7 +368,7 @@ export default function AdminCustomersPage() {
                   {moderators.map((m) => (
                     <tr key={m._id} className="border-b border-border last:border-0 hover:bg-black/1.5">
                       <td className="py-3.5 pl-4 pr-3">
-                        <p className="text-sm font-medium">{m.username}</p>
+                        <p className="text-sm font-medium">{m.name}</p>
                         <p className="text-xs text-muted-foreground">{m.email}</p>
                       </td>
                       <td className="py-3.5 pr-3">
@@ -382,7 +382,7 @@ export default function AdminCustomersPage() {
                           userId={m._id}
                           currentRole={m.role}
                           isSelf={m._id === profile?._id}
-                          onChangeRole={(id, role) => handleChangeRole(id, role, m.username)}
+                          onChangeRole={(id, role) => handleChangeRole(id, role, m.name)}
                         />
                       </td>
                     </tr>

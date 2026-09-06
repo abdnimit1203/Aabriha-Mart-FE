@@ -27,8 +27,8 @@ interface AuthContextValue {
   refreshProfile: () => Promise<void>;
   /** Creates the Firebase account and its Mongo profile as one sequenced
    * operation, in that order, and is the only thing that ever passes
-   * username/phone to the profile-sync endpoint. */
-  signUp: (email: string, password: string, fields: { username: string; phone: string }) => Promise<FirebaseUser>;
+   * name/phone to the profile-sync endpoint. */
+  signUp: (email: string, password: string, fields: { name: string; phone: string }) => Promise<FirebaseUser>;
   /** Login is a modal, not a page — any storefront spot that used to
    * navigate to /login opens this instead, staying on whatever page the
    * user was already on. The modal watches `user` itself and closes the
@@ -53,7 +53,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // exists), racing signUp()'s own explicit, field-carrying sync call. Set
   // for the duration of signUp() so this listener's generic no-fields sync
   // steps aside instead of possibly winning the create and discarding the
-  // username/phone the signup form collected.
+  // name/phone the signup form collected.
   const suppressAutoSync = useRef(false);
 
   const loadProfile = useCallback(async (user: FirebaseUser, forceToken = false) => {
@@ -102,7 +102,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await loadProfile(auth.currentUser, true);
   }
 
-  async function signUp(email: string, password: string, fields: { username: string; phone: string }) {
+  async function signUp(email: string, password: string, fields: { name: string; phone: string }) {
     suppressAutoSync.current = true;
     try {
       const fbUser = await createFirebaseAccount(email, password);
@@ -111,7 +111,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setProfile(created);
       // Best-effort, after the profile that actually matters is safely
       // created — a failure here must not undo or fail the signup.
-      await decorateFirebaseAccount(fbUser, fields.username);
+      await decorateFirebaseAccount(fbUser, fields.name);
       return fbUser;
     } finally {
       suppressAutoSync.current = false;
@@ -124,7 +124,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!firebaseUser) return null;
     return {
       photoURL: profile?.profileImage || firebaseUser.photoURL || null,
-      initial: (profile?.username ?? firebaseUser.email ?? "?").charAt(0).toUpperCase(),
+      initial: (profile?.name ?? firebaseUser.email ?? "?").charAt(0).toUpperCase(),
     };
   }, [firebaseUser, profile]);
 

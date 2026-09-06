@@ -157,7 +157,7 @@ function SidebarContent({
   collapsed,
   pathname,
   role,
-  username,
+  name,
   onNavigate,
   openGroups,
   onToggleGroup,
@@ -165,7 +165,7 @@ function SidebarContent({
   collapsed: boolean;
   pathname: string;
   role: Role;
-  username: string;
+  name: string;
   onNavigate?: () => void;
   openGroups: Record<string, boolean>;
   onToggleGroup: (label: string, currentlyOpen: boolean) => void;
@@ -227,7 +227,7 @@ function SidebarContent({
       <div className="border-t border-border p-2.5">
         {!collapsed && (
           <div className="mb-1.5 px-2.5">
-            <p className="truncate text-sm font-medium text-foreground">{username}</p>
+            <p className="truncate text-sm font-medium text-foreground">{name}</p>
             <p className="text-xs text-muted-foreground">{roleLabel(role)}</p>
           </div>
         )}
@@ -393,7 +393,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           collapsed={collapsed}
           pathname={pathname}
           role={role}
-          username={profile?.username ?? "Admin"}
+          name={profile?.name ?? "Admin"}
           openGroups={openGroups}
           onToggleGroup={toggleGroup}
         />
@@ -458,7 +458,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             collapsed={false}
             pathname={pathname}
             role={role}
-            username={profile?.username ?? "Admin"}
+            name={profile?.name ?? "Admin"}
             onNavigate={() => setMobileOpen(false)}
             openGroups={openGroups}
             onToggleGroup={toggleGroup}

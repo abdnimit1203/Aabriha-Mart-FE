@@ -10,7 +10,7 @@ import { Address } from "@/types/user";
 
 // Billing details aren't collected again here — the checkout form above
 // already has the customer's phone/address, and the account has their
-// email/username. Those get passed to stripe.confirmPayment() instead
+// email/name. Those get passed to stripe.confirmPayment() instead
 // (Stripe requires *something* for any field suppressed like this).
 const PAYMENT_ELEMENT_OPTIONS = {
   fields: {
@@ -22,12 +22,16 @@ export function StripeCardSection({
   items,
   address,
   phone,
+  recipientName,
+  deliveryNote,
   summary,
   onSuccess,
 }: {
   items: CheckoutItemInput[];
   address: Address;
   phone: string;
+  recipientName: string;
+  deliveryNote?: string;
   summary: CheckoutSummary;
   onSuccess: (order: Order) => void;
 }) {
@@ -37,7 +41,7 @@ export function StripeCardSection({
   const [submitting, setSubmitting] = useState(false);
 
   async function handlePay() {
-    if (!stripe || !elements) return;
+    if (!stripe || !elements || !recipientName.trim()) return;
 
     const idToken = await getIdToken();
     if (!idToken) return;
@@ -61,7 +65,7 @@ export function StripeCardSection({
           // them from the account/checkout form.
           payment_method_data: {
             billing_details: {
-              name: profile?.username || phone,
+              name: profile?.name || phone,
               email: profile?.email,
               phone,
               address: {
@@ -94,6 +98,8 @@ export function StripeCardSection({
         items,
         address,
         phone,
+        recipientName: recipientName.trim(),
+        deliveryNote: deliveryNote?.trim() || undefined,
         paymentMethod: "stripe",
         paymentIntentId: result.paymentIntent.id,
       });
@@ -112,7 +118,7 @@ export function StripeCardSection({
       <button
         type="button"
         onClick={handlePay}
-        disabled={!stripe || !elements || submitting}
+        disabled={!stripe || !elements || !recipientName.trim() || submitting}
         className="w-full rounded-full bg-primary px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-strong disabled:cursor-not-allowed disabled:opacity-50"
       >
         {submitting ? "Processing…" : `Pay ৳${summary.total.toLocaleString()}`}

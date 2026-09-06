@@ -237,7 +237,7 @@ function formatIntakeDate(value: string): string {
 }
 
 function recordedByName(recordedBy: StockIntake["recordedBy"]): string {
-  return typeof recordedBy === "string" ? "—" : recordedBy.username;
+  return typeof recordedBy === "string" ? "—" : recordedBy.name;
 }
 
 function IntakeHistoryRow({ intake }: { intake: StockIntake }) {

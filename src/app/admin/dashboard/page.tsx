@@ -39,11 +39,11 @@ function greetingEmoji(hour: number): string {
 }
 
 function DashboardHeader({
-  username,
+  name,
   role,
   pendingOrders,
 }: {
-  username: string;
+  name: string;
   role: "super_admin" | "order_manager";
   pendingOrders: number | null;
 }) {
@@ -70,7 +70,7 @@ function DashboardHeader({
           <div className="flex items-center gap-2">
             <span className="text-lg leading-none">{now ? greetingEmoji(now.getHours()) : "👋"}</span>
             <h1 className="text-xl font-semibold text-white">
-              {now ? greetingForHour(now.getHours()) : "Welcome"}, {username}!
+              {now ? greetingForHour(now.getHours()) : "Welcome"}, {name}!
             </h1>
           </div>
 
@@ -214,7 +214,7 @@ function RecentOrdersCard() {
                         #{order._id.slice(-8).toUpperCase()}
                       </Link>
                     </td>
-                    <td className="py-2.5 pr-3">{order.customer?.username ?? order.phone}</td>
+                    <td className="py-2.5 pr-3">{order.customer?.name ?? order.phone}</td>
                     <td className="py-2.5 pr-3 font-medium">৳{order.total.toLocaleString()}</td>
                     <td className="py-2.5 pr-3 text-muted-foreground">{PAYMENT_METHOD_LABEL[order.paymentMethod]}</td>
                     <td className="py-2.5 pr-3">
@@ -241,7 +241,7 @@ function RecentOrdersCard() {
                     {formatStatusLabel(order.status)}
                   </span>
                 </div>
-                <p className="mt-1 text-sm">{order.customer?.username ?? order.phone}</p>
+                <p className="mt-1 text-sm">{order.customer?.name ?? order.phone}</p>
                 <div className="mt-1 flex items-center justify-between text-xs text-muted-foreground">
                   <span>
                     {PAYMENT_METHOD_LABEL[order.paymentMethod]} · {formatOrderDate(order.createdAt)}, {formatOrderTime(order.createdAt)}
@@ -510,7 +510,7 @@ export default function AdminDashboardPage() {
 
   return (
     <div>
-      <DashboardHeader username={profile?.username ?? "Admin"} role={role} pendingOrders={summary?.pendingOrders ?? null} />
+      <DashboardHeader name={profile?.name ?? "Admin"} role={role} pendingOrders={summary?.pendingOrders ?? null} />
 
       {error ? (
         <div className="flex flex-col items-center gap-3 rounded-md border border-border bg-surface px-6 py-16 text-center">

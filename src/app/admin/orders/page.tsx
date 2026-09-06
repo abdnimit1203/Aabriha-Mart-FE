@@ -340,7 +340,7 @@ export default function AdminOrdersPage() {
                         </Link>
                       </td>
                       <td className="py-3.5 pr-3 text-sm">
-                        <p>{order.customer?.username ?? "—"}</p>
+                        <p>{order.customer?.name ?? "—"}</p>
                         <p className="text-xs text-muted-foreground">{order.phone}</p>
                       </td>
                       <td className="py-3.5 pr-3 text-sm text-muted-foreground">
@@ -386,7 +386,7 @@ export default function AdminOrdersPage() {
                     </span>
                     <StatusPill order={order} />
                   </div>
-                  <p className="mt-1 text-sm">{order.customer?.username ?? order.phone}</p>
+                  <p className="mt-1 text-sm">{order.customer?.name ?? order.phone}</p>
                   <div className="mt-2 flex items-center justify-between text-sm">
                     <span className="font-medium">৳{order.total.toLocaleString()}</span>
                     <span className="text-xs text-muted-foreground">

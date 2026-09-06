@@ -29,9 +29,9 @@ export async function createFirebaseAccount(email: string, password: string): Pr
  * to account creation. Best-effort: a hiccup here (e.g. Firebase rate
  * limits on repeated signups) must not be allowed to abort a signup whose
  * account and Mongo profile already exist. */
-export async function decorateFirebaseAccount(user: FirebaseUser, username: string): Promise<void> {
+export async function decorateFirebaseAccount(user: FirebaseUser, name: string): Promise<void> {
   try {
-    await updateProfile(user, { displayName: username });
+    await updateProfile(user, { displayName: name });
     await sendEmailVerification(user);
   } catch (err) {
     console.error("Non-critical post-signup step failed:", err);
@@ -64,7 +64,7 @@ export async function sendPasswordReset(email: string): Promise<void> {
 }
 
 /** Creates (or fetches) the Mongo-side profile matching the current Firebase user. */
-export async function syncProfile(idToken: string, fields?: { username?: string; phone?: string }) {
+export async function syncProfile(idToken: string, fields?: { name?: string; phone?: string }) {
   return apiFetch<UserProfile>(
     "/api/auth/sync",
     { method: "POST", body: JSON.stringify(fields ?? {}) },

@@ -23,7 +23,7 @@ function friendlyAuthError(err: unknown): string {
 export default function CreateAccountPage() {
   const router = useRouter();
   const { user, loading, signUp, openLoginModal } = useAuth();
-  const [username, setUsername] = useState("");
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
@@ -43,8 +43,8 @@ export default function CreateAccountPage() {
 
     setSubmitting(true);
     try {
-      await signUp(email, password, { username, phone });
-      toast.success(`Welcome, ${username}!`);
+      await signUp(email, password, { name, phone });
+      toast.success(`Welcome, ${name}!`);
       router.push("/account");
     } catch (err) {
       toast.error(friendlyAuthError(err));
@@ -108,15 +108,15 @@ export default function CreateAccountPage() {
 
           <form onSubmit={handleSignup} className="mt-6 space-y-4">
             <div>
-              <label htmlFor="username" className="mb-1 block text-sm font-medium">
-                Username
+              <label htmlFor="name" className="mb-1 block text-sm font-medium">
+                Your Name
               </label>
               <input
-                id="username"
+                id="name"
                 required
-                minLength={3}
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                minLength={2}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong"
               />
             </div>

@@ -32,7 +32,7 @@ export default function PrivacyPolicyPage() {
           <h2 className="text-lg font-semibold">2. Information we collect</h2>
           <p className="mt-2 text-muted-foreground">When you create an account or place an order, we collect:</p>
           <ul className="mt-2 list-disc space-y-1 pl-5 text-muted-foreground">
-            <li>Your username, email address, and phone number</li>
+            <li>Your name, email address, and phone number</li>
             <li>Your delivery address (division, district, area, and detailed address)</li>
             <li>Your order history and the products you&apos;ve purchased</li>
             <li>A profile photo, if you choose to add one</li>

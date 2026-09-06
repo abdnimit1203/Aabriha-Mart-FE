@@ -13,7 +13,7 @@ export default function AccountPage() {
   const router = useRouter();
   const { user, profile, loading, getIdToken, refreshProfile, needsProfileCompletion, openLoginModal } = useAuth();
 
-  const [username, setUsername] = useState("");
+  const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [division, setDivision] = useState("");
   const [district, setDistrict] = useState("");
@@ -35,7 +35,7 @@ export default function AccountPage() {
 
   if (profile && profile._id !== loadedProfileId) {
     setLoadedProfileId(profile._id);
-    setUsername(profile.username);
+    setName(profile.name ?? "");
     setPhone(profile.phone);
     setDivision(profile.defaultAddress?.division ?? "");
     setDistrict(profile.defaultAddress?.district ?? "");
@@ -52,7 +52,7 @@ export default function AccountPage() {
     try {
       const defaultAddress =
         division && district && area && detailedAddress ? { division, district, area, detailedAddress } : undefined;
-      await updateMyProfile(idToken, { username, phone, defaultAddress });
+      await updateMyProfile(idToken, { name, phone, defaultAddress });
       await refreshProfile();
       toast.success("Profile updated.");
     } catch {
@@ -167,7 +167,7 @@ export default function AccountPage() {
             />
           ) : (
             <span className="flex h-full w-full items-center justify-center text-2xl font-medium text-primary-strong">
-              {profile.username.charAt(0).toUpperCase()}
+              {(profile.name || "?").charAt(0).toUpperCase()}
             </span>
           )}
           {uploadingAvatar && (
@@ -257,15 +257,15 @@ export default function AccountPage() {
 
       <form onSubmit={handleSave} className="mt-6 space-y-4">
         <div>
-          <label htmlFor="username" className="mb-1 block text-sm font-medium">
-            Username
+          <label htmlFor="name" className="mb-1 block text-sm font-medium">
+            Your Name
           </label>
           <input
-            id="username"
+            id="name"
             required
-            minLength={3}
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            minLength={2}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong"
           />
         </div>

@@ -8,7 +8,7 @@ export interface Address {
 export interface UserProfile {
   _id: string;
   firebaseUid: string;
-  username: string;
+  name: string;
   email: string;
   emailVerified: boolean;
   phone: string;
@@ -19,7 +19,7 @@ export interface UserProfile {
 
 export interface AdminCustomer {
   _id: string;
-  username: string;
+  name: string;
   email: string;
   phone: string;
   profileImage?: string;
@@ -31,7 +31,7 @@ export interface AdminCustomer {
 
 export interface Moderator {
   _id: string;
-  username: string;
+  name: string;
   email: string;
   phone: string;
   role: "super_admin" | "order_manager";
