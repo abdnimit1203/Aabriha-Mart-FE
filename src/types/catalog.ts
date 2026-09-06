@@ -53,6 +53,7 @@ export interface StockIntake {
   quantity: number;
   unitCost: number;
   note?: string;
+  image?: string;
   intakeDate: string;
   recordedBy: { _id: string; username: string } | string;
   createdAt: string;

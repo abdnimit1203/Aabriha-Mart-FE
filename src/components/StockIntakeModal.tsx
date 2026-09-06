@@ -5,8 +5,10 @@ import toast from "react-hot-toast";
 import { useAuth } from "@/context/AuthContext";
 import { useDismissableOverlay } from "@/hooks/useDismissableOverlay";
 import { createStockIntake } from "@/lib/admin/stockIntakes";
+import { uploadCatalogImage } from "@/lib/upload";
 import { Product } from "@/types/catalog";
 import { CloseIcon } from "@/components/icons";
+import { ImageUploadField } from "@/components/ImageUploadField";
 
 const inputClass =
   "w-full rounded border border-border bg-surface px-3 py-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong";
@@ -40,7 +42,15 @@ export function StockIntakeModal({
   const [unitCost, setUnitCost] = useState("");
   const [intakeDate, setIntakeDate] = useState(todayIsoDate());
   const [note, setNote] = useState("");
+  const [image, setImage] = useState("");
+  const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  async function uploadImage(file: File): Promise<string> {
+    const idToken = await getIdToken();
+    if (!idToken) throw new Error("Not signed in.");
+    return uploadCatalogImage(file, idToken, "/stock-intakes");
+  }
 
   useEffect(() => {
     const original = document.body.style.overflow;
@@ -74,6 +84,7 @@ export function StockIntakeModal({
         unitCost: unitCostNum,
         note: note.trim() || undefined,
         intakeDate,
+        image: image || undefined,
       });
       toast.success(`Logged ${quantityNum} unit${quantityNum !== 1 ? "s" : ""} from ${supplier.trim()}.`);
       onSaved(result.product);
@@ -164,6 +175,16 @@ export function StockIntakeModal({
             />
           </div>
 
+          <ImageUploadField
+            label="Receipt / invoice photo (optional)"
+            image={image}
+            onChange={setImage}
+            onUploadFile={uploadImage}
+            uploading={uploading}
+            setUploading={setUploading}
+            previewSize="h-14 w-14"
+          />
+
           {quantityNum > 0 && unitCostNum >= 0 && (
             <p className="text-xs text-muted-foreground">
               Total cost: ৳{(quantityNum * unitCostNum).toLocaleString()} — stock will increase by {quantityNum} immediately on save.
@@ -183,7 +204,7 @@ export function StockIntakeModal({
           <button
             type="button"
             onClick={handleSave}
-            disabled={!canSave || saving}
+            disabled={!canSave || saving || uploading}
             className="rounded bg-primary px-3 py-2 text-sm font-medium text-white hover:bg-primary-strong disabled:cursor-not-allowed disabled:opacity-50"
           >
             {saving ? "Saving…" : "Save intake"}

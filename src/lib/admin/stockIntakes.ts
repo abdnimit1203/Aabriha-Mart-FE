@@ -9,6 +9,7 @@ export interface StockIntakeInput {
   unitCost: number;
   note?: string;
   intakeDate: string;
+  image?: string;
 }
 
 export async function listStockIntakes(idToken: string, params: { product?: string; page?: number; limit?: number } = {}) {

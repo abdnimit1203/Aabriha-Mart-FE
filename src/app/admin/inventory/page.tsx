@@ -5,14 +5,15 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import { useAuth } from "@/context/AuthContext";
 import { listProductsAdmin, adjustProductStock } from "@/lib/admin/products";
+import { listStockIntakes } from "@/lib/admin/stockIntakes";
 import { getAllCategories } from "@/lib/catalog";
-import { Product, Variant, Category } from "@/types/catalog";
+import { Product, Variant, Category, StockIntake } from "@/types/catalog";
 import { AdminPageHeader } from "@/components/AdminPageHeader";
 import { Pagination } from "@/components/Pagination";
 import { StockBadge } from "@/components/StockBadge";
 import { StockIntakeModal } from "@/components/StockIntakeModal";
 import { levelForStock, productLevel, totalStock } from "@/lib/stockLevel";
-import { ChevronIcon, BoxesIcon } from "@/components/icons";
+import { ChevronIcon, BoxesIcon, ReceiptIcon } from "@/components/icons";
 
 function StockAdjuster({
   label,
@@ -231,10 +232,99 @@ function ProductRow({ product, onChanged }: { product: Product; onChanged: (upda
   );
 }
 
+function formatIntakeDate(value: string): string {
+  return new Date(value).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+}
+
+function recordedByName(recordedBy: StockIntake["recordedBy"]): string {
+  return typeof recordedBy === "string" ? "—" : recordedBy.username;
+}
+
+function IntakeHistoryRow({ intake }: { intake: StockIntake }) {
+  return (
+    <div className="flex flex-wrap items-center gap-3 border-b border-border p-3 last:border-0 sm:flex-nowrap">
+      {intake.image ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={intake.image} alt="" className="h-12 w-12 shrink-0 rounded border border-border object-cover" />
+      ) : (
+        <div className="h-12 w-12 shrink-0 rounded border border-dashed border-border" />
+      )}
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-medium">
+          {intake.productNameSnapshot}
+          {intake.variantLabelSnapshot && ` — ${intake.variantLabelSnapshot}`}
+        </p>
+        <p className="truncate text-xs text-muted-foreground">
+          {intake.supplier} · {formatIntakeDate(intake.intakeDate)} · logged by {recordedByName(intake.recordedBy)}
+        </p>
+        {intake.note && <p className="mt-0.5 truncate text-xs text-muted-foreground">{intake.note}</p>}
+      </div>
+      <div className="w-full shrink-0 text-left sm:w-auto sm:text-right">
+        <p className="text-sm font-medium text-green-700">+{intake.quantity} units</p>
+        <p className="text-xs text-muted-foreground">
+          ৳{intake.unitCost.toLocaleString()} each · ৳{(intake.quantity * intake.unitCost).toLocaleString()} total
+        </p>
+      </div>
+    </div>
+  );
+}
+
+const HISTORY_LIMIT = 20;
+
+function IntakeHistoryPanel() {
+  const { getIdToken } = useAuth();
+  const [intakes, setIntakes] = useState<StockIntake[] | null>(null);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+
+  const load = useCallback(() => {
+    getIdToken()
+      .then((idToken) => {
+        if (!idToken) return;
+        return listStockIntakes(idToken, { page, limit: HISTORY_LIMIT }).then((res) => {
+          setIntakes(res.intakes);
+          setTotal(res.total);
+        });
+      })
+      .catch(() => setIntakes([]));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
+
+  useEffect(load, [load]);
+
+  const totalPages = Math.max(1, Math.ceil(total / HISTORY_LIMIT));
+
+  if (!intakes) return <p className="text-sm text-muted-foreground">Loading…</p>;
+
+  if (intakes.length === 0) {
+    return (
+      <div className="flex flex-col items-center gap-3 rounded-md border border-dashed border-border bg-surface px-6 py-16 text-center">
+        <ReceiptIcon className="h-8 w-8 text-muted-foreground" />
+        <p className="text-sm font-medium text-foreground">No stock intake logged yet</p>
+        <p className="text-sm text-muted-foreground">Use &ldquo;Log intake&rdquo; on a product to record stock a supplier delivered.</p>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <p className="mb-3 text-sm text-muted-foreground">
+        Showing {intakes.length} of {total} intake{total !== 1 ? "s" : ""}
+      </p>
+      <div className="overflow-hidden rounded-md border border-border bg-surface">
+        {intakes.map((intake) => (
+          <IntakeHistoryRow key={intake._id} intake={intake} />
+        ))}
+      </div>
+      <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+    </>
+  );
+}
+
 const LIMIT = 20;
 
 export default function AdminInventoryPage() {
-  const [view, setView] = useState<"needs_attention" | "all">("needs_attention");
+  const [view, setView] = useState<"needs_attention" | "all" | "history">("needs_attention");
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
   const [page, setPage] = useState(1);
@@ -247,6 +337,7 @@ export default function AdminInventoryPage() {
   }, []);
 
   const load = useCallback(() => {
+    if (view === "history") return; // IntakeHistoryPanel fetches its own data
     listProductsAdmin({
       search: search || undefined,
       category: category || undefined,
@@ -282,7 +373,7 @@ export default function AdminInventoryPage() {
 
   const totalPages = Math.max(1, Math.ceil(total / LIMIT));
 
-  function switchView(next: "needs_attention" | "all") {
+  function switchView(next: "needs_attention" | "all" | "history") {
     setView(next);
     setPage(1);
   }
@@ -311,36 +402,49 @@ export default function AdminInventoryPage() {
           >
             All products
           </button>
-        </div>
-        <div className="flex flex-1 flex-wrap items-center justify-end gap-2">
-          <select
-            value={category}
-            onChange={(e) => {
-              setCategory(e.target.value);
-              setPage(1);
-            }}
-            className="rounded border border-border bg-surface px-3 py-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong"
+          <button
+            type="button"
+            onClick={() => switchView("history")}
+            className={`rounded px-3.5 py-1.5 text-sm font-medium transition-colors ${
+              view === "history" ? "bg-primary text-white" : "text-muted-foreground hover:bg-background"
+            }`}
           >
-            <option value="">All categories</option>
-            {categories.map((c) => (
-              <option key={c._id} value={c._id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-          <input
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
-            placeholder="Search products…"
-            className="w-full max-w-xs rounded border border-border bg-surface px-4 py-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong"
-          />
+            Intake history
+          </button>
         </div>
+        {view !== "history" && (
+          <div className="flex flex-1 flex-wrap items-center justify-end gap-2">
+            <select
+              value={category}
+              onChange={(e) => {
+                setCategory(e.target.value);
+                setPage(1);
+              }}
+              className="rounded border border-border bg-surface px-3 py-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong"
+            >
+              <option value="">All categories</option>
+              {categories.map((c) => (
+                <option key={c._id} value={c._id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+            <input
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+              placeholder="Search products…"
+              className="w-full max-w-xs rounded border border-border bg-surface px-4 py-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong"
+            />
+          </div>
+        )}
       </div>
 
-      {!products ? (
+      {view === "history" ? (
+        <IntakeHistoryPanel />
+      ) : !products ? (
         <p className="text-sm text-muted-foreground">Loading…</p>
       ) : products.length === 0 ? (
         <div className="flex flex-col items-center gap-3 rounded-md border border-dashed border-border bg-surface px-6 py-16 text-center">
