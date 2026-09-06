@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, useCallback, useMemo } from "react";
 import { CartItem } from "@/types/cart";
+import { trackAddToCart } from "@/lib/fbPixel";
 
 const STORAGE_KEY = "aabriha-cart-v1";
 
@@ -54,7 +55,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
   }, [items, hydrated]);
 
+  // The single place both cart-adding UIs (ProductPurchasePanel's Add to
+  // Cart/Buy Now, QuickAddModal) end up — tracking fires here, once, rather
+  // than being duplicated at each call site. Fired outside the setItems
+  // updater deliberately: an updater can run more than once (StrictMode,
+  // concurrent rendering), which would make a tracking call placed inside
+  // it unsafe to treat as "exactly once per real add."
   const addItem = useCallback((item: Omit<CartItem, "quantity">, quantity = 1) => {
+    trackAddToCart({ contentId: item.productId, value: item.unitPrice * quantity });
     setItems((prev) => {
       const existing = prev.find((line) => sameLine(line, item.productId, item.variantId));
       if (existing) {

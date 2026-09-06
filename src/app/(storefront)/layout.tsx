@@ -5,6 +5,7 @@ import { Footer } from "@/components/Footer";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { WelcomePopup } from "@/components/WelcomePopup";
 import { LoginModal } from "@/components/LoginModal";
+import { FacebookPixel } from "@/components/FacebookPixel";
 
 export default function StorefrontLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -13,6 +14,7 @@ export default function StorefrontLayout({ children }: { children: React.ReactNo
     // max-width constraint and cause horizontal overflow on narrow screens.
     // pb-14: clears the fixed mobile bottom nav, which only this section has.
     <div className="flex min-w-0 flex-1 flex-col pb-14 sm:pb-0">
+      <FacebookPixel />
       <AnnouncementBar />
       <Header />
       <div className="min-w-0 flex-1">{children}</div>

@@ -40,6 +40,11 @@ export interface Announcement {
   marquee: boolean;
 }
 
+export interface MarketingSettings {
+  facebookPixelEnabled: boolean;
+  facebookPixelId: string;
+}
+
 // Image-only by design — no title/description/CTA-label. The image is the
 // whole popup; ctaUrl (if set) just makes the image itself a link.
 export interface WelcomePopup {

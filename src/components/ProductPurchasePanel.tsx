@@ -1,17 +1,25 @@
 "use client";
 
+import { useEffect } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { Product } from "@/types/catalog";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useVariantSelector } from "@/hooks/useVariantSelector";
+import { trackViewContent } from "@/lib/fbPixel";
 
 export function ProductPurchasePanel({ product }: { product: Product }) {
   const router = useRouter();
   const { addItem, openDrawer } = useCart();
   const { user, openLoginModal } = useAuth();
   const v = useVariantSelector(product);
+
+  // Fires once per product page view — deliberately keyed only to the
+  // product id, not the variant selector's state, so switching color/size
+  // options on the same page doesn't refire it.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => trackViewContent({ contentId: product._id, value: v.unitPrice }), [product._id]);
 
   function lineItem() {
     return {

@@ -1,6 +1,6 @@
 import { apiFetch } from "@/lib/api";
 import { Category, Product } from "@/types/catalog";
-import { Announcement, HeroBanner, Promotion, WelcomePopup } from "@/types/storefront";
+import { Announcement, HeroBanner, MarketingSettings, Promotion, WelcomePopup } from "@/types/storefront";
 
 export async function getAllCategories(): Promise<Category[]> {
   return apiFetch<Category[]>("/api/categories");
@@ -61,4 +61,8 @@ export async function getAnnouncement(): Promise<Announcement> {
 
 export async function getWelcomePopup(): Promise<WelcomePopup> {
   return apiFetch<WelcomePopup>("/api/welcome-popup");
+}
+
+export async function getMarketingSettings(): Promise<MarketingSettings> {
+  return apiFetch<MarketingSettings>("/api/marketing-settings");
 }
