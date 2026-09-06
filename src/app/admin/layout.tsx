@@ -90,6 +90,7 @@ const SETTINGS_NAV: NavItem[] = [
 ];
 
 const SIDEBAR_COLLAPSED_KEY = "aabriha-admin-sidebar-collapsed";
+const NAV_GROUPS_OPEN_KEY = "aabriha-admin-nav-groups-open";
 const EXPANDED_WIDTH = 212;
 const COLLAPSED_WIDTH = 60;
 
@@ -156,12 +157,16 @@ function SidebarContent({
   role,
   username,
   onNavigate,
+  openGroups,
+  onToggleGroup,
 }: {
   collapsed: boolean;
   pathname: string;
   role: Role;
   username: string;
   onNavigate?: () => void;
+  openGroups: Record<string, boolean>;
+  onToggleGroup: (label: string, currentlyOpen: boolean) => void;
 }) {
   const groups = [
     { items: PRIMARY_NAV },
@@ -175,27 +180,46 @@ function SidebarContent({
   return (
     <>
       <nav className="flex flex-1 flex-col gap-3 overflow-y-auto p-2.5">
-        {groups.map((group, i) => (
-          <div key={i} className={i > 0 ? "border-t border-border pt-2.5" : undefined}>
-            {group.label && !collapsed && (
-              <p className="mb-1 px-2.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground/70">
-                {group.label}
-              </p>
-            )}
-            <div className="flex flex-col gap-0.5">
-              {group.items.map((item) => (
-                <NavLink
-                  key={item.href}
-                  item={item}
-                  active={isNavItemActive(item, pathname)}
-                  collapsed={collapsed}
-                  viewOnly={Boolean(item.viewOnlyFor?.includes(role))}
-                  onNavigate={onNavigate}
-                />
-              ))}
+        {groups.map((group, i) => {
+          // A labeled group (currently just "Storefront") collapses to just
+          // its header by default — expand on click, or automatically while
+          // the admin is actually on one of its pages so they're never
+          // looking at a collapsed group hiding the page they're on. Groups
+          // without a label (Dashboard/Orders/... at the top) always show.
+          const hasActiveItem = group.items.some((item) => isNavItemActive(item, pathname));
+          const isOpen = group.label ? (openGroups[group.label] ?? hasActiveItem) : true;
+          const showItems = collapsed || isOpen;
+
+          return (
+            <div key={i} className={i > 0 ? "border-t border-border pt-2.5" : undefined}>
+              {group.label && !collapsed && (
+                <button
+                  type="button"
+                  onClick={() => onToggleGroup(group.label!, isOpen)}
+                  aria-expanded={isOpen}
+                  className="mb-1 flex w-full items-center justify-between rounded px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground/70 hover:bg-white/8 hover:text-muted-foreground"
+                >
+                  {group.label}
+                  <ChevronIcon className={`h-3 w-3 shrink-0 transition-transform ${isOpen ? "rotate-90" : ""}`} />
+                </button>
+              )}
+              {showItems && (
+                <div className="flex flex-col gap-0.5">
+                  {group.items.map((item) => (
+                    <NavLink
+                      key={item.href}
+                      item={item}
+                      active={isNavItemActive(item, pathname)}
+                      collapsed={collapsed}
+                      viewOnly={Boolean(item.viewOnlyFor?.includes(role))}
+                      onNavigate={onNavigate}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </nav>
 
       <div className="border-t border-border p-2.5">
@@ -246,6 +270,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const [collapsed, setCollapsed] = useState(false);
   const [hydrated, setHydrated] = useState(false);
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
   const [mobileOpen, setMobileOpen] = useState(false);
   const mobileDrawerRef = useDismissableOverlay<HTMLDivElement>({
     open: mobileOpen,
@@ -260,8 +285,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       // the server can't see, right after mount.
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setCollapsed(localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === "true");
+      const rawGroups = localStorage.getItem(NAV_GROUPS_OPEN_KEY);
+      if (rawGroups) setOpenGroups(JSON.parse(rawGroups));
     } catch {
-      // localStorage unavailable — keep expanded default.
+      // localStorage unavailable/corrupt — keep defaults.
     }
     setHydrated(true);
   }, []);
@@ -270,10 +297,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     if (!hydrated) return;
     try {
       localStorage.setItem(SIDEBAR_COLLAPSED_KEY, String(collapsed));
+      localStorage.setItem(NAV_GROUPS_OPEN_KEY, JSON.stringify(openGroups));
     } catch {
-      // Non-fatal — collapse state just won't persist this session.
+      // Non-fatal — these preferences just won't persist this session.
     }
-  }, [collapsed, hydrated]);
+  }, [collapsed, openGroups, hydrated]);
+
+  // SidebarContent already knows a group's effective open/closed state
+  // (openGroups[label], falling back to "is one of its items active" when
+  // there's no explicit preference yet) — it passes that resolved value
+  // back here so toggling always flips what's actually on screen, rather
+  // than this component needing its own copy of that fallback logic.
+  function toggleGroup(label: string, currentlyOpen: boolean) {
+    setOpenGroups((prev) => ({ ...prev, [label]: !currentlyOpen }));
+  }
 
   useEffect(() => {
     if (loading) return;
@@ -320,7 +357,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <ChevronIcon className={`h-4 w-4 transition-transform ${collapsed ? "" : "rotate-180"}`} />
           </button>
         </div>
-        <SidebarContent collapsed={collapsed} pathname={pathname} role={role} username={profile?.username ?? "Admin"} />
+        <SidebarContent
+          collapsed={collapsed}
+          pathname={pathname}
+          role={role}
+          username={profile?.username ?? "Admin"}
+          openGroups={openGroups}
+          onToggleGroup={toggleGroup}
+        />
       </motion.aside>
 
       {/* Mobile top bar + drawer */}
@@ -376,6 +420,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             role={role}
             username={profile?.username ?? "Admin"}
             onNavigate={() => setMobileOpen(false)}
+            openGroups={openGroups}
+            onToggleGroup={toggleGroup}
           />
         </div>
       </div>
