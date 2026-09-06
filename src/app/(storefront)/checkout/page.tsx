@@ -13,6 +13,7 @@ import { getCheckoutSummary, createStripeIntent, createOrder } from "@/lib/order
 import { stripePromise } from "@/lib/stripe";
 import { StripeCardSection } from "@/components/StripeCardSection";
 import { CheckoutItemInput, CheckoutSummary, Order, PaymentMethod } from "@/types/order";
+import { trackInitiateCheckout, trackPurchase } from "@/lib/fbPixel";
 
 const PAYMENT_METHODS: { value: PaymentMethod; label: string; description: string; logo?: string }[] = [
   { value: "cod", label: "Cash on Delivery", description: "Pay when your order arrives" },
@@ -24,15 +25,26 @@ const PAYMENT_METHODS: { value: PaymentMethod; label: string; description: strin
 const inputClass =
   "w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong";
 
+function Required() {
+  return (
+    <span className="text-danger" aria-hidden>
+      {" "}
+      *
+    </span>
+  );
+}
+
 export default function CheckoutPage() {
   const router = useRouter();
   const { user, profile, loading, getIdToken, openLoginModal } = useAuth();
   const { items, subtotal, hydrated, clearCart } = useCart();
 
+  const [recipientName, setRecipientName] = useState("");
   const [division, setDivision] = useState("");
   const [district, setDistrict] = useState("");
   const [area, setArea] = useState("");
   const [detailedAddress, setDetailedAddress] = useState("");
+  const [deliveryNote, setDeliveryNote] = useState("");
   const [phone, setPhone] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cod");
   const [transactionId, setTransactionId] = useState("");
@@ -54,8 +66,23 @@ export default function CheckoutPage() {
     if (hydrated && items.length === 0 && !orderPlaced) router.replace("/cart");
   }, [hydrated, items.length, orderPlaced, router]);
 
+  // Fires once per checkout page load (entry or reload), per how this was
+  // scoped — not gated to a single first-ever visit.
+  useEffect(() => {
+    if (!hydrated || items.length === 0) return;
+    trackInitiateCheckout({
+      contentIds: items.map((i) => i.productId),
+      value: subtotal,
+      numItems: items.reduce((sum, i) => sum + i.quantity, 0),
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hydrated]);
+
   if (profile && profile._id !== prefilledFromId) {
     setPrefilledFromId(profile._id);
+    // recipientName is deliberately never prefilled — the person receiving
+    // a delivery isn't always the account holder, so it's always typed
+    // fresh, unlike phone/address below.
     setDivision(profile.defaultAddress?.division ?? "");
     setDistrict(profile.defaultAddress?.district ?? "");
     setArea(profile.defaultAddress?.area ?? "");
@@ -123,15 +150,25 @@ export default function CheckoutPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wantsStripeIntent, JSON.stringify(cartItemInputs), JSON.stringify(address)]);
 
+  // The single point every payment method funnels through once an order is
+  // actually, successfully created — COD/bKash/Nagad call this directly
+  // after createOrder() resolves; Stripe reaches it via onSuccess only
+  // after both the client confirms the card payment AND the backend
+  // independently re-verifies that same PaymentIntent with Stripe before
+  // creating the order. Firing Purchase here (rather than on the order
+  // confirmation page's mount) is what keeps it to exactly one fire per
+  // real order — the confirmation page can be reloaded/revisited any
+  // number of times without re-triggering it.
   function handleOrderPlaced(order: Order) {
     setOrderPlaced(true);
+    trackPurchase({ contentIds: order.items.map((i) => i.product), value: order.total });
     clearCart();
     toast.success("Order placed!");
     router.push(`/orders/${order._id}`);
   }
 
   async function handlePlaceOrder() {
-    if (!displaySummary || !phone) return;
+    if (!displaySummary || !phone || !recipientName.trim()) return;
     if (paymentMethod !== "cod" && !transactionId && paymentMethod !== "stripe") {
       toast.error("Enter the transaction ID from your payment.");
       return;
@@ -146,6 +183,8 @@ export default function CheckoutPage() {
         items: cartItemInputs,
         address,
         phone,
+        recipientName: recipientName.trim(),
+        deliveryNote: deliveryNote.trim() || undefined,
         paymentMethod,
         transactionId: paymentMethod === "bkash" || paymentMethod === "nagad" ? transactionId : undefined,
       });
@@ -176,8 +215,24 @@ export default function CheckoutPage() {
             <h2 className="text-sm font-semibold sm:text-base">Delivery address</h2>
             <div className="mt-4 space-y-4">
               <div>
+                <label htmlFor="recipientName" className="mb-1 block text-sm font-medium">
+                  Full name
+                  <Required />
+                </label>
+                <input
+                  id="recipientName"
+                  required
+                  placeholder="Who should we deliver this to?"
+                  value={recipientName}
+                  onChange={(e) => setRecipientName(e.target.value)}
+                  className={inputClass}
+                />
+              </div>
+
+              <div>
                 <label htmlFor="phone" className="mb-1 block text-sm font-medium">
                   Phone number
+                  <Required />
                 </label>
                 <input
                   id="phone"
@@ -194,6 +249,7 @@ export default function CheckoutPage() {
                 <div>
                   <label htmlFor="division" className="mb-1 block text-sm font-medium">
                     Division
+                    <Required />
                   </label>
                   <div className="relative">
                     <select
@@ -218,6 +274,7 @@ export default function CheckoutPage() {
                 <div>
                   <label htmlFor="district" className="mb-1 block text-sm font-medium">
                     District
+                    <Required />
                   </label>
                   <div className="relative">
                     <select
@@ -241,20 +298,35 @@ export default function CheckoutPage() {
 
               <div>
                 <label htmlFor="area" className="mb-1 block text-sm font-medium">
-                  Area
+                  Area / Thana
+                  <Required />
                 </label>
                 <input id="area" value={area} onChange={(e) => setArea(e.target.value)} className={inputClass} />
               </div>
 
               <div>
                 <label htmlFor="detailedAddress" className="mb-1 block text-sm font-medium">
-                  Detailed address
+                  House / Road / Apartment / Detailed address
+                  <Required />
                 </label>
                 <textarea
                   id="detailedAddress"
                   rows={2}
                   value={detailedAddress}
                   onChange={(e) => setDetailedAddress(e.target.value)}
+                  className={inputClass}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="deliveryNote" className="mb-1 block text-sm font-medium">
+                  Delivery note <span className="font-normal text-muted-foreground">(optional)</span>
+                </label>
+                <input
+                  id="deliveryNote"
+                  placeholder="e.g. leave with security guard, call before arriving"
+                  value={deliveryNote}
+                  onChange={(e) => setDeliveryNote(e.target.value)}
                   className={inputClass}
                 />
               </div>
@@ -357,6 +429,8 @@ export default function CheckoutPage() {
                       items={cartItemInputs}
                       address={address}
                       phone={phone}
+                      recipientName={recipientName}
+                      deliveryNote={deliveryNote}
                       summary={displaySummary}
                       onSuccess={handleOrderPlaced}
                     />
@@ -427,7 +501,7 @@ export default function CheckoutPage() {
               <button
                 type="button"
                 onClick={handlePlaceOrder}
-                disabled={!displaySummary || !phone || placing}
+                disabled={!displaySummary || !phone || !recipientName.trim() || placing}
                 className="mt-5 w-full rounded-full bg-primary px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-strong disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {placing ? "Placing order…" : `Place Order — ৳${displaySummary?.total.toLocaleString() ?? "—"}`}

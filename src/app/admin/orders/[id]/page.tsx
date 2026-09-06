@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import toast from "react-hot-toast";
 import { useAuth } from "@/context/AuthContext";
-import { getOrderAdmin, updateOrderStatus, updateOrderPayment } from "@/lib/admin/orders";
+import { getOrderAdmin, updateOrderStatus, updateOrderPayment, updateOrderVat } from "@/lib/admin/orders";
 import { AdminOrder, OrderStatus, PaymentStatus } from "@/types/order";
 import {
   STATUS_CLASS,
@@ -41,7 +41,8 @@ const PRIMARY_ACTION_LABEL: Partial<Record<OrderStatus, string>> = {
 
 export default function AdminOrderDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const { getIdToken } = useAuth();
+  const { getIdToken, profile } = useAuth();
+  const isSuperAdmin = profile?.role === "super_admin";
   const [order, setOrder] = useState<AdminOrder | null | undefined>(undefined);
 
   // Non-null exactly while one status mutation is in flight, naming its
@@ -61,6 +62,9 @@ export default function AdminOrderDetailPage() {
   const [trackingNumberDraft, setTrackingNumberDraft] = useState("");
   const [savingCourier, setSavingCourier] = useState(false);
 
+  const [vatAmountDraft, setVatAmountDraft] = useState("");
+  const [savingVat, setSavingVat] = useState(false);
+
   const load = useCallback(() => {
     getIdToken()
       .then((idToken) => {
@@ -72,6 +76,7 @@ export default function AdminOrderDetailPage() {
           setRefundReference(result.refundReference ?? "");
           setCourierNameDraft(result.courierName ?? "");
           setTrackingNumberDraft(result.trackingNumber ?? "");
+          setVatAmountDraft(result.vatAmount !== undefined && result.vatAmount !== null ? String(result.vatAmount) : "");
         });
       })
       .catch(() => setOrder(null));
@@ -154,6 +159,29 @@ export default function AdminOrderDetailPage() {
     }
   }
 
+  // Bookkeeping only — never recomputed from a rate, never touches
+  // `order.total`. An empty field clears a previously-entered amount
+  // (sends null) rather than silently coercing to 0.
+  async function handleSaveVat() {
+    const idToken = await getIdToken();
+    if (!idToken) return;
+    const trimmed = vatAmountDraft.trim();
+    if (trimmed && (!Number.isFinite(Number(trimmed)) || Number(trimmed) < 0)) {
+      toast.error("VAT amount must be zero or more.");
+      return;
+    }
+    setSavingVat(true);
+    try {
+      const updated = await updateOrderVat(idToken, id, trimmed ? Number(trimmed) : null);
+      setOrder(updated);
+      toast.success("VAT amount saved.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't save the VAT amount.");
+    } finally {
+      setSavingVat(false);
+    }
+  }
+
   async function handleSavePayment() {
     const idToken = await getIdToken();
     if (!idToken) return;
@@ -216,7 +244,13 @@ export default function AdminOrderDetailPage() {
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="rounded-md border border-border bg-surface p-4">
           <SectionLabel>Customer</SectionLabel>
-          <p className="text-sm font-medium">{order.customer?.username ?? "Deleted user"}</p>
+          {/* recipientName is who the delivery is actually for — the
+              primary line delivery staff need. Falls back to the account
+              name for orders placed before this field existed. */}
+          <p className="text-sm font-medium">{order.recipientName ?? order.customer?.name ?? "Deleted user"}</p>
+          {order.recipientName && (
+            <p className="text-xs text-muted-foreground">Account: {order.customer?.name ?? "Deleted user"}</p>
+          )}
           <p className="text-sm text-muted-foreground">{order.customer?.email}</p>
           <p className="text-sm text-muted-foreground">{order.phone}</p>
         </div>
@@ -228,6 +262,11 @@ export default function AdminOrderDetailPage() {
             {order.deliveryAddress.area}, {order.deliveryAddress.district}, {order.deliveryAddress.division}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">{DELIVERY_ZONE_LABEL[order.deliveryZone]}</p>
+          {order.deliveryNote && (
+            <p className="mt-2 rounded border border-dashed border-border bg-background px-2 py-1.5 text-xs text-muted-foreground">
+              Note: {order.deliveryNote}
+            </p>
+          )}
         </div>
       </div>
 
@@ -273,6 +312,47 @@ export default function AdminOrderDetailPage() {
             <span>৳{order.total.toLocaleString()}</span>
           </div>
         </div>
+
+        {/* Separate from the arithmetic above on purpose — this is a
+            bookkeeping record for the seller's own tax filing, not a charge
+            to the customer, so it deliberately never touches Total. */}
+        {isSuperAdmin ? (
+          <div className="mt-3 border-t border-dashed border-border pt-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <p className="text-sm font-medium">VAT (bookkeeping only)</p>
+                <p className="text-xs text-muted-foreground">For your own tax records — doesn&apos;t affect the total above.</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  min={0}
+                  value={vatAmountDraft}
+                  onChange={(e) => setVatAmountDraft(e.target.value)}
+                  placeholder="0"
+                  disabled={savingVat}
+                  className={`${inputClass} w-28 disabled:opacity-50`}
+                />
+                <button
+                  type="button"
+                  onClick={handleSaveVat}
+                  disabled={savingVat || vatAmountDraft.trim() === (order.vatAmount !== undefined && order.vatAmount !== null ? String(order.vatAmount) : "")}
+                  className="rounded border border-border px-3 py-2 text-sm font-medium hover:bg-background disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {savingVat ? "Saving…" : "Save"}
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          order.vatAmount !== undefined &&
+          order.vatAmount !== null && (
+            <div className="mt-3 flex justify-between border-t border-dashed border-border pt-3 text-sm">
+              <span className="text-muted-foreground">VAT (records only)</span>
+              <span>৳{order.vatAmount.toLocaleString()}</span>
+            </div>
+          )
+        )}
       </div>
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2">

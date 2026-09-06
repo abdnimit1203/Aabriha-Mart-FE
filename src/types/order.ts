@@ -52,8 +52,16 @@ export interface Order extends CheckoutSummary {
   _id: string;
   customer: string;
   phone: string;
+  /** Collected fresh at checkout, same as phone — absent on orders placed
+   * before this field existed. */
+  recipientName?: string;
+  /** Freeform, optional — e.g. "leave with security guard". */
+  deliveryNote?: string;
   deliveryAddress: Address;
   discount: number;
+  /** Bookkeeping only — manually entered by Super Admin, never computed
+   * from a rate, never affects `total` (what the customer was charged). */
+  vatAmount?: number;
   status: OrderStatus;
   statusHistory: OrderStatusEvent[];
   courierName?: string;
@@ -70,7 +78,7 @@ export interface Order extends CheckoutSummary {
 
 export interface AdminOrderCustomer {
   _id: string;
-  username: string;
+  name: string;
   email: string;
   phone: string;
 }

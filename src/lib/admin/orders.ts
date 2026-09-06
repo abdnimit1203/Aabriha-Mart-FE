@@ -63,3 +63,13 @@ export async function updateOrderPayment(
     idToken
   );
 }
+
+// Super Admin only, enforced server-side — bookkeeping data, never a rate
+// calculation. Pass null to clear a previously-entered amount.
+export async function updateOrderVat(idToken: string, id: string, vatAmount: number | null) {
+  return apiFetch<AdminOrder>(
+    `/api/orders/admin/${id}/vat`,
+    { method: "PATCH", body: JSON.stringify({ vatAmount }) },
+    idToken
+  );
+}

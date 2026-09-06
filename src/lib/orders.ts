@@ -17,6 +17,8 @@ export async function createStripeIntent(idToken: string, req: CheckoutRequest) 
 
 interface CreateOrderRequest extends CheckoutRequest {
   phone: string;
+  recipientName: string;
+  deliveryNote?: string;
   paymentMethod: PaymentMethod;
   transactionId?: string;
   paymentIntentId?: string;
