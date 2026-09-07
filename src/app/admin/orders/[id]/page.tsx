@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import toast from "react-hot-toast";
+import { FaPrint } from "react-icons/fa6";
 import { useAuth } from "@/context/AuthContext";
 import { getOrderAdmin, updateOrderStatus, updateOrderPayment, updateOrderVat } from "@/lib/admin/orders";
 import { AdminOrder, OrderStatus, PaymentStatus } from "@/types/order";
@@ -17,6 +18,7 @@ import {
   formatStatusLabel,
 } from "@/lib/orderStatusStyles";
 import { OrderTimeline } from "@/components/OrderTimeline";
+import { PackingSlip } from "@/components/PackingSlip";
 import { confirmToast } from "@/lib/confirmToast";
 
 const inputClass =
@@ -217,7 +219,8 @@ export default function AdminOrderDetailPage() {
   const busy = savingStatusTo !== null;
 
   return (
-    <div className="max-w-4xl">
+    <>
+    <div className="max-w-4xl print:hidden">
       <Link href="/admin/orders" className="mb-3 inline-block text-sm text-muted-foreground hover:text-foreground">
         ← Orders
       </Link>
@@ -236,9 +239,19 @@ export default function AdminOrderDetailPage() {
             {formatStatusLabel(order.source)}
           </p>
         </div>
-        <span className={`rounded px-3 py-1 text-xs font-medium capitalize ${STATUS_CLASS[order.status]}`}>
-          {formatStatusLabel(order.status)}
-        </span>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => window.print()}
+            className="flex items-center gap-1.5 rounded border border-border px-3 py-1.5 text-xs font-medium hover:bg-background"
+          >
+            <FaPrint className="h-3.5 w-3.5" />
+            Print packing slip
+          </button>
+          <span className={`rounded px-3 py-1 text-xs font-medium capitalize ${STATUS_CLASS[order.status]}`}>
+            {formatStatusLabel(order.status)}
+          </span>
+        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -562,5 +575,8 @@ export default function AdminOrderDetailPage() {
         </div>
       </div>
     </div>
+
+    <PackingSlip order={order} />
+    </>
   );
 }

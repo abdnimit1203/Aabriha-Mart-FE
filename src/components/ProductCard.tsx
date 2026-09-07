@@ -49,9 +49,9 @@ export function ProductCard({ product }: { product: Product }) {
   return (
     <>
       <motion.div
-        whileHover={{ y: -4 }}
-        transition={{ duration: 0.15 }}
-        className="relative overflow-hidden rounded-2xl border border-border bg-surface shadow-sm transition-shadow hover:shadow-md"
+        whileHover={{ y: -6, scale: 1.015 }}
+        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+        className="relative overflow-hidden rounded-2xl border border-border bg-surface shadow-sm transition-shadow duration-300 hover:shadow-md"
       >
         <Link href={`/products/${product.slug}`} className="absolute inset-0 z-0" aria-label={product.name} />
 

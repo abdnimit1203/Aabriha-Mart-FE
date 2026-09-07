@@ -372,7 +372,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <motion.aside
         animate={{ width: collapsed ? COLLAPSED_WIDTH : EXPANDED_WIDTH }}
         transition={{ duration: 0.2, ease: "easeInOut" }}
-        className="admin-sidebar sticky top-0 hidden h-dvh shrink-0 flex-col border-r border-border bg-surface sm:flex"
+        className="admin-sidebar sticky top-0 hidden h-dvh shrink-0 flex-col border-r border-border bg-surface sm:flex print:hidden"
       >
         <div className={`flex items-center border-b border-border py-4 ${collapsed ? "justify-center px-2.5" : "justify-between px-4"}`}>
           {!collapsed && (
@@ -401,7 +401,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </motion.aside>
 
       {/* Mobile top bar + drawer */}
-      <div className="sticky top-0 z-20 flex items-center justify-between border-b border-border bg-surface px-4 py-3 sm:hidden">
+      <div className="sticky top-0 z-20 flex items-center justify-between border-b border-border bg-surface px-4 py-3 sm:hidden print:hidden">
         <button
           type="button"
           onClick={() => setMobileOpen(true)}
@@ -428,7 +428,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </div>
 
       <div
-        className={`fixed inset-0 z-40 transition-opacity duration-300 sm:hidden ${mobileOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
+        className={`fixed inset-0 z-40 transition-opacity duration-300 sm:hidden print:hidden ${mobileOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
           }`}
         aria-hidden={!mobileOpen}
       >
@@ -470,7 +470,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Desktop top bar — the sidebar/mobile bar have no room for a
            persistent bell, so this exists purely to host it on sm+. */}
-        <div className="sticky top-0 z-20 hidden items-center justify-between border-b border-border bg-surface px-8 py-2.5 sm:flex">
+        <div className="sticky top-0 z-20 hidden items-center justify-between border-b border-border bg-surface px-8 py-2.5 sm:flex print:hidden">
           <button
             type="button"
             onClick={() => setSearchOpen(true)}
@@ -482,7 +482,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </button>
           <NotificationBell />
         </div>
-        <main className="min-w-0 flex-1 px-4 py-6 sm:px-8 sm:py-8">{children}</main>
+        <main className="min-w-0 flex-1 px-4 py-6 sm:px-8 sm:py-8 print:p-0">{children}</main>
       </div>
 
       <AdminSearch items={searchItems} open={searchOpen} onClose={() => setSearchOpen(false)} />
