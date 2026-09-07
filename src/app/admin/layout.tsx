@@ -78,6 +78,7 @@ const STOREFRONT_NAV: NavItem[] = [
   { href: "/admin/storefront", label: "Homepage", icon: HomeIcon, roles: ["super_admin"], exact: true },
   { href: "/admin/storefront/hero-banners", label: "Hero Banners", icon: ImageIcon, roles: ["super_admin"] },
   { href: "/admin/storefront/promotions", label: "Promotions", icon: ImageIcon, roles: ["super_admin"] },
+  { href: "/admin/storefront/testimonials", label: "Testimonials", icon: ImageIcon, roles: ["super_admin"] },
   { href: "/admin/storefront/announcement", label: "Announcement Bar", icon: BellIcon, roles: ["super_admin"] },
   { href: "/admin/storefront/welcome-popup", label: "Welcome Popup", icon: ImageIcon, roles: ["super_admin"] },
 ];

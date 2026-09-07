@@ -70,6 +70,8 @@ export interface Order extends CheckoutSummary {
   paymentMethod: PaymentMethod;
   paymentStatus: PaymentStatus;
   paymentTransactionId?: string;
+  /** The bKash/Nagad number the customer paid from — distinct from `phone`. */
+  paymentSenderNumber?: string;
   stripePaymentIntentId?: string;
   refundAmount?: number;
   refundReference?: string;

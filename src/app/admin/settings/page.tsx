@@ -2,14 +2,17 @@
 
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { FaTelegram } from "react-icons/fa6";
+import { FaTelegram, FaMoneyBillWave } from "react-icons/fa6";
 import { SiMeta } from "react-icons/si";
 import { useAuth } from "@/context/AuthContext";
 import { getNotificationSettings, updateNotificationSettings, sendTestTelegramNotification } from "@/lib/admin/notificationSettings";
 import { updateMarketingSettings } from "@/lib/admin/marketingSettings";
-import { getMarketingSettings } from "@/lib/catalog";
+import { updatePaymentSettings } from "@/lib/admin/paymentSettings";
+import { getMarketingSettings, getPaymentSettings } from "@/lib/catalog";
 import { NotificationSettings } from "@/types/notification";
 import { AdminPageHeader } from "@/components/AdminPageHeader";
+import { ImageUploadField } from "@/components/ImageUploadField";
+import { uploadCatalogImage } from "@/lib/upload";
 
 const inputClass =
   "w-full rounded border border-border bg-surface px-3 py-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-primary-strong";
@@ -38,6 +41,15 @@ export default function AdminSettingsPage() {
   const [pixelLoaded, setPixelLoaded] = useState(false);
   const [savingPixel, setSavingPixel] = useState(false);
 
+  const [bkashEnabled, setBkashEnabled] = useState(true);
+  const [bkashQrImage, setBkashQrImage] = useState("");
+  const [nagadEnabled, setNagadEnabled] = useState(true);
+  const [nagadQrImage, setNagadQrImage] = useState("");
+  const [paymentLoaded, setPaymentLoaded] = useState(false);
+  const [savingPayment, setSavingPayment] = useState(false);
+  const [uploadingBkashQr, setUploadingBkashQr] = useState(false);
+  const [uploadingNagadQr, setUploadingNagadQr] = useState(false);
+
   useEffect(() => {
     getIdToken()
       .then((idToken) => (idToken ? getNotificationSettings(idToken) : null))
@@ -57,8 +69,53 @@ export default function AdminSettingsPage() {
       })
       .catch(() => toast.error("Couldn't load marketing settings."))
       .finally(() => setPixelLoaded(true));
+    getPaymentSettings()
+      .then((result) => {
+        setBkashEnabled(result.bkashEnabled);
+        setBkashQrImage(result.bkashQrImage ?? "");
+        setNagadEnabled(result.nagadEnabled);
+        setNagadQrImage(result.nagadQrImage ?? "");
+      })
+      .catch(() => toast.error("Couldn't load payment settings."))
+      .finally(() => setPaymentLoaded(true));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  async function uploadBkashQr(file: File): Promise<string> {
+    const idToken = await getIdToken();
+    if (!idToken) throw new Error("Not signed in.");
+    return uploadCatalogImage(file, idToken, "/payment-qr");
+  }
+
+  async function uploadNagadQr(file: File): Promise<string> {
+    const idToken = await getIdToken();
+    if (!idToken) throw new Error("Not signed in.");
+    return uploadCatalogImage(file, idToken, "/payment-qr");
+  }
+
+  async function handleSavePayment(e: React.FormEvent) {
+    e.preventDefault();
+    const idToken = await getIdToken();
+    if (!idToken) return;
+    setSavingPayment(true);
+    try {
+      const updated = await updatePaymentSettings(idToken, {
+        bkashEnabled,
+        bkashQrImage: bkashQrImage || null,
+        nagadEnabled,
+        nagadQrImage: nagadQrImage || null,
+      });
+      setBkashEnabled(updated.bkashEnabled);
+      setBkashQrImage(updated.bkashQrImage ?? "");
+      setNagadEnabled(updated.nagadEnabled);
+      setNagadQrImage(updated.nagadQrImage ?? "");
+      toast.success("Payment settings saved.");
+    } catch {
+      toast.error("Couldn't save payment settings.");
+    } finally {
+      setSavingPayment(false);
+    }
+  }
 
   async function handleSavePixel(e: React.FormEvent) {
     e.preventDefault();
@@ -257,6 +314,89 @@ export default function AdminSettingsPage() {
                 className="rounded bg-primary px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-strong disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {savingPixel ? "Saving…" : "Save changes"}
+              </button>
+            </form>
+          )}
+        </div>
+
+        <div className="relative max-w-xl rounded-md border border-border bg-surface p-5 sm:p-6 drop-shadow-sm hover:drop-shadow-lg transition-all hover:border-[#e2136e] duration-300 cursor-pointer">
+          <FaMoneyBillWave className="absolute right-5 top-5 h-6 w-6 text-[#e2136e] sm:right-6 sm:top-6" aria-hidden />
+          <h2 className="text-lg font-semibold text-[#e2136e]">Payment QR Codes</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Toggle bKash/Nagad on or off at checkout, and set the QR code shown for each. Merchant numbers stay
+            environment-configured; only the QR image and on/off state live here.
+          </p>
+
+          {!paymentLoaded ? (
+            <p className="mt-4 text-sm text-muted-foreground">Loading…</p>
+          ) : (
+            <form onSubmit={handleSavePayment} className="mt-5 space-y-5">
+              <div className="space-y-3 rounded border border-border bg-background p-3.5">
+                <label className="flex items-center gap-2 text-sm font-medium">
+                  <input
+                    type="checkbox"
+                    checked={bkashEnabled}
+                    onChange={(e) => setBkashEnabled(e.target.checked)}
+                    className="h-4 w-4 rounded border-border accent-[#e2136e]"
+                  />
+                  bKash enabled at checkout
+                </label>
+                <ImageUploadField
+                  label="bKash QR code"
+                  image={bkashQrImage}
+                  onChange={setBkashQrImage}
+                  onUploadFile={uploadBkashQr}
+                  uploading={uploadingBkashQr}
+                  setUploading={setUploadingBkashQr}
+                  previewSize="h-20 w-20"
+                />
+                {bkashQrImage && (
+                  <button
+                    type="button"
+                    onClick={() => setBkashQrImage("")}
+                    className="text-xs font-medium text-danger hover:underline"
+                  >
+                    Remove QR image
+                  </button>
+                )}
+              </div>
+
+              <div className="space-y-3 rounded border border-border bg-background p-3.5">
+                <label className="flex items-center gap-2 text-sm font-medium">
+                  <input
+                    type="checkbox"
+                    checked={nagadEnabled}
+                    onChange={(e) => setNagadEnabled(e.target.checked)}
+                    className="h-4 w-4 rounded border-border accent-[#f6921e]"
+                  />
+                  Nagad enabled at checkout
+                </label>
+                <ImageUploadField
+                  label="Nagad QR code"
+                  image={nagadQrImage}
+                  onChange={setNagadQrImage}
+                  onUploadFile={uploadNagadQr}
+                  uploading={uploadingNagadQr}
+                  setUploading={setUploadingNagadQr}
+                  previewSize="h-20 w-20"
+                />
+                {nagadQrImage && (
+                  <button
+                    type="button"
+                    onClick={() => setNagadQrImage("")}
+                    className="text-xs font-medium text-danger hover:underline"
+                  >
+                    Remove QR image
+                  </button>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                disabled={savingPayment}
+                className="rounded bg-primary px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-strong disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {savingPayment ? "Saving…" : "Save changes"}
               </button>
             </form>
           )}

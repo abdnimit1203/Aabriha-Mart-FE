@@ -21,6 +21,7 @@ interface CreateOrderRequest extends CheckoutRequest {
   deliveryNote?: string;
   paymentMethod: PaymentMethod;
   transactionId?: string;
+  senderNumber?: string;
   paymentIntentId?: string;
 }
 

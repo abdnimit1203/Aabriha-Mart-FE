@@ -5,6 +5,7 @@ import { ImageIcon, BellIcon } from "@/components/icons";
 const SECTIONS = [
   { href: "/admin/storefront/hero-banners", label: "Hero Banners", icon: ImageIcon, description: "Slides shown in the homepage hero carousel." },
   { href: "/admin/storefront/promotions", label: "Promotions", icon: ImageIcon, description: "The campaign banner shown on the homepage." },
+  { href: "/admin/storefront/testimonials", label: "Testimonials", icon: ImageIcon, description: 'The "What Our Customers Say" section.' },
   { href: "/admin/storefront/announcement", label: "Announcement Bar", icon: BellIcon, description: "The site-wide message strip above the navbar." },
   { href: "/admin/storefront/welcome-popup", label: "Welcome Popup", icon: ImageIcon, description: "The first-visit promotional popup." },
 ];

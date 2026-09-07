@@ -10,9 +10,12 @@ import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { BD_DIVISIONS, districtsForDivision } from "@/data/bd-locations";
 import { getCheckoutSummary, createStripeIntent, createOrder } from "@/lib/orders";
+import { getPaymentSettings } from "@/lib/catalog";
 import { stripePromise } from "@/lib/stripe";
 import { StripeCardSection } from "@/components/StripeCardSection";
+import { BkashNagadPayment } from "@/components/BkashNagadPayment";
 import { CheckoutItemInput, CheckoutSummary, Order, PaymentMethod } from "@/types/order";
+import { PaymentSettings } from "@/types/storefront";
 import { trackInitiateCheckout, trackPurchase } from "@/lib/fbPixel";
 
 const PAYMENT_METHODS: { value: PaymentMethod; label: string; description: string; logo?: string }[] = [
@@ -48,6 +51,8 @@ export default function CheckoutPage() {
   const [phone, setPhone] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cod");
   const [transactionId, setTransactionId] = useState("");
+  const [senderNumber, setSenderNumber] = useState("");
+  const [paymentSettings, setPaymentSettings] = useState<PaymentSettings | null>(null);
   const [summary, setSummary] = useState<CheckoutSummary | null>(null);
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [placing, setPlacing] = useState(false);
@@ -61,6 +66,28 @@ export default function CheckoutPage() {
   useEffect(() => {
     if (!loading && !user) openLoginModal();
   }, [loading, user, openLoginModal]);
+
+  useEffect(() => {
+    getPaymentSettings()
+      .then(setPaymentSettings)
+      .catch(() => setPaymentSettings(null));
+  }, []);
+
+  // While settings are still loading, keep both visible rather than
+  // flashing them away and back — they only actually disappear once we
+  // know for sure the admin turned them off.
+  const availablePaymentMethods = PAYMENT_METHODS.filter((m) => {
+    if (m.value === "bkash") return paymentSettings?.bkashEnabled !== false;
+    if (m.value === "nagad") return paymentSettings?.nagadEnabled !== false;
+    return true;
+  });
+
+  // Same "adjust state during render" pattern as the profile prefill above —
+  // once settings load, a selected gateway the admin just disabled falls
+  // back to COD instead of staying stuck on a hidden option.
+  if (paymentSettings && !availablePaymentMethods.some((m) => m.value === paymentMethod)) {
+    setPaymentMethod("cod");
+  }
 
   useEffect(() => {
     if (hydrated && items.length === 0 && !orderPlaced) router.replace("/cart");
@@ -169,9 +196,15 @@ export default function CheckoutPage() {
 
   async function handlePlaceOrder() {
     if (!displaySummary || !phone || !recipientName.trim()) return;
-    if (paymentMethod !== "cod" && !transactionId && paymentMethod !== "stripe") {
-      toast.error("Enter the transaction ID from your payment.");
-      return;
+    if (paymentMethod === "bkash" || paymentMethod === "nagad") {
+      if (!transactionId) {
+        toast.error("Enter the transaction ID from your payment.");
+        return;
+      }
+      if (!senderNumber.trim()) {
+        toast.error("Enter the number you sent the payment from.");
+        return;
+      }
     }
 
     const idToken = await getIdToken();
@@ -187,6 +220,7 @@ export default function CheckoutPage() {
         deliveryNote: deliveryNote.trim() || undefined,
         paymentMethod,
         transactionId: paymentMethod === "bkash" || paymentMethod === "nagad" ? transactionId : undefined,
+        senderNumber: paymentMethod === "bkash" || paymentMethod === "nagad" ? senderNumber.trim() : undefined,
       });
       handleOrderPlaced(order);
     } catch {
@@ -355,7 +389,7 @@ export default function CheckoutPage() {
           <section className="rounded-2xl border border-border bg-surface p-4 sm:p-6">
             <h2 className="text-sm font-semibold sm:text-base">Payment method</h2>
             <div className="mt-4 space-y-2">
-              {PAYMENT_METHODS.map((m) => {
+              {availablePaymentMethods.map((m) => {
                 const selected = paymentMethod === m.value;
                 return (
                   <button
@@ -396,29 +430,15 @@ export default function CheckoutPage() {
             </div>
 
             {(paymentMethod === "bkash" || paymentMethod === "nagad") && (
-              <div className="mt-4 space-y-3 rounded-lg border border-border bg-background p-3">
-                <p className="text-sm">
-                  Send ৳{displaySummary?.total.toLocaleString() ?? "—"} to{" "}
-                  <span className="font-medium">
-                    {(paymentMethod === "bkash"
-                      ? process.env.NEXT_PUBLIC_BKASH_NUMBER
-                      : process.env.NEXT_PUBLIC_NAGAD_NUMBER) || "not configured yet — contact the seller"}
-                  </span>{" "}
-                  via {paymentMethod === "bkash" ? "bKash" : "Nagad"} &ldquo;Send Money&rdquo;, then enter the transaction ID below.
-                </p>
-                <div>
-                  <label htmlFor="transactionId" className="mb-1 block text-sm font-medium">
-                    Transaction ID
-                  </label>
-                  <input
-                    id="transactionId"
-                    required
-                    value={transactionId}
-                    onChange={(e) => setTransactionId(e.target.value)}
-                    className={inputClass}
-                  />
-                </div>
-              </div>
+              <BkashNagadPayment
+                gateway={paymentMethod}
+                qrImage={paymentMethod === "bkash" ? paymentSettings?.bkashQrImage : paymentSettings?.nagadQrImage}
+                total={displaySummary?.total}
+                senderNumber={senderNumber}
+                onSenderNumberChange={setSenderNumber}
+                transactionId={transactionId}
+                onTransactionIdChange={setTransactionId}
+              />
             )}
 
             {paymentMethod === "stripe" && (

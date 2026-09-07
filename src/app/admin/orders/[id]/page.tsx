@@ -513,6 +513,7 @@ export default function AdminOrderDetailPage() {
           <p className="mb-2 text-xs text-muted-foreground">
             {PAYMENT_METHOD_LABEL[order.paymentMethod]}
             {order.paymentTransactionId && ` · Ref: ${order.paymentTransactionId}`}
+            {order.paymentSenderNumber && ` · From: ${order.paymentSenderNumber}`}
           </p>
           <div className="flex items-center gap-2">
             <select

@@ -68,7 +68,15 @@ export async function uploadAvatar(file: File, idToken: string): Promise<string>
 export async function uploadCatalogImage(
   file: File,
   idToken: string,
-  folder: "/products" | "/categories" | "/hero-banners" | "/promotions" | "/welcome-popup" | "/stock-intakes"
+  folder:
+    | "/products"
+    | "/categories"
+    | "/hero-banners"
+    | "/promotions"
+    | "/welcome-popup"
+    | "/stock-intakes"
+    | "/payment-qr"
+    | "/testimonials"
 ): Promise<string> {
   const compressed = await compressImage(file, 1, 1600);
   return uploadToImageKit(compressed, idToken, folder);

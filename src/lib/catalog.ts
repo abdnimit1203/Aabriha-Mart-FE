@@ -1,6 +1,14 @@
 import { apiFetch } from "@/lib/api";
 import { Category, Product } from "@/types/catalog";
-import { Announcement, HeroBanner, MarketingSettings, Promotion, WelcomePopup } from "@/types/storefront";
+import {
+  Announcement,
+  HeroBanner,
+  MarketingSettings,
+  PaymentSettings,
+  Promotion,
+  Testimonial,
+  WelcomePopup,
+} from "@/types/storefront";
 
 export async function getAllCategories(): Promise<Category[]> {
   return apiFetch<Category[]>("/api/categories");
@@ -65,4 +73,26 @@ export async function getWelcomePopup(): Promise<WelcomePopup> {
 
 export async function getMarketingSettings(): Promise<MarketingSettings> {
   return apiFetch<MarketingSettings>("/api/marketing-settings");
+}
+
+export async function getPaymentSettings(): Promise<PaymentSettings> {
+  return apiFetch<PaymentSettings>("/api/payment-settings");
+}
+
+export async function getTestimonials(): Promise<Testimonial[]> {
+  return apiFetch<Testimonial[]>("/api/testimonials");
+}
+
+/** Active testimonials only, admin-chosen order — same "list has everything,
+ * caller filters" split as getActivePromotions. */
+export async function getActiveTestimonials(): Promise<Testimonial[]> {
+  const testimonials = await getTestimonials();
+  return testimonials.filter((t) => t.isActive).sort((a, b) => a.sortOrder - b.sortOrder);
+}
+
+export async function subscribeNewsletter(email: string): Promise<void> {
+  await apiFetch<{ message: string }>("/api/newsletter/subscribe", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
 }

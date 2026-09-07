@@ -45,6 +45,23 @@ export interface MarketingSettings {
   facebookPixelId: string;
 }
 
+export interface PaymentSettings {
+  bkashEnabled: boolean;
+  bkashQrImage?: string;
+  nagadEnabled: boolean;
+  nagadQrImage?: string;
+}
+
+export interface Testimonial {
+  _id: string;
+  name: string;
+  quote: string;
+  rating: number;
+  photo?: string;
+  isActive: boolean;
+  sortOrder: number;
+}
+
 // Image-only by design — no title/description/CTA-label. The image is the
 // whole popup; ctaUrl (if set) just makes the image itself a link.
 export interface WelcomePopup {
