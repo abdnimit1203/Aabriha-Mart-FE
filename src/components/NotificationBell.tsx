@@ -46,7 +46,7 @@ function NotificationRow({
 
   return (
     <div
-      className={`group flex items-start gap-2.5 border-b border-l-4 border-border px-3 py-3  last:border-b-0 ${borderColor} ${notification.read ? "" : unreadTint
+      className={`group flex items-start gap-2.5 border-b border-l-4 mb-1 border-border px-3 py-3  last:border-b-0 ${borderColor} ${notification.read ? "" : unreadTint
         }`}
     >
       <button type="button" onClick={() => onOpen(notification)} className="min-w-0  flex-1 text-left">
