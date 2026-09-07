@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { onAuthStateChanged, type User as FirebaseUser } from "firebase/auth";
+import toast from "react-hot-toast";
 import { auth } from "@/lib/firebase";
 import { createFirebaseAccount, decorateFirebaseAccount, fetchMyProfile, syncProfile } from "@/lib/auth";
 import { ApiError } from "@/lib/api";
@@ -78,7 +79,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setFirebaseUser(user);
       if (user) {
-        await loadProfile(user).catch(() => setProfile(null));
+        // A failure here (network error, backend down, CORS, a 500 on
+        // syncProfile) used to vanish silently — signed in with Firebase,
+        // but no Mongo profile ever created, no error shown anywhere. Now
+        // it's at least visible, so a real failure doesn't look identical
+        // to "still loading" from the user's side.
+        await loadProfile(user).catch((err) => {
+          console.error("[auth] failed to load/create profile:", err);
+          toast.error("Couldn't set up your account. Please try signing in again.");
+          setProfile(null);
+        });
         setIsLoginModalOpen(false); // covers email and Google sign-in uniformly
       } else {
         setProfile(null);
