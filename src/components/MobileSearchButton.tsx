@@ -47,14 +47,14 @@ export function MobileSearchButton() {
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Search"
-        className="ml-auto rounded-full p-1.5 hover:bg-background sm:ml-0 sm:hidden"
+        className="ml-auto rounded-full p-1.5 hover:bg-background md:ml-0 md:hidden"
       >
         <SearchIcon className="h-4 w-4" />
       </button>
 
       <AnimatePresence>
         {open && (
-          <div className="fixed inset-0 z-50 sm:hidden">
+          <div className="fixed inset-0 z-50 md:hidden">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

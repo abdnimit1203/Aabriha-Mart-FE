@@ -101,15 +101,27 @@ export function HeroBannerForm({ banner }: { banner?: HeroBanner }) {
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label htmlFor="subtitleEn" className="mb-1 block text-sm font-medium">
-            Subtitle (English)
+            Description (English)
           </label>
-          <input id="subtitleEn" value={subtitleEn} onChange={(e) => setSubtitleEn(e.target.value)} className={inputClass} />
+          <textarea
+            id="subtitleEn"
+            rows={3}
+            value={subtitleEn}
+            onChange={(e) => setSubtitleEn(e.target.value)}
+            className={inputClass}
+          />
         </div>
         <div>
           <label htmlFor="subtitleBn" className="mb-1 block text-sm font-medium">
-            Subtitle (Bangla)
+            Description (Bangla)
           </label>
-          <input id="subtitleBn" value={subtitleBn} onChange={(e) => setSubtitleBn(e.target.value)} className={inputClass} />
+          <textarea
+            id="subtitleBn"
+            rows={3}
+            value={subtitleBn}
+            onChange={(e) => setSubtitleBn(e.target.value)}
+            className={inputClass}
+          />
         </div>
       </div>
 

@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { FaFacebook, FaInstagram, FaLinkedin, FaTwitter } from "react-icons/fa";
 import { FaMoneyBillWave, FaCreditCard } from "react-icons/fa6";
+import { NewsletterSignup } from "@/components/NewsletterSignup";
 
 const SHOP_LINKS = [
   { href: "/products", label: "All Products" },
@@ -12,9 +13,6 @@ const SHOP_LINKS = [
 const ACCOUNT_LINKS = [
   { href: "/account", label: "My Account" },
   { href: "/orders", label: "My Orders" },
-];
-
-const LEGAL_LINKS = [
   { href: "/privacy-policy", label: "Privacy Policy" },
   { href: "/terms", label: "Terms of Service" },
 ];
@@ -33,8 +31,12 @@ export function Footer() {
 
   return (
     <footer className="bg-primary-strong text-white">
-      <div className={`mx-auto grid max-w-350 gap-8 px-4 py-10 sm:px-6 ${hasContact ? "sm:grid-cols-5" : "sm:grid-cols-4"}`}>
-        <div>
+      <div
+        className={`mx-auto grid max-w-350 gap-8 px-4 py-10 sm:px-6 md:grid-cols-2 ${
+          hasContact ? "lg:grid-cols-6" : "lg:grid-cols-5"
+        }`}
+      >
+        <div className="md:col-span-2 lg:col-span-1">
           <div className="flex h-16 w-16 items-center justify-center rounded-2xl border-2 border-white bg-white">
             <Image src="/logo.png" alt="" width={48} height={48} className="h-12 w-12 object-contain" />
           </div>
@@ -84,17 +86,10 @@ export function Footer() {
           </ul>
         </div>
 
-        <div>
-          <p className="text-sm font-semibold">Legal</p>
-          <ul className="mt-3 space-y-2">
-            {LEGAL_LINKS.map((link) => (
-              <li key={link.href}>
-                <Link href={link.href} className="text-sm text-white/80 hover:text-white">
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
+        <div className="lg:col-span-2">
+          <p className="text-sm font-semibold">Newsletter</p>
+          <p className="mt-3 text-sm text-white/80">Get updates on new products and offers.</p>
+          <NewsletterSignup />
         </div>
 
         {hasContact && (

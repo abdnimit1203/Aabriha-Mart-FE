@@ -1,9 +1,10 @@
 import { HeroSlider } from "@/components/HeroSlider";
-import { FeaturedCollections } from "@/components/FeaturedCollections";
+import { CategoryCircles } from "@/components/CategoryCircles";
 import { ProductSection } from "@/components/ProductSection";
 import { PromotionalBanner } from "@/components/PromotionalBanner";
 import { EditorialBanner } from "@/components/EditorialBanner";
 import { WhyAabrihaMart } from "@/components/WhyAabrihaMart";
+import { Testimonials } from "@/components/Testimonials";
 import {
   getAllCategories,
   getPopularProducts,
@@ -11,8 +12,9 @@ import {
   getActivePromotions,
   getNewArrivals,
   getSpecialOffers,
+  getActiveTestimonials,
 } from "@/lib/catalog";
-import { HeroBanner, Promotion } from "@/types/storefront";
+import { HeroBanner, Promotion, Testimonial } from "@/types/storefront";
 import { Product } from "@/types/catalog";
 
 // Re-fetch categories/products at most once a minute instead of freezing
@@ -31,12 +33,13 @@ async function safe<T>(promise: Promise<T>, fallback: T): Promise<T> {
 }
 
 export default async function HomePage() {
-  const [allCategories, popularProducts, heroBanners, activePromotions, specialOffers] = await Promise.all([
+  const [allCategories, popularProducts, heroBanners, activePromotions, specialOffers, testimonials] = await Promise.all([
     safe(getAllCategories(), []),
     safe(getPopularProducts(), []),
     safe<HeroBanner[] | undefined>(getHeroBanners(), undefined),
     safe<Promotion[]>(getActivePromotions(), []),
     safe<Product[]>(getSpecialOffers(), []),
+    safe<Testimonial[]>(getActiveTestimonials(), []),
   ]);
   const topLevelCategories = allCategories.filter((c) => !c.parent && c.isActive);
 
@@ -71,7 +74,9 @@ export default async function HomePage() {
         <HeroSlider banners={sliderBanners} />
       </section>
 
-      <FeaturedCollections categories={topLevelCategories} allCategories={allCategories} />
+      <WhyAabrihaMart />
+
+      <CategoryCircles categories={topLevelCategories} allCategories={allCategories} />
 
       <ProductSection
         title="Popular Products"
@@ -80,7 +85,6 @@ export default async function HomePage() {
         viewAllHref="/products"
       />
 
-      <PromotionalBanner promotion={campaignPromotion ?? null} />
 
       <ProductSection
         title="New Arrivals"
@@ -89,6 +93,7 @@ export default async function HomePage() {
         viewAllHref="/new-arrivals"
       />
 
+      <PromotionalBanner promotion={campaignPromotion ?? null} />
       <EditorialBanner promotion={editorialPromotion ?? null} />
 
       <ProductSection
@@ -99,7 +104,7 @@ export default async function HomePage() {
         tone="sale"
       />
 
-      <WhyAabrihaMart />
+      <Testimonials testimonials={testimonials} />
     </main>
   );
 }

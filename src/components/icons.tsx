@@ -112,6 +112,20 @@ export function ChevronIcon({ className }: IconProps) {
   );
 }
 
+/** Carousel prev/next chevron — used by every Swiper-based slider
+ * (HeroSlider, Testimonials) instead of each defining its own copy. */
+export function ArrowIcon({ direction, className }: IconProps & { direction: "left" | "right" }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className={className} aria-hidden>
+      <path
+        d={direction === "left" ? "m14 6-6 6 6 6" : "m10 6 6 6-6 6"}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export function FilterIcon({ className }: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className={className} aria-hidden>

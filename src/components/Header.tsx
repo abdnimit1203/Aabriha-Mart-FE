@@ -21,7 +21,7 @@ export function Header() {
           <span className="font-logo text-base font-normal tracking-wide sm:text-xl">Aabriha Mart</span>
         </Link>
 
-        <nav className="hidden items-center gap-1 sm:flex">
+        <nav className="hidden items-center gap-1 md:flex">
           <Link
             href="/products"
             className="rounded-full px-3 py-2 text-sm font-medium transition-colors hover:bg-background"
@@ -44,7 +44,7 @@ export function Header() {
 
         <form
           action="/search"
-          className="ml-auto hidden max-w-xs flex-1 items-center gap-2 rounded-full border border-border bg-background px-3 py-1.5 sm:flex"
+          className="ml-auto hidden max-w-xs flex-1 items-center gap-2 rounded-full border border-border bg-background px-3 py-1.5 md:flex"
         >
           <SearchIcon className="h-4 w-4 text-muted-foreground" />
           <input

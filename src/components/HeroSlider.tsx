@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import type { Swiper as SwiperClass } from "swiper/types";
 import { Autoplay, EffectFade } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/effect-fade";
+import { ArrowIcon } from "@/components/icons";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 // Shaped to match the eventual backend Banner model (Section 23 CMS-managed
 // content) so swapping the hardcoded array below for a fetch() later is a
@@ -35,7 +37,8 @@ const BANNERS: Banner[] = [
     titleBn: "নারী সংগ্রহ",
     titleEn: "Women's Collection",
     subtitleBn: "প্রতিদিনের জন্য মার্জিত ফিট।",
-    subtitleEn: "Elegant, everyday-ready fits.",
+    subtitleEn:
+      "Elegant, everyday-ready fits made for real life — breathable fabrics, flattering cuts, and prices that make sense for daily wear.",
     ctaLabelBn: "কেনাকাটা করুন",
     ctaLabelEn: "Shop Women",
     ctaUrl: "/categories/womens-wear",
@@ -49,7 +52,8 @@ const BANNERS: Banner[] = [
     titleBn: "পুরুষ সংগ্রহ",
     titleEn: "Men's Collection",
     subtitleBn: "প্রতিদিনের জন্য উপযুক্ত স্মার্ট ফিট।",
-    subtitleEn: "Sharp fits, built for every day.",
+    subtitleEn:
+      "Sharp fits, built for every day — from the office to the mosque to weekend errands, without ever feeling stiff or overdressed.",
     ctaLabelBn: "কেনাকাটা করুন",
     ctaLabelEn: "Shop Men",
     ctaUrl: "/categories/mens-shirts",
@@ -63,7 +67,8 @@ const BANNERS: Banner[] = [
     titleBn: "জুতা ও ব্যাগ",
     titleEn: "Shoes & Bags",
     subtitleBn: "মাথা থেকে পা পর্যন্ত সাজ সম্পূর্ণ করুন।",
-    subtitleEn: "Finish the outfit, head to toe.",
+    subtitleEn:
+      "Finish the outfit, head to toe — durable, comfortable shoes and bags built to keep up with wherever your day takes you.",
     ctaLabelBn: "এখনই কিনুন",
     ctaLabelEn: "Shop Now",
     ctaUrl: "/categories/shoes",
@@ -73,31 +78,6 @@ const BANNERS: Banner[] = [
     sortOrder: 3,
   },
 ];
-
-function ArrowIcon({ direction, className }: { direction: "left" | "right"; className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className={className} aria-hidden>
-      <path
-        d={direction === "left" ? "m14 6-6 6 6 6" : "m10 6 6 6-6 6"}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function usePrefersReducedMotion() {
-  const [reduced, setReduced] = useState(
-    () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
-  );
-  useEffect(() => {
-    const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const handler = (e: MediaQueryListEvent) => setReduced(e.matches);
-    mql.addEventListener("change", handler);
-    return () => mql.removeEventListener("change", handler);
-  }, []);
-  return reduced;
-}
 
 export function HeroSlider({ banners = BANNERS }: { banners?: Banner[] }) {
   const swiperRef = useRef<SwiperClass | null>(null);
@@ -112,9 +92,9 @@ export function HeroSlider({ banners = BANNERS }: { banners?: Banner[] }) {
   if (activeBanners.length === 0) return null;
 
   return (
-    // The frame's height comes from this aspect-ratio, never from the image —
-    // every slide fills the same fixed box via object-cover.
-    <div className="aabriha-hero-slider relative aspect-4/5 w-full overflow-hidden sm:aspect-16/7">
+    // Fixed height comes from this aspect-ratio rather than content, so every
+    // slide (text-heavy or not) sits in the same box without layout jumps.
+    <div className="aabriha-hero-slider relative aspect-4/5 w-full overflow-hidden bg-surface md:aspect-21/9">
       <Swiper
         modules={[Autoplay, EffectFade]}
         effect="fade"
@@ -131,33 +111,64 @@ export function HeroSlider({ banners = BANNERS }: { banners?: Banner[] }) {
         {activeBanners.map((banner, index) => {
           const position = banner.objectPosition ?? "center center";
           return (
-            <SwiperSlide key={banner.id} className="relative h-full w-full">
-              <picture>
-                {banner.mobileImage && <source media="(max-width: 639px)" srcSet={banner.mobileImage} />}
-                <img
-                  src={banner.desktopImage}
-                  alt={banner.titleEn}
-                  style={{ objectPosition: position }}
-                  className="absolute inset-0 h-full w-full object-cover"
-                  loading={index === 0 ? "eager" : "lazy"}
-                  fetchPriority={index === 0 ? "high" : "auto"}
-                />
-              </picture>
-              <div className="absolute inset-0 bg-linear-to-t from-black/85 via-black/25 to-transparent sm:bg-linear-to-r sm:from-black/80 sm:via-black/30 sm:via-40% sm:to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 flex flex-col items-start gap-3 p-6 sm:bottom-auto sm:left-0 sm:top-1/2 sm:max-w-md sm:-translate-y-1/2 sm:p-14">
-                <span className="rounded-full bg-white/95 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary-strong">
-                  New
+            <SwiperSlide
+              key={banner.id}
+              className="relative! h-full w-full md:grid! md:grid-cols-2! md:bg-surface"
+            >
+              {/* Text block: below md this overlays the full-bleed image below
+                  (absolute, white text, drop-shadow) — phones only, since
+                  tablets already have room for a two-column split. At md+ it
+                  becomes a normal grid cell, stretched to the row's full
+                  height (so it can vertically center its own content) on its
+                  own light background instead. */}
+              <div className="absolute inset-x-0 bottom-0 z-10 flex flex-col items-start gap-3 p-6 md:static md:h-full md:justify-center md:gap-4 md:px-14 md:py-0">
+                <span className="flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary-strong md:bg-primary/10">
+                  <span className="h-1.5 w-1.5 rounded-full bg-primary-strong" aria-hidden />
+                  New Arrivals
                 </span>
-                <h2 className="text-2xl font-semibold text-white drop-shadow-sm sm:text-4xl">{banner.titleEn}</h2>
-                <p className="text-sm text-white/90 drop-shadow-sm sm:text-base">{banner.subtitleEn}</p>
-                <Link
-                  href={banner.ctaUrl}
-                  className="mt-2 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-white transition-transform hover:scale-[1.03] active:scale-[0.98]"
-                >
-                  {banner.ctaLabelEn}
-                  <ArrowIcon direction="right" className="h-4 w-4" />
-                </Link>
+                <h2 className="text-2xl font-bold tracking-tight text-white drop-shadow-sm sm:text-3xl md:text-4xl md:text-foreground md:drop-shadow-none lg:text-5xl">
+                  {banner.titleEn}
+                </h2>
+                <p className="max-w-md text-sm text-white/90 drop-shadow-sm md:text-base md:text-muted-foreground md:drop-shadow-none">
+                  {banner.subtitleEn}
+                </p>
+                <div className="mt-2 flex items-center gap-3">
+                  <Link
+                    href={banner.ctaUrl}
+                    className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-white transition-transform hover:scale-[1.03] active:scale-[0.98]"
+                  >
+                    {banner.ctaLabelEn}
+                    <ArrowIcon direction="right" className="h-4 w-4" />
+                  </Link>
+                  <Link
+                    href="/offers"
+                    className="inline-flex items-center rounded-full border border-white/40 bg-white/10 px-5 py-2.5 text-sm font-medium text-white backdrop-blur-sm transition-colors hover:bg-white/20 md:border-border md:bg-background md:text-foreground md:backdrop-blur-none md:hover:bg-surface"
+                  >
+                    Explore Deals
+                  </Link>
+                </div>
               </div>
+
+              {/* Image layer: full-bleed background below md (focal point via
+                  objectPosition, same as before), a normal right-column box
+                  at md+. */}
+              <div className="absolute inset-0 z-0 md:relative md:inset-auto md:h-full">
+                <picture>
+                  {banner.mobileImage && <source media="(max-width: 767px)" srcSet={banner.mobileImage} />}
+                  <img
+                    src={banner.desktopImage}
+                    alt={banner.titleEn}
+                    style={{ objectPosition: position }}
+                    className="absolute inset-0 h-full w-full object-cover"
+                    loading={index === 0 ? "eager" : "lazy"}
+                    fetchPriority={index === 0 ? "high" : "auto"}
+                  />
+                </picture>
+              </div>
+
+              {/* Darkening gradient so white overlay text stays readable —
+                  below md only, since md+ text sits on its own light panel. */}
+              <div className="absolute inset-0 z-0 bg-linear-to-t from-black/85 via-black/25 to-transparent md:hidden" />
             </SwiperSlide>
           );
         })}
@@ -170,7 +181,7 @@ export function HeroSlider({ banners = BANNERS }: { banners?: Banner[] }) {
           type="button"
           aria-label="Previous slide"
           onClick={() => swiperRef.current?.slidePrev()}
-          className="group flex h-9 w-9 items-center justify-center rounded-md border border-white/30 bg-black/25 text-white backdrop-blur-sm transition-colors hover:bg-black/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:bg-black/50"
+          className="group flex h-9 w-9 items-center justify-center rounded-md border border-border bg-surface text-foreground backdrop-blur-sm transition-colors hover:bg-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-strong"
         >
           <ArrowIcon direction="left" className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
         </button>
@@ -178,7 +189,7 @@ export function HeroSlider({ banners = BANNERS }: { banners?: Banner[] }) {
           type="button"
           aria-label="Next slide"
           onClick={() => swiperRef.current?.slideNext()}
-          className="group flex h-9 w-9 items-center justify-center rounded-md border border-white/30 bg-black/25 text-white backdrop-blur-sm transition-colors hover:bg-black/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:bg-black/50"
+          className="group flex h-9 w-9 items-center justify-center rounded-md border border-border bg-surface text-foreground backdrop-blur-sm transition-colors hover:bg-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-strong"
         >
           <ArrowIcon direction="right" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
         </button>
@@ -198,8 +209,8 @@ export function HeroSlider({ banners = BANNERS }: { banners?: Banner[] }) {
             aria-selected={index === activeIndex}
             aria-label={`Go to slide ${index + 1}: ${banner.titleEn}`}
             onClick={() => swiperRef.current?.slideToLoop(index)}
-            className={`h-1.5 rounded-full transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ${
-              index === activeIndex ? "w-8 bg-primary" : "w-4 bg-white/55 hover:bg-white/75"
+            className={`h-1.5 rounded-full transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-strong ${
+              index === activeIndex ? "w-8 bg-primary" : "w-4 bg-border hover:bg-muted-foreground/40"
             }`}
           />
         ))}
