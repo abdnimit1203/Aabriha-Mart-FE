@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { FaTelegram, FaMoneyBillWave } from "react-icons/fa6";
+import { FaTelegram, FaMoneyBillWave, FaPalette } from "react-icons/fa6";
 import { SiMeta } from "react-icons/si";
 import { useAuth } from "@/context/AuthContext";
 import { getNotificationSettings, updateNotificationSettings, sendTestTelegramNotification } from "@/lib/admin/notificationSettings";
 import { updateMarketingSettings } from "@/lib/admin/marketingSettings";
 import { updatePaymentSettings } from "@/lib/admin/paymentSettings";
-import { getMarketingSettings, getPaymentSettings } from "@/lib/catalog";
+import { updateThemeSettings } from "@/lib/admin/themeSettings";
+import { getMarketingSettings, getPaymentSettings, getThemeSettings } from "@/lib/catalog";
 import { NotificationSettings } from "@/types/notification";
 import { AdminPageHeader } from "@/components/AdminPageHeader";
 import { ImageUploadField } from "@/components/ImageUploadField";
@@ -45,10 +46,15 @@ export default function AdminSettingsPage() {
   const [bkashQrImage, setBkashQrImage] = useState("");
   const [nagadEnabled, setNagadEnabled] = useState(true);
   const [nagadQrImage, setNagadQrImage] = useState("");
+  const [stripeEnabled, setStripeEnabled] = useState(true);
   const [paymentLoaded, setPaymentLoaded] = useState(false);
   const [savingPayment, setSavingPayment] = useState(false);
   const [uploadingBkashQr, setUploadingBkashQr] = useState(false);
   const [uploadingNagadQr, setUploadingNagadQr] = useState(false);
+
+  const [primaryColor, setPrimaryColor] = useState("#4ea8de");
+  const [themeLoaded, setThemeLoaded] = useState(false);
+  const [savingTheme, setSavingTheme] = useState(false);
 
   useEffect(() => {
     getIdToken()
@@ -75,9 +81,14 @@ export default function AdminSettingsPage() {
         setBkashQrImage(result.bkashQrImage ?? "");
         setNagadEnabled(result.nagadEnabled);
         setNagadQrImage(result.nagadQrImage ?? "");
+        setStripeEnabled(result.stripeEnabled);
       })
       .catch(() => toast.error("Couldn't load payment settings."))
       .finally(() => setPaymentLoaded(true));
+    getThemeSettings()
+      .then((result) => setPrimaryColor(result.primaryColor))
+      .catch(() => toast.error("Couldn't load theme settings."))
+      .finally(() => setThemeLoaded(true));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -104,16 +115,34 @@ export default function AdminSettingsPage() {
         bkashQrImage: bkashQrImage || null,
         nagadEnabled,
         nagadQrImage: nagadQrImage || null,
+        stripeEnabled,
       });
       setBkashEnabled(updated.bkashEnabled);
       setBkashQrImage(updated.bkashQrImage ?? "");
       setNagadEnabled(updated.nagadEnabled);
       setNagadQrImage(updated.nagadQrImage ?? "");
+      setStripeEnabled(updated.stripeEnabled);
       toast.success("Payment settings saved.");
     } catch {
       toast.error("Couldn't save payment settings.");
     } finally {
       setSavingPayment(false);
+    }
+  }
+
+  async function handleSaveTheme(e: React.FormEvent) {
+    e.preventDefault();
+    const idToken = await getIdToken();
+    if (!idToken) return;
+    setSavingTheme(true);
+    try {
+      const updated = await updateThemeSettings(idToken, primaryColor);
+      setPrimaryColor(updated.primaryColor);
+      toast.success("Theme color saved — the storefront picks it up on next load.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't save the theme color.");
+    } finally {
+      setSavingTheme(false);
     }
   }
 
@@ -391,12 +420,71 @@ export default function AdminSettingsPage() {
                 )}
               </div>
 
+              <div className="rounded border border-border bg-background p-3.5">
+                <label className="flex items-center gap-2 text-sm font-medium">
+                  <input
+                    type="checkbox"
+                    checked={stripeEnabled}
+                    onChange={(e) => setStripeEnabled(e.target.checked)}
+                    className="h-4 w-4 rounded border-border accent-primary"
+                  />
+                  Card payments (Stripe) enabled at checkout
+                </label>
+              </div>
+
               <button
                 type="submit"
                 disabled={savingPayment}
                 className="rounded bg-primary px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-strong disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {savingPayment ? "Saving…" : "Save changes"}
+              </button>
+            </form>
+          )}
+        </div>
+
+        <div className="relative max-w-xl rounded-md border border-border bg-surface p-5 sm:p-6 drop-shadow-sm hover:drop-shadow-lg transition-all hover:border-primary duration-300 cursor-pointer">
+          <FaPalette className="absolute right-5 top-5 h-6 w-6 text-primary-strong sm:right-6 sm:top-6" aria-hidden />
+          <h2 className="text-lg font-semibold text-primary-strong">Theme Color</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Changes the storefront&apos;s brand accent everywhere it&apos;s used (buttons, links, badges). The admin
+            dashboard keeps its own fixed color regardless — this only affects customer-facing pages.
+          </p>
+
+          {!themeLoaded ? (
+            <p className="mt-4 text-sm text-muted-foreground">Loading…</p>
+          ) : (
+            <form onSubmit={handleSaveTheme} className="mt-5 space-y-4">
+              <div>
+                <label htmlFor="primaryColor" className="mb-1 block text-sm font-medium">
+                  Primary color
+                </label>
+                <div className="flex items-center gap-3">
+                  <input
+                    id="primaryColor"
+                    type="color"
+                    value={primaryColor}
+                    onChange={(e) => setPrimaryColor(e.target.value)}
+                    className="h-10 w-14 shrink-0 cursor-pointer rounded border border-border bg-surface p-1"
+                  />
+                  <input
+                    value={primaryColor}
+                    onChange={(e) => setPrimaryColor(e.target.value)}
+                    placeholder="#4ea8de"
+                    className={`${inputClass} font-mono`}
+                  />
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  A darker shade for hover/emphasis is generated automatically from this one color.
+                </p>
+              </div>
+
+              <button
+                type="submit"
+                disabled={savingTheme}
+                className="rounded bg-primary px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-strong disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {savingTheme ? "Saving…" : "Save changes"}
               </button>
             </form>
           )}

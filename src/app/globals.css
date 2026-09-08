@@ -17,12 +17,15 @@
 }
 
 /* Slim, modern scrollbars everywhere. WebKit thumb stays transparent at
-   rest and only fills in on hover (--muted-foreground, scope-aware); Firefox
-   has no hover state to hook into, so scrollbar-color shows a fixed
-   brand-blue thumb on a white track at all times. */
+   rest and only fills in on hover; Firefox has no hover state to hook into,
+   so scrollbar-color shows a persistent thumb on a white track at all
+   times. Both reference --primary-strong (not a hardcoded hex) so a
+   storefront theme-color change and the admin dashboard's pinned blue
+   (.admin-shell) both apply correctly, the same as every other
+   --primary-strong-colored element. */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #1c75adcb white;
+  scrollbar-color: var(--primary-strong) white;
 }
 
 *::-webkit-scrollbar {
@@ -42,20 +45,29 @@
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  background-color: var(--muted-foreground);
+  background-color: var(--primary-strong);
 }
 
 /* Admin dashboard is an operational tool, not the storefront — it overrides
    the same token names (not a parallel --admin-* set) inside this scope, so
    every existing bg-surface/text-muted-foreground/border-border class used
-   across admin pages picks up the neutral palette automatically. --primary/
-   --primary-strong are left untouched to keep the brand accent. */
+   across admin pages picks up the neutral palette automatically.
+   --primary/--primary-strong are pinned explicitly to their default values
+   here (not just "left alone") — the storefront's admin-configurable brand
+   color (ThemeColorInjector.tsx) is applied as an inline style on <html>,
+   which would otherwise inherit straight through into the dashboard too,
+   including across a client-side route change from storefront to admin
+   (Next.js keeps <html> mounted, it doesn't reset inline styles on
+   navigation). Pinning here keeps the dashboard's own accent fixed
+   regardless of what a customer-facing color change is in effect. */
 .admin-shell {
   --background: #f7f8fa;
   --surface: #ffffff;
   --foreground: #14181f;
   --muted-foreground: #64748b;
   --border: #e2e5ea;
+  --primary: #4ea8de;
+  --primary-strong: #1c76ad;
 }
 
 /* The sidebar nests a second override inside .admin-shell — dark chrome
@@ -173,4 +185,61 @@ body {
 }
 .aabriha-popup-close:hover {
   background: rgba(0, 0, 0, 0.65) !important;
+}
+
+/* Dual-thumb price range slider (PriceRangeSlider.tsx) — two overlapping
+   native <input type="range">, transparent tracks so only the thumbs are
+   visible/interactive (pointer-events re-enabled on the thumb pseudo-element
+   only), stacked over a shared visual track + Framer Motion-driven fill bar
+   drawn separately in the component. Native inputs for real, robust,
+   keyboard-accessible dragging; the smooth "vibe" comes from the fill bar
+   and thumb scale/glow animating around this rather than the input itself. */
+.price-range-input {
+  -webkit-appearance: none;
+  appearance: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  background: transparent;
+  pointer-events: none;
+}
+.price-range-input::-webkit-slider-runnable-track {
+  -webkit-appearance: none;
+  background: transparent;
+}
+.price-range-input::-moz-range-track {
+  background: transparent;
+}
+.price-range-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  pointer-events: auto;
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  background: var(--primary-strong, var(--primary));
+  border: 3px solid var(--surface);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  cursor: grab;
+  transition: transform 0.15s ease;
+}
+.price-range-input::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.2);
+}
+.price-range-input::-moz-range-thumb {
+  pointer-events: auto;
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  background: var(--primary-strong, var(--primary));
+  border: 3px solid var(--surface);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  cursor: grab;
+  transition: transform 0.15s ease;
+}
+.price-range-input::-moz-range-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.2);
 }

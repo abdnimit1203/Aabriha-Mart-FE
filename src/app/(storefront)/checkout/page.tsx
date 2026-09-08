@@ -79,6 +79,7 @@ export default function CheckoutPage() {
   const availablePaymentMethods = PAYMENT_METHODS.filter((m) => {
     if (m.value === "bkash") return paymentSettings?.bkashEnabled !== false;
     if (m.value === "nagad") return paymentSettings?.nagadEnabled !== false;
+    if (m.value === "stripe") return paymentSettings?.stripeEnabled !== false;
     return true;
   });
 

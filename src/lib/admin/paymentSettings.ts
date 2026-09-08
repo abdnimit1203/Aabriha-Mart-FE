@@ -6,6 +6,7 @@ export interface PaymentSettingsInput {
   bkashQrImage: string | null;
   nagadEnabled: boolean;
   nagadQrImage: string | null;
+  stripeEnabled: boolean;
 }
 
 export async function updatePaymentSettings(idToken: string, input: PaymentSettingsInput) {

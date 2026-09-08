@@ -50,6 +50,12 @@ export interface PaymentSettings {
   bkashQrImage?: string;
   nagadEnabled: boolean;
   nagadQrImage?: string;
+  stripeEnabled: boolean;
+}
+
+export interface ThemeSettings {
+  primaryColor: string;
+  primaryColorStrong: string;
 }
 
 export interface Testimonial {
