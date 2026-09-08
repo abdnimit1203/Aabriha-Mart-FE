@@ -20,7 +20,7 @@ export function AccountMenu() {
   }
 
   if (loading) {
-    return <div className="h-7 w-7 animate-pulse rounded-full bg-border sm:h-9 sm:w-9" aria-hidden />;
+    return <div className="h-8 w-8 animate-pulse rounded-full bg-border sm:h-9 sm:w-9" aria-hidden />;
   }
 
   if (!user) {
@@ -28,7 +28,7 @@ export function AccountMenu() {
       <button
         type="button"
         onClick={openLoginModal}
-        className="whitespace-nowrap rounded-full px-2 py-1.5 text-xs font-medium transition-colors hover:bg-background sm:px-3 sm:py-2 sm:text-sm"
+        className="whitespace-nowrap rounded-full px-3 py-2 text-sm font-medium transition-colors hover:bg-background"
       >
         Sign in
       </button>
@@ -49,11 +49,11 @@ export function AccountMenu() {
           <img
             src={user.photoURL}
             alt=""
-            className="h-7 w-7 rounded-full object-cover sm:h-8 sm:w-8"
+            className="h-8 w-8 rounded-full object-cover sm:h-9 sm:w-9"
             referrerPolicy="no-referrer"
           />
         ) : (
-          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary-strong text-xs font-medium text-white sm:h-8 sm:w-8 sm:text-sm">
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-strong text-sm font-medium text-white sm:h-9 sm:w-9">
             {user.initial}
           </span>
         )}

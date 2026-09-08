@@ -6,12 +6,12 @@ import { AnimatePresence, motion } from "framer-motion";
 import { SearchIcon, CloseIcon } from "@/components/icons";
 import { useDismissableOverlay } from "@/hooks/useDismissableOverlay";
 
-/** Mobile-only search entry point. The desktop header already has an inline
- * search box (see Header.tsx) — on mobile there's no room for that, so this
- * was previously a bare `<Link href="/search">` that just dropped the user
- * on an empty results page with no visible way to actually type a query.
- * Tapping the icon now pops a full-width search bar over the header instead,
- * auto-focused and ready to type into, closing on submit/Escape/backdrop. */
+/** Universal search entry point (mobile and desktop alike) — a compact icon
+ * that expands into a full-width search bar over the header, auto-focused
+ * and ready to type into, closing on submit/Escape/backdrop. Desktop used to
+ * have its own permanently-visible inline search box instead; this replaced
+ * it so both breakpoints share one icon-first pattern rather than two
+ * different search UIs. */
 export function MobileSearchButton() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -47,14 +47,14 @@ export function MobileSearchButton() {
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Search"
-        className="ml-auto rounded-full p-1.5 hover:bg-background md:ml-0 md:hidden"
+        className="rounded-full p-2 hover:bg-background sm:p-2.5"
       >
-        <SearchIcon className="h-4 w-4" />
+        <SearchIcon className="h-5 w-5" />
       </button>
 
       <AnimatePresence>
         {open && (
-          <div className="fixed inset-0 z-50 md:hidden">
+          <div className="fixed inset-0 z-50">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
