@@ -3,10 +3,19 @@
 import { useState } from "react";
 import { Category } from "@/types/catalog";
 import { CategorySidebar } from "@/components/CategorySidebar";
+import { PriceRangeSlider } from "@/components/PriceRangeSlider";
 import { useDismissableOverlay } from "@/hooks/useDismissableOverlay";
 import { FilterIcon, CloseIcon } from "@/components/icons";
 
-export function CategoryFilterPanel({ categories }: { categories: Category[] }) {
+export function CategoryFilterPanel({
+  categories,
+  counts,
+  priceBounds,
+}: {
+  categories: Category[];
+  counts?: Record<string, number>;
+  priceBounds?: { min: number; max: number };
+}) {
   const [open, setOpen] = useState(false);
   const rootRef = useDismissableOverlay<HTMLDivElement>({ open, onDismiss: () => setOpen(false), outsideClick: false });
 
@@ -43,12 +52,22 @@ export function CategoryFilterPanel({ categories }: { categories: Category[] }) 
               <CloseIcon className="h-4 w-4" />
             </button>
           </div>
-          <CategorySidebar categories={categories} />
+          <CategorySidebar categories={categories} counts={counts} />
+          {priceBounds && (
+            <div className="mt-5 border-t border-border pt-4">
+              <PriceRangeSlider bounds={priceBounds} />
+            </div>
+          )}
         </div>
       </div>
 
       <div className="hidden sm:block sm:w-56 sm:shrink-0">
-        <CategorySidebar categories={categories} />
+        <CategorySidebar categories={categories} counts={counts} />
+        {priceBounds && (
+          <div className="mt-5 border-t border-border pt-4">
+            <PriceRangeSlider bounds={priceBounds} />
+          </div>
+        )}
       </div>
     </>
   );

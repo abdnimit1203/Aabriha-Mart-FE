@@ -4,7 +4,7 @@ import { SortFilterBar } from "@/components/SortFilterBar";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { ProductListingLayout } from "@/components/ProductListingLayout";
 import { apiFetch } from "@/lib/api";
-import { getAllCategories } from "@/lib/catalog";
+import { getAllCategories, getCategoryCounts, getPriceRange } from "@/lib/catalog";
 import { Product } from "@/types/catalog";
 
 export const revalidate = 60;
@@ -19,12 +19,16 @@ export default async function NewArrivalsPage(props: PageProps<"/new-arrivals">)
   const sort = typeof searchParams.sort === "string" ? searchParams.sort : "newest";
   const inStock = searchParams.inStock === "true";
   const category = typeof searchParams.category === "string" ? searchParams.category : "";
+  const minPrice = typeof searchParams.minPrice === "string" ? searchParams.minPrice : "";
+  const maxPrice = typeof searchParams.maxPrice === "string" ? searchParams.maxPrice : "";
 
-  const categories = await getAllCategories();
+  const [categories, counts, priceBounds] = await Promise.all([getAllCategories(), getCategoryCounts(), getPriceRange()]);
 
   const query = new URLSearchParams({ status: "active", sort, limit: "24" });
   if (inStock) query.set("inStock", "true");
   if (category) query.set("category", category);
+  if (minPrice) query.set("minPrice", minPrice);
+  if (maxPrice) query.set("maxPrice", maxPrice);
 
   const { products, total } = await apiFetch<{ products: Product[]; total: number }>(
     `/api/products?${query.toString()}`
@@ -35,7 +39,7 @@ export default async function NewArrivalsPage(props: PageProps<"/new-arrivals">)
       <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "New Arrivals" }]} />
       <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">New Arrivals</h1>
 
-      <ProductListingLayout categories={categories}>
+      <ProductListingLayout categories={categories} counts={counts} priceBounds={priceBounds}>
         <SortFilterBar resultCount={total} />
         {products.length === 0 ? (
           <p className="mt-8 text-sm text-muted-foreground">No products found.</p>

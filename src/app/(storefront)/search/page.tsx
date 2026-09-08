@@ -4,7 +4,7 @@ import { SortFilterBar } from "@/components/SortFilterBar";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { ProductListingLayout } from "@/components/ProductListingLayout";
 import { apiFetch } from "@/lib/api";
-import { getAllCategories } from "@/lib/catalog";
+import { getAllCategories, getCategoryCounts, getPriceRange } from "@/lib/catalog";
 import { Product } from "@/types/catalog";
 
 export const revalidate = 60;
@@ -21,8 +21,10 @@ export default async function SearchPage(props: PageProps<"/search">) {
   const sort = typeof searchParams.sort === "string" ? searchParams.sort : "newest";
   const inStock = searchParams.inStock === "true";
   const category = typeof searchParams.category === "string" ? searchParams.category : "";
+  const minPrice = typeof searchParams.minPrice === "string" ? searchParams.minPrice : "";
+  const maxPrice = typeof searchParams.maxPrice === "string" ? searchParams.maxPrice : "";
 
-  const categories = await getAllCategories();
+  const [categories, counts, priceBounds] = await Promise.all([getAllCategories(), getCategoryCounts(), getPriceRange()]);
 
   let products: Product[] = [];
   let total = 0;
@@ -31,6 +33,8 @@ export default async function SearchPage(props: PageProps<"/search">) {
     const query = new URLSearchParams({ search: q, status: "active", sort, limit: "24" });
     if (inStock) query.set("inStock", "true");
     if (category) query.set("category", category);
+    if (minPrice) query.set("minPrice", minPrice);
+    if (maxPrice) query.set("maxPrice", maxPrice);
     const result = await apiFetch<{ products: Product[]; total: number }>(`/api/products?${query.toString()}`);
     products = result.products;
     total = result.total;
@@ -46,7 +50,7 @@ export default async function SearchPage(props: PageProps<"/search">) {
       {!q ? (
         <p className="mt-8 text-sm text-muted-foreground">Enter a search term above to find products.</p>
       ) : (
-        <ProductListingLayout categories={categories}>
+        <ProductListingLayout categories={categories} counts={counts} priceBounds={priceBounds}>
           <SortFilterBar resultCount={total} />
           {products.length === 0 ? (
             <p className="mt-8 text-sm text-muted-foreground">No products found. Try a different search term.</p>

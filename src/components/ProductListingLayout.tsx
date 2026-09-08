@@ -23,15 +23,19 @@ function FadingContent({ children }: { children: React.ReactNode }) {
  * page anymore, so this is the one place category browsing happens. */
 export function ProductListingLayout({
   categories,
+  counts,
+  priceBounds,
   children,
 }: {
   categories: Category[];
+  counts?: Record<string, number>;
+  priceBounds?: { min: number; max: number };
   children: React.ReactNode;
 }) {
   return (
     <ProductFilterTransitionProvider>
       <div className="mt-6 sm:flex sm:items-start sm:gap-8">
-        <CategoryFilterPanel categories={categories} />
+        <CategoryFilterPanel categories={categories} counts={counts} priceBounds={priceBounds} />
         <ScrollReveal className="min-w-0 flex-1">
           <FadingContent>{children}</FadingContent>
         </ScrollReveal>

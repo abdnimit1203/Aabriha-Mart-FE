@@ -4,7 +4,7 @@ import { Breadcrumb } from "@/components/Breadcrumb";
 import { ProductListingLayout } from "@/components/ProductListingLayout";
 import { CategoryProductGrid } from "@/components/CategoryProductGrid";
 import { apiFetch } from "@/lib/api";
-import { getAllCategories } from "@/lib/catalog";
+import { getAllCategories, getCategoryCounts, getPriceRange } from "@/lib/catalog";
 import { buildCategoryTree, collectIds, findNode } from "@/lib/categoryTree";
 import { Product } from "@/types/catalog";
 
@@ -21,8 +21,10 @@ export default async function ProductsPage(props: PageProps<"/products">) {
   const inStock = searchParams.inStock === "true";
   const categoryParam = typeof searchParams.category === "string" ? searchParams.category : "";
   const categoryIds = categoryParam.split(",").filter(Boolean);
+  const minPrice = typeof searchParams.minPrice === "string" ? searchParams.minPrice : "";
+  const maxPrice = typeof searchParams.maxPrice === "string" ? searchParams.maxPrice : "";
 
-  const categories = await getAllCategories();
+  const [categories, counts, priceBounds] = await Promise.all([getAllCategories(), getCategoryCounts(), getPriceRange()]);
 
   // Categories are a filter on this one page now, not a separate
   // destination — there's no dedicated /categories/[slug] page anymore. The
@@ -51,6 +53,8 @@ export default async function ProductsPage(props: PageProps<"/products">) {
   const baseQuery = new URLSearchParams({ status: "active", sort });
   if (inStock) baseQuery.set("inStock", "true");
   if (categoryParam) baseQuery.set("category", categoryParam);
+  if (minPrice) baseQuery.set("minPrice", minPrice);
+  if (maxPrice) baseQuery.set("maxPrice", maxPrice);
 
   const query = new URLSearchParams(baseQuery);
   query.set("limit", "24");
@@ -73,7 +77,7 @@ export default async function ProductsPage(props: PageProps<"/products">) {
       <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{heading}</h1>
       <p className="mt-1 text-sm text-muted-foreground">{total} product{total === 1 ? "" : "s"}</p>
 
-      <ProductListingLayout categories={categories}>
+      <ProductListingLayout categories={categories} counts={counts} priceBounds={priceBounds}>
         <SortFilterBar resultCount={total} />
         <CategoryProductGrid initialProducts={products} total={total} baseQuery={baseQuery.toString()} />
       </ProductListingLayout>

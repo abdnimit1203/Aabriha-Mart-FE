@@ -7,11 +7,26 @@ import {
   PaymentSettings,
   Promotion,
   Testimonial,
+  ThemeSettings,
   WelcomePopup,
 } from "@/types/storefront";
 
 export async function getAllCategories(): Promise<Category[]> {
   return apiFetch<Category[]>("/api/categories");
+}
+
+/** Leaf-level product counts by category id, active products only. A
+ * parent category's own total is the sum across itself + its descendants —
+ * computed by the caller (via collectIds), not duplicated here. */
+export async function getCategoryCounts(): Promise<Record<string, number>> {
+  return apiFetch<Record<string, number>>("/api/categories/counts");
+}
+
+/** The catalog's whole active-product price range — used as the price
+ * slider's outer track bounds, deliberately independent of any currently
+ * applied filter so the track itself doesn't shift around. */
+export async function getPriceRange(): Promise<{ min: number; max: number }> {
+  return apiFetch<{ min: number; max: number }>("/api/products/price-range");
 }
 
 /** Ranked by real units sold, not a fake "featured" flag — see the backend's
@@ -88,6 +103,10 @@ export async function getTestimonials(): Promise<Testimonial[]> {
 export async function getActiveTestimonials(): Promise<Testimonial[]> {
   const testimonials = await getTestimonials();
   return testimonials.filter((t) => t.isActive).sort((a, b) => a.sortOrder - b.sortOrder);
+}
+
+export async function getThemeSettings(): Promise<ThemeSettings> {
+  return apiFetch<ThemeSettings>("/api/theme-settings");
 }
 
 export async function subscribeNewsletter(email: string): Promise<void> {
