@@ -59,12 +59,12 @@ export function ImageUploadField({
   return (
     <div>
       <span className="mb-1 block text-sm font-medium">{label}</span>
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         {image ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={image} alt="" className={`${previewSize} rounded-lg border border-border object-cover`} />
+          <img src={image} alt="" className={`${previewSize} shrink-0 rounded-lg border border-border object-cover`} />
         ) : (
-          <div className={`${previewSize} flex items-center justify-center rounded-lg border border-dashed border-border text-xs text-muted-foreground`}>
+          <div className={`${previewSize} flex shrink-0 items-center justify-center rounded-lg border border-dashed border-border text-xs text-muted-foreground`}>
             None
           </div>
         )}
@@ -74,7 +74,7 @@ export function ImageUploadField({
           accept="image/*"
           onChange={handleFileChange}
           disabled={uploading}
-          className="cursor-pointer text-xs text-muted-foreground file:mr-3 file:cursor-pointer file:rounded-full file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-white hover:file:bg-primary-strong disabled:cursor-not-allowed disabled:opacity-50"
+          className="min-w-0 cursor-pointer text-xs text-muted-foreground file:mr-3 file:cursor-pointer file:rounded-full file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-white hover:file:bg-primary-strong disabled:cursor-not-allowed disabled:opacity-50"
         />
       </div>
       <div className="mt-2 flex gap-2">

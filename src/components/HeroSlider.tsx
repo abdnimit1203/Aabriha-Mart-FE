@@ -132,17 +132,17 @@ export function HeroSlider({ banners = BANNERS }: { banners?: Banner[] }) {
                 <p className="max-w-md text-sm text-white/90 drop-shadow-sm md:text-base md:text-muted-foreground md:drop-shadow-none">
                   {banner.subtitleEn}
                 </p>
-                <div className="mt-2 flex items-center gap-3">
+                <div className="mt-2 flex flex-wrap items-center gap-2 sm:gap-3">
                   <Link
                     href={banner.ctaUrl}
-                    className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-white transition-transform hover:scale-[1.03] active:scale-[0.98]"
+                    className="inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-primary px-4 py-2 text-xs font-medium text-white transition-transform hover:scale-[1.03] active:scale-[0.98] sm:px-5 sm:py-2.5 sm:text-sm"
                   >
                     {banner.ctaLabelEn}
                     <ArrowIcon direction="right" className="h-4 w-4" />
                   </Link>
                   <Link
                     href="/offers"
-                    className="inline-flex items-center rounded-full border border-white/40 bg-white/10 px-5 py-2.5 text-sm font-medium text-white backdrop-blur-sm transition-colors hover:bg-white/20 md:border-border md:bg-background md:text-foreground md:backdrop-blur-none md:hover:bg-surface"
+                    className="inline-flex items-center whitespace-nowrap rounded-full border border-white/40 bg-white/10 px-4 py-2 text-xs font-medium text-white backdrop-blur-sm transition-colors hover:bg-white/20 sm:px-5 sm:py-2.5 sm:text-sm md:border-border md:bg-background md:text-foreground md:backdrop-blur-none md:hover:bg-surface"
                   >
                     Explore Deals
                   </Link>

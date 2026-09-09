@@ -207,8 +207,8 @@ export default function AdminSettingsPage() {
   return (
     <div>
       <AdminPageHeader title="Settings" description="Admin notification delivery." />
-      <div className="flex flex-col lg:flex-row gap-3 items-baseline justify-center">
-        <div className="relative max-w-xl rounded-md border border-border bg-surface p-5 sm:p-6 drop-shadow-sm hover:drop-shadow-lg transition-all hover:border-[#26A5E4] duration-300 cursor-pointer">
+      <div className="flex flex-col lg:flex-row gap-3 items-stretch lg:items-baseline justify-center">
+        <div className="relative w-full max-w-xl rounded-md border border-border bg-surface p-5 sm:p-6 drop-shadow-sm hover:drop-shadow-lg transition-all hover:border-[#26A5E4] duration-300 cursor-pointer">
           <FaTelegram className="absolute right-5 top-5 h-6 w-6 text-[#26A5E4] sm:right-6 sm:top-6" aria-hidden />
           <h2 className="text-sm font-semibold text-foreground"><span className="text-lg text-blue-400">Telegram</span> admin alerts</h2>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -299,7 +299,7 @@ export default function AdminSettingsPage() {
           </details>
         </div>
 
-        <div className="relative  max-w-xl rounded-md border border-border bg-surface p-5 sm:p-6 drop-shadow-sm hover:drop-shadow-lg transition-all hover:border-blue-500 duration-300 cursor-pointer">
+        <div className="relative w-full max-w-xl rounded-md border border-border bg-surface p-5 sm:p-6 drop-shadow-sm hover:drop-shadow-lg transition-all hover:border-blue-500 duration-300 cursor-pointer">
           <SiMeta className="absolute right-5 top-5 h-6 w-6 text-[#0866FF] sm:right-6 sm:top-6" aria-hidden />
           <h2 className="text-lg font-semibold  text-[#1973ed]">Facebook Pixel</h2>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -348,7 +348,7 @@ export default function AdminSettingsPage() {
           )}
         </div>
 
-        <div className="relative max-w-xl rounded-md border border-border bg-surface p-5 sm:p-6 drop-shadow-sm hover:drop-shadow-lg transition-all hover:border-[#e2136e] duration-300 cursor-pointer">
+        <div className="relative w-full max-w-xl rounded-md border border-border bg-surface p-5 sm:p-6 drop-shadow-sm hover:drop-shadow-lg transition-all hover:border-[#e2136e] duration-300 cursor-pointer">
           <FaMoneyBillWave className="absolute right-5 top-5 h-6 w-6 text-[#e2136e] sm:right-6 sm:top-6" aria-hidden />
           <h2 className="text-lg font-semibold text-[#e2136e]">Payment QR Codes</h2>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -443,7 +443,7 @@ export default function AdminSettingsPage() {
           )}
         </div>
 
-        <div className="relative max-w-xl rounded-md border border-border bg-surface p-5 sm:p-6 drop-shadow-sm hover:drop-shadow-lg transition-all hover:border-primary duration-300 cursor-pointer">
+        <div className="relative w-full max-w-xl rounded-md border border-border bg-surface p-5 sm:p-6 drop-shadow-sm hover:drop-shadow-lg transition-all hover:border-primary duration-300 cursor-pointer">
           <FaPalette className="absolute right-5 top-5 h-6 w-6 text-primary-strong sm:right-6 sm:top-6" aria-hidden />
           <h2 className="text-lg font-semibold text-primary-strong">Theme Color</h2>
           <p className="mt-1 text-sm text-muted-foreground">
